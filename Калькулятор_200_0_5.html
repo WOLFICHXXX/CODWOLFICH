@@ -1,0 +1,5260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#090914">
+<title>Call of Dragons — WOLFICH СМП Калькулятор</title>
+
+<!-- Разрешённые внешние ресурсы: Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-1: #060711;
+    --bg-2: #0d0b1c;
+    --bg-3: #171025;
+    --card: rgba(17, 14, 32, .88);
+    --card-2: rgba(27, 21, 45, .9);
+    --gold: #d9a441;
+    --gold-light: #ffe09a;
+    --gold-dark: #80551c;
+    --bronze: #9b6528;
+    --purple: #5b3b91;
+    --purple-light: #9c72e0;
+    --text: #f3eee4;
+    --muted: #a9a3b5;
+    --danger: #e05252;
+    --warning: #ed9b42;
+    --success: #63c58a;
+    --border: rgba(217,164,65,.38);
+    --shadow: 0 14px 40px rgba(0,0,0,.38);
+    --radius: 14px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: Inter, system-ui, sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(104,64,159,.18), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(173,117,35,.10), transparent 25%),
+        radial-gradient(circle at 50% 90%, rgba(73,42,112,.18), transparent 32%),
+        linear-gradient(145deg, var(--bg-1), var(--bg-2) 48%, #080711);
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .13;
+    background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, black, transparent 80%);
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    width: min(1180px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 28px 0 60px;
+}
+
+/* =========================
+   ШАПКА
+========================= */
+
+.header {
+    text-align: center;
+    padding: 22px 10px 26px;
+}
+
+.title {
+    margin: 0;
+    font-family: "Cinzel Decorative", serif;
+    font-size: clamp(2.1rem, 7vw, 4.6rem);
+    font-weight: 900;
+    letter-spacing: .04em;
+    line-height: 1.05;
+    color: transparent;
+    background:
+        linear-gradient(
+            180deg,
+            #fff0b2 0%,
+            #f7cf72 27%,
+            #c98a2c 58%,
+            #7d4b16 100%
+        );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1.5px #2c1b09;
+    text-shadow:
+        0 0 5px rgba(255,205,91,.45),
+        0 0 20px rgba(206,139,40,.25),
+        0 5px 0 rgba(0,0,0,.6);
+}
+
+.subtitle {
+    margin-top: 10px;
+    color: #d9cdb8;
+    font-family: Cinzel, serif;
+    font-size: clamp(.85rem, 2.5vw, 1.15rem);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+/* =========================
+   ВКЛАДКИ
+========================= */
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    padding: 7px;
+    margin-bottom: 22px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: rgba(8,7,18,.82);
+    box-shadow: var(--shadow);
+}
+
+.tab {
+    flex: 1;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #bdb6c8;
+    background: transparent;
+    font-weight: 700;
+    transition: .2s ease;
+}
+
+.tab:hover {
+    color: var(--gold-light);
+    background: rgba(217,164,65,.07);
+}
+
+.tab.active {
+    color: #fff1c5;
+    border-color: rgba(217,164,65,.55);
+    background:
+        linear-gradient(180deg, rgba(151,101,38,.42), rgba(65,42,18,.36));
+    box-shadow:
+        inset 0 0 20px rgba(217,164,65,.08),
+        0 0 18px rgba(217,164,65,.09);
+}
+
+/* =========================
+   СЕКЦИИ / КАРТОЧКИ
+========================= */
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.card {
+    margin-bottom: 18px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background:
+        linear-gradient(145deg, rgba(30,23,48,.94), rgba(11,10,23,.94));
+    box-shadow: var(--shadow);
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 17px;
+    color: var(--gold-light);
+    font-family: Cinzel, serif;
+    font-size: 1.12rem;
+    letter-spacing: .04em;
+}
+
+.card-title small {
+    color: var(--muted);
+    font-family: Inter, sans-serif;
+    font-size: .75rem;
+    font-weight: 500;
+}
+
+.grid {
+    display: grid;
+    gap: 13px;
+}
+
+.grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* =========================
+   ПОЛЯ
+========================= */
+
+.field {
+    min-width: 0;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #bdb5c8;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+input,
+select {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 11px;
+    color: #f8f1e5;
+    background: rgba(5,5,14,.82);
+    border: 1px solid rgba(157,133,181,.28);
+    border-radius: 9px;
+    outline: none;
+    transition: .18s ease;
+}
+
+input:focus,
+select:focus {
+    border-color: rgba(217,164,65,.78);
+    box-shadow: 0 0 0 3px rgba(217,164,65,.08);
+}
+
+input.invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(224,82,82,.08);
+}
+
+input::placeholder {
+    color: #625d6b;
+}
+
+select option {
+    background: #171326;
+    color: #fff;
+}
+
+.time-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+}
+
+.time-row.four {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.time-cell {
+    position: relative;
+}
+
+.time-cell input {
+    padding-right: 30px;
+}
+
+.time-unit {
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #756e7e;
+    font-size: .7rem;
+    pointer-events: none;
+}
+
+/* =========================
+   КНОПКИ
+========================= */
+
+.btn {
+    border: 1px solid rgba(220,175,82,.55);
+    border-radius: 9px;
+    padding: 10px 14px;
+    color: #fff1c8;
+    background:
+        linear-gradient(180deg, #9e6c2b, #5e3919);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.15),
+        0 5px 16px rgba(0,0,0,.25);
+    font-weight: 700;
+    transition: .2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.16);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.2),
+        0 8px 22px rgba(218,164,65,.17);
+}
+
+.btn.secondary {
+    color: #ddd4e8;
+    border-color: rgba(157,133,181,.32);
+    background: linear-gradient(180deg, #393048, #211c2d);
+}
+
+.btn.danger {
+    color: #ffd8d8;
+    border-color: rgba(224,82,82,.42);
+    background: linear-gradient(180deg, #67313b, #351a22);
+}
+
+.btn.success {
+    color: #e5ffed;
+    border-color: rgba(99,197,138,.45);
+    background: linear-gradient(180deg, #31694b, #19382a);
+}
+
+.btn.small {
+    padding: 7px 10px;
+    font-size: .78rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+/* =========================
+   УСКОРЕНИЯ
+========================= */
+
+.speed-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.speed-box {
+    padding: 13px;
+    border: 1px solid rgba(217,164,65,.16);
+    border-radius: 11px;
+    background: rgba(0,0,0,.15);
+}
+
+.speed-box h3 {
+    margin: 0 0 9px;
+    font-size: .85rem;
+    color: #d8c7a8;
+}
+
+/* =========================
+   ВОЙСКА
+========================= */
+
+.troop-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.troop-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(#c48a32, #543472);
+}
+
+.troop-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.troop-number {
+    color: var(--gold-light);
+    font-family: Cinzel, serif;
+    font-weight: 700;
+}
+
+.troop-name-input {
+    max-width: 480px;
+}
+
+.resource-grid {
+    margin-top: 14px;
+}
+
+.troop-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.troop-result {
+    margin-top: 16px;
+    padding: 13px;
+    border: 1px solid rgba(217,164,65,.18);
+    border-radius: 10px;
+    background: rgba(0,0,0,.16);
+}
+
+.result-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 5px 0;
+    font-size: .86rem;
+}
+
+.result-line span:first-child {
+    color: #aaa2b3;
+}
+
+.result-line strong {
+    color: #f1dca8;
+    text-align: right;
+}
+
+/* =========================
+   ИТОГОВЫЕ ПОКАЗАТЕЛИ
+========================= */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.summary-box {
+    padding: 17px;
+    border: 1px solid rgba(217,164,65,.22);
+    border-radius: 11px;
+    background:
+        radial-gradient(circle at top right, rgba(145,92,205,.1), transparent 40%),
+        rgba(4,4,13,.4);
+}
+
+.summary-label {
+    color: #9e97aa;
+    font-size: .77rem;
+}
+
+.summary-value {
+    margin-top: 6px;
+    color: #ffe3a0;
+    font-family: Cinzel, serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.resource-results {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.resource-result {
+    padding: 13px 10px;
+    text-align: center;
+    border: 1px solid rgba(217,164,65,.17);
+    border-radius: 10px;
+    background: rgba(0,0,0,.15);
+}
+
+.resource-result .label {
+    display: block;
+    color: #9992a6;
+    font-size: .72rem;
+}
+
+.resource-result .value {
+    display: block;
+    margin-top: 4px;
+    color: #f3d99e;
+    font-weight: 700;
+}
+
+/* =========================
+   ПРЕДУПРЕЖДЕНИЯ
+========================= */
+
+.notice {
+    margin-top: 15px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(237,155,66,.45);
+    color: #ffd89a;
+    background: rgba(120,67,17,.18);
+}
+
+.notice.danger {
+    color: #ffd0d0;
+    border-color: rgba(224,82,82,.55);
+    background: rgba(120,28,36,.18);
+}
+
+.notice.success {
+    color: #d5ffe3;
+    border-color: rgba(99,197,138,.4);
+    background: rgba(27,101,58,.14);
+}
+
+/* =========================
+   ТАБЛИЦЫ
+========================= */
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 560px;
+}
+
+th,
+td {
+    padding: 10px 9px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+th {
+    color: #d9b76f;
+    font-family: Cinzel, serif;
+    font-size: .75rem;
+}
+
+td {
+    color: #d7d0dc;
+    font-size: .82rem;
+}
+
+/* =========================
+   ИНФО
+========================= */
+
+.info-list {
+    margin: 0;
+    padding-left: 20px;
+    color: #bcb5c4;
+    line-height: 1.8;
+}
+
+.info-list strong {
+    color: #f0d493;
+}
+
+/* =========================
+   ТЁМНЫЕ
+========================= */
+
+.dark-value {
+    margin-top: 15px;
+    padding: 18px;
+    border: 1px solid rgba(217,164,65,.25);
+    border-radius: 11px;
+    text-align: center;
+    background: rgba(0,0,0,.16);
+}
+
+.dark-value .big {
+    display: block;
+    margin-top: 7px;
+    color: #ffdc91;
+    font-family: Cinzel, serif;
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 700;
+}
+
+.underlined {
+    display: inline-block;
+    margin: 16px 0 5px;
+    color: #ffe09a;
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: #b77b29;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+/* =========================
+   MODAL / OCR
+========================= */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(7px);
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-box {
+    width: min(920px, 100%);
+    max-height: min(92vh, 900px);
+    overflow-y: auto;
+    padding: 20px;
+    border: 1px solid rgba(217,164,65,.5);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at top right, rgba(111,67,161,.17), transparent 35%),
+        #110e1d;
+    box-shadow: 0 30px 80px rgba(0,0,0,.65);
+}
+
+.modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.modal-head h2 {
+    margin: 0;
+    color: #ffe09a;
+    font-family: Cinzel, serif;
+    font-size: 1.15rem;
+}
+
+.close-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 50%;
+    color: #ddd;
+    background: rgba(255,255,255,.05);
+    font-size: 1.3rem;
+}
+
+.drop-zone {
+    padding: 22px;
+    text-align: center;
+    border: 1px dashed rgba(217,164,65,.5);
+    border-radius: 12px;
+    background: rgba(217,164,65,.035);
+    transition: .2s;
+}
+
+.drop-zone.drag {
+    border-color: #ffe09a;
+    background: rgba(217,164,65,.1);
+}
+
+.drop-zone p {
+    margin: 5px 0;
+    color: #aaa3b2;
+    font-size: .8rem;
+}
+
+.ocr-progress {
+    display: none;
+    margin-top: 15px;
+}
+
+.progress-bar {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: rgba(255,255,255,.08);
+}
+
+.progress-inner {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #7750aa, #d9a441);
+    transition: width .2s;
+}
+
+.progress-text {
+    margin-top: 7px;
+    color: #aaa3b2;
+    font-size: .75rem;
+}
+
+.ocr-preview {
+    display: grid;
+    grid-template-columns: minmax(180px, .8fr) minmax(300px, 1.2fr);
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.preview-image-wrap {
+    min-height: 180px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,.22);
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 7px;
+}
+
+.ocr-fields {
+    display: grid;
+    gap: 10px;
+}
+
+.ocr-fields .missing input {
+    border-color: var(--warning);
+    box-shadow: 0 0 0 3px rgba(237,155,66,.07);
+}
+
+.ocr-note {
+    margin-top: 14px;
+    color: #918a9d;
+    font-size: .74rem;
+    line-height: 1.5;
+}
+
+.ocr-crop-note {
+    margin-bottom: 14px;
+    padding: 11px 13px;
+    border: 1px solid rgba(237,155,66,.45);
+    border-radius: 10px;
+    color: #ffd89a;
+    background: rgba(120,67,17,.18);
+    font-size: .8rem;
+    line-height: 1.5;
+}
+
+.ocr-crop-note strong {
+    color: #ffe3ad;
+}
+
+.ocr-error {
+    display: none;
+    margin-top: 13px;
+    padding: 11px;
+    border: 1px solid rgba(224,82,82,.4);
+    border-radius: 9px;
+    color: #ffc8c8;
+    background: rgba(224,82,82,.08);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 18px;
+}
+
+.ocr-choice {
+    padding: 11px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 9px;
+    background: rgba(0,0,0,.14);
+}
+
+.ocr-choice + .ocr-choice {
+    margin-top: 8px;
+}
+
+.ocr-choice-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.empty-state {
+    padding: 20px;
+    text-align: center;
+    color: #8d8798;
+}
+
+.boost-ocr-row {
+    padding: 12px;
+    border: 1px solid rgba(217,164,65,.18);
+    border-radius: 10px;
+    background: rgba(0,0,0,.14);
+}
+
+.boost-ocr-row + .boost-ocr-row {
+    margin-top: 9px;
+}
+
+.boost-ocr-top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.boost-ocr-top input[type="checkbox"] {
+    width: 18px;
+    min-height: 18px;
+    accent-color: var(--gold);
+}
+
+.boost-ocr-raw {
+    color: #e7d7b2;
+    font-weight: 700;
+}
+
+.boost-ocr-category {
+    color: #a9a3b5;
+    font-size: .73rem;
+}
+
+.ocr-replace-preview {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid rgba(217,164,65,.28);
+    border-radius: 10px;
+    background: rgba(217,164,65,.045);
+}
+
+.ocr-replace-preview strong {
+    color: #ffe09a;
+}
+
+.ocr-replace-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    color: #c9c1cf;
+    font-size: .82rem;
+}
+
+.ocr-replace-line span:last-child {
+    color: #f0d493;
+    text-align: right;
+}
+
+.ocr-selection-hint {
+    margin-bottom: 10px;
+    color: #aaa3b2;
+    font-size: .75rem;
+    line-height: 1.45;
+}
+
+/* =========================
+   АДАПТИВ
+========================= */
+
+@media (max-width: 800px) {
+    .speed-card,
+    .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .speed-card {
+        align-items: stretch;
+    }
+
+    .speed-card > .actions {
+        grid-column: 1 / -1;
+    }
+
+    .ocr-preview {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .app {
+        width: min(100% - 16px, 1180px);
+        padding-top: 10px;
+    }
+
+    .header {
+        padding-top: 15px;
+    }
+
+    .tabs {
+        position: sticky;
+        top: 7px;
+        z-index: 20;
+    }
+
+    .tab {
+        padding: 10px 6px;
+        font-size: .75rem;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4,
+    .summary-grid,
+    .resource-results {
+        grid-template-columns: 1fr;
+    }
+
+    .speed-card {
+        grid-template-columns: 1fr;
+    }
+
+    .speed-card > .actions {
+        grid-column: auto;
+    }
+
+    .time-row {
+        gap: 5px;
+    }
+
+    .troop-head {
+        align-items: flex-start;
+    }
+
+    .troop-name-input {
+        max-width: none;
+    }
+
+    .result-line {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .result-line strong {
+        text-align: left;
+    }
+
+    .modal {
+        padding: 7px;
+    }
+
+    .modal-box {
+        padding: 14px;
+        max-height: 96vh;
+    }
+
+    .ocr-choice-head {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================
+   iPhone / touch: правки
+========================= */
+button, .tab, .btn, .close-btn, select, label {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(217,164,65,.25);
+}
+button { -webkit-appearance: none; appearance: none; }
+.visually-hidden-input {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    opacity: 0; overflow: hidden;
+    pointer-events: none;
+}
+@media (max-width: 800px) {
+    /* iOS Safari увеличивает страницу при фокусе на поле со шрифтом < 16px */
+    input, select, textarea { font-size: 16px !important; }
+}
+@supports (height: 100dvh) {
+    .modal-box { max-height: min(92dvh, 900px); }
+}
+#jsBanner {
+    display: block;
+    margin: 0; padding: 12px 16px;
+    background: #7a1f1f; color: #fff;
+    font: 600 14px/1.4 -apple-system, Arial, sans-serif;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+<div id="jsBanner">⚠ Скрипты не запущены, поэтому кнопки не работают. Откройте файл в Safari
+(Поделиться → «Открыть в Safari» / сохранить в «Файлы» и открыть через Safari), а не во встроенном
+просмотре файлов или мессенджера.</div>
+<noscript><div style="background:#7a1f1f;color:#fff;padding:12px;text-align:center">Включите JavaScript в настройках браузера.</div></noscript>
+
+
+<div class="app">
+
+    <header class="header">
+        <h1 class="title">Call of Dragons</h1>
+        <div class="subtitle">WOLFICH СМП Калькулятор</div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab active" data-tab="training">Обучение войск</button>
+        <button class="tab" data-tab="dark">Тёмные</button>
+        <button class="tab" data-tab="total">Итого</button>
+    </nav>
+
+    <!-- =========================================================
+         ВКЛАДКА 1
+    ========================================================== -->
+
+    <section id="tab-training" class="tab-content active">
+
+        <div class="card">
+            <div class="card-title">
+                <span>Ускорения</span>
+                <small>Все значения автоматически участвуют в расчёте</small>
+            </div>
+
+            <div class="speed-card">
+
+                <div class="speed-box">
+                    <h3>Ускорения для тренировки</h3>
+
+                    <div class="time-row">
+                        <div class="time-cell">
+                            <input id="trainingBoostDays" type="number" min="0" step="1" placeholder="0">
+                            <span class="time-unit">д.</span>
+                        </div>
+                        <div class="time-cell">
+                            <input id="trainingBoostHours" type="number" min="0" step="1" placeholder="0">
+                            <span class="time-unit">ч.</span>
+                        </div>
+                        <div class="time-cell">
+                            <input id="trainingBoostMinutes" type="number" min="0" step="1" placeholder="0">
+                            <span class="time-unit">м.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="speed-box">
+                    <h3>Общие ускорения</h3>
+
+                    <div class="time-row">
+                        <div class="time-cell">
+                            <input id="generalBoostDays" type="number" min="0" step="1" placeholder="0">
+                            <span class="time-unit">д.</span>
+                        </div>
+                        <div class="time-cell">
+                            <input id="generalBoostHours" type="number" min="0" step="1" placeholder="0">
+                            <span class="time-unit">ч.</span>
+                        </div>
+                        <div class="time-cell">
+                            <input id="generalBoostMinutes" type="number" min="0" step="1" placeholder="0">
+                            <span class="time-unit">м.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" id="importBoostsBtn">
+                        Загрузить скриншот ускорений
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="result-line" style="margin-top:15px;">
+                <span>Всего доступно ускорений:</span>
+                <strong id="availableBoosts">0 д. 0 ч. 0 м.</strong>
+            </div>
+
+            <div class="result-line">
+                <span>Ускорений будет потрачено:</span>
+                <strong id="spentBoosts">0 д. 0 ч. 0 м.</strong>
+            </div>
+
+            <div id="boostWarning"></div>
+        </div>
+
+        <div id="troopsContainer"></div>
+
+        <div class="actions" style="margin-bottom:18px;">
+            <button class="btn" id="addTroopBtn">＋ Добавить вид войск</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Общий расчёт обучения</span>
+            </div>
+
+            <div class="summary-grid">
+
+                <div class="summary-box">
+                    <div class="summary-label">Общее необходимое время тренировки</div>
+                    <div class="summary-value" id="totalTrainingTime">
+                        0 д. 0 ч. 0 м.
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-label">Общее количество очков</div>
+                    <div class="summary-value" id="totalTrainingPoints">
+                        0
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="resource-results">
+                <div class="resource-result">
+                    <span class="label">Золото</span>
+                    <span class="value" id="totalGold">0</span>
+                </div>
+
+                <div class="resource-result">
+                    <span class="label">Дерево</span>
+                    <span class="value" id="totalWood">0</span>
+                </div>
+
+                <div class="resource-result">
+                    <span class="label">Руда</span>
+                    <span class="value" id="totalOre">0</span>
+                </div>
+
+                <div class="resource-result">
+                    <span class="label">Мана</span>
+                    <span class="value" id="totalMana">0</span>
+                </div>
+            </div>
+
+            <div id="trainingWarning"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Очки за 1 единицу войск</span>
+            </div>
+
+            <ul class="info-list">
+                <li><strong>T1:</strong> 5 очков</li>
+                <li><strong>T2:</strong> 10 очков</li>
+                <li><strong>T3:</strong> 20 очков</li>
+                <li><strong>T4:</strong> 40 очков</li>
+                <li><strong>T5:</strong> 100 очков</li>
+            </ul>
+        </div>
+
+    </section>
+
+    <!-- =========================================================
+         ВКЛАДКА 2
+    ========================================================== -->
+
+    <section id="tab-dark" class="tab-content">
+
+        <div class="card">
+            <div class="card-title">
+                <span>Тёмные</span>
+                <small>Расчёт ОУ</small>
+            </div>
+
+            <div class="grid grid-2">
+
+                <div class="field">
+                    <label>Количество мешков ОУ на 500 единиц</label>
+                    <input id="darkBags500" type="number" min="0" step="1" placeholder="0">
+                </div>
+
+                <div class="field">
+                    <label>Количество мешков ОУ на 100 единиц</label>
+                    <input id="darkBags100" type="number" min="0" step="1" placeholder="0">
+                </div>
+
+                <div class="field">
+                    <label>Тёмные 21+</label>
+                    <select id="darkPoints">
+                        <option value="3000">3000</option>
+                        <option value="4000">4000</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="underlined">
+                Значение на 1 темного 50ед. ОУ
+            </div>
+
+            <div id="kvkWarning" style="display:none;" class="notice">
+                Если вы участвуете в KvK установите значение 3000
+            </div>
+
+            <div class="dark-value">
+                <div class="summary-label">Общее количество единиц ОУ</div>
+                <span class="big" id="darkTotalOU">0</span>
+            </div>
+
+            <div class="summary-grid" style="margin-top:13px;">
+
+                <div class="summary-box">
+                    <div class="summary-label">Количество тёмных, которых можно убить</div>
+                    <div class="summary-value" id="darkCount">0</div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-label">Затраченное количество ОУ</div>
+                    <div class="summary-value" id="darkSpentOU">0</div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-label">Очки за всех тёмных</div>
+                    <div class="summary-value" id="darkTotalPoints">0</div>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+    <!-- =========================================================
+         ВКЛАДКА 3
+    ========================================================== -->
+
+    <section id="tab-total" class="tab-content">
+
+        <div class="card">
+            <div class="card-title">
+                <span>Итоговый результат</span>
+            </div>
+
+            <div class="summary-grid">
+
+                <div class="summary-box">
+                    <div class="summary-label">Всего будет потрачено ускорений</div>
+                    <div class="summary-value" id="finalSpentBoosts">
+                        0 д. 0 ч. 0 м.
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-label">Всего затрачено единиц ОУ</div>
+                    <div class="summary-value" id="finalSpentOU">0</div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-label">Всего очков</div>
+                    <div class="summary-value" id="finalPoints">0</div>
+                </div>
+
+            </div>
+
+            <div class="resource-results">
+                <div class="resource-result">
+                    <span class="label">Золото</span>
+                    <span class="value" id="finalGold">0</span>
+                </div>
+
+                <div class="resource-result">
+                    <span class="label">Дерево</span>
+                    <span class="value" id="finalWood">0</span>
+                </div>
+
+                <div class="resource-result">
+                    <span class="label">Руда</span>
+                    <span class="value" id="finalOre">0</span>
+                </div>
+
+                <div class="resource-result">
+                    <span class="label">Мана</span>
+                    <span class="value" id="finalMana">0</span>
+                </div>
+            </div>
+
+            <div id="finalWarning"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Вклад каждого вида войск</span>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Вид войск</th>
+                        <th>Количество</th>
+                        <th>Время</th>
+                        <th>Очки</th>
+                    </tr>
+                    </thead>
+                    <tbody id="finalTroopsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =========================================================
+     OCR MODAL
+========================================================== -->
+
+<div class="modal" id="ocrModal">
+    <div class="modal-box">
+
+        <div class="modal-head">
+            <h2 id="ocrModalTitle">Импорт скриншота</h2>
+            <button class="close-btn" id="ocrCloseBtn" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="drop-zone" id="dropZone">
+            <button class="btn" id="chooseImageBtn">
+                Выбрать изображение
+            </button>
+
+            <p>Можно также перетащить изображение сюда</p>
+            <p>или вставить его из буфера обмена через Ctrl+V</p>
+
+            <input
+                id="imageFileInput"
+                type="file"
+                accept="image/*"
+                class="visually-hidden-input"
+                tabindex="-1"
+            >
+        </div>
+
+        <div class="ocr-progress" id="ocrProgress">
+            <div class="progress-bar">
+                <div class="progress-inner" id="ocrProgressInner"></div>
+            </div>
+            <div class="progress-text" id="ocrProgressText">
+                Подготовка OCR...
+            </div>
+        </div>
+
+        <div class="ocr-error" id="ocrError"></div>
+
+        <div class="ocr-preview" id="ocrPreview" style="display:none;">
+
+            <div class="preview-image-wrap">
+                <img class="preview-image" id="previewImage" alt="Предпросмотр">
+            </div>
+
+            <div id="ocrFields" class="ocr-fields"></div>
+
+        </div>
+
+        <div class="ocr-note">
+            Изображение обрабатывается только в браузере пользователя и никуда
+            не отправляется. Распознавание выполняется автоматически и может
+            содержать ошибки — обязательно проверьте значения перед применением.
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn secondary" id="ocrCancelBtn">Отмена</button>
+            <button class="btn success" id="ocrApplyBtn" style="display:none;">
+                Применить
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+"use strict";
+
+/* Скрипт запущен — прячем предупреждение; показываем его при ошибках. */
+(function () {
+    const banner = document.getElementById("jsBanner");
+    if (banner) banner.style.display = "none";
+
+    window.addEventListener("error", event => {
+        const b = document.getElementById("jsBanner");
+        if (!b) return;
+        b.style.display = "block";
+        b.textContent = "Ошибка скрипта: " + (event.message || "неизвестная ошибка") +
+            (event.lineno ? " (строка " + event.lineno + ")" : "");
+    });
+})();
+
+/* ============================================================
+   СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+============================================================ */
+
+const state = {
+    troops: [],
+    nextTroopId: 1,
+    importMode: null,
+    importTroopId: null,
+    ocrData: null
+};
+
+
+/* ============================================================
+   УТИЛИТЫ ЧИСЕЛ
+============================================================ */
+
+/**
+ * Безопасное получение неотрицательного числа.
+ * Пустое поле считается нулём.
+ */
+function num(value) {
+    const n = Number(value);
+
+    if (!Number.isFinite(n) || n < 0) {
+        return 0;
+    }
+
+    return n;
+}
+
+/**
+ * Форматирование чисел с разделителями тысяч.
+ */
+function formatNumber(value) {
+    const n = Number(value) || 0;
+
+    return Math.round(n).toLocaleString("ru-RU");
+}
+
+/**
+ * Форматирование дробных значений без лишних нулей.
+ */
+function formatDecimal(value) {
+    const n = Number(value) || 0;
+
+    return n.toLocaleString("ru-RU", {
+        maximumFractionDigits: 2
+    });
+}
+
+
+/* ============================================================
+   ВРЕМЯ
+============================================================ */
+
+/**
+ * Перевод д./ч./м. в секунды.
+ *
+ * Внутри калькулятора время тренировки хранится в секундах,
+ * поэтому секунды от тренировок не теряются.
+ */
+function timeToSeconds(days, hours, minutes, seconds = 0) {
+    return (
+        num(days) * 86400 +
+        num(hours) * 3600 +
+        num(minutes) * 60 +
+        num(seconds)
+    );
+}
+
+/**
+ * Перевод минут ускорений в секунды.
+ */
+function timeToMinutes(days, hours, minutes) {
+    return (
+        num(days) * 1440 +
+        num(hours) * 60 +
+        num(minutes)
+    );
+}
+
+/**
+ * Разложение секунд на д./ч./м./с.
+ */
+function secondsToParts(totalSeconds) {
+    let seconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+
+    const days = Math.floor(seconds / 86400);
+    seconds %= 86400;
+
+    const hours = Math.floor(seconds / 3600);
+    seconds %= 3600;
+
+    const minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+
+    return {
+        days,
+        hours,
+        minutes,
+        seconds
+    };
+}
+
+/**
+ * Вывод времени.
+ *
+ * Основной формат:
+ * X д. Y ч. Z м.
+ *
+ * Если есть остаточные секунды, показываем их дополнительно,
+ * чтобы результат не терял точность.
+ */
+function formatTime(totalSeconds, showSeconds = true) {
+    const p = secondsToParts(totalSeconds);
+
+    let result = `${p.days} д. ${p.hours} ч. ${p.minutes} м.`;
+
+    if (showSeconds && p.seconds > 0) {
+        result += ` ${p.seconds} с.`;
+    }
+
+    return result;
+}
+
+/**
+ * Вывод времени ускорений, которые имеют точность до минуты.
+ */
+function formatMinutes(totalMinutes) {
+    return formatTime(Math.max(0, Math.floor(totalMinutes)) * 60, false);
+}
+
+
+/* ============================================================
+   ПАРСИНГ ВРЕМЕНИ OCR
+============================================================ */
+
+/**
+ * Распознаёт:
+ *
+ * 00:00:05
+ * 1:02:03
+ * 1д 02:03:04
+ * 5с
+ * 2м 30с
+ * 12д 05ч 30м
+ * 05:30:00
+ */
+function parseTimeString(text) {
+    if (!text) return null;
+
+    let s = String(text)
+        .toLowerCase()
+        .replace(/,/g, ".")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    // Нормализация типичных OCR-ошибок.
+    s = s
+        .replace(/[oо]/g, "0")
+        .replace(/[lіi]/g, "1")
+        .replace(/чa?c/g, "ч");
+
+    let days = 0;
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+    let found = false;
+
+    const dayMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:д|дн|день|дней)\b/i);
+    const hourMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:ч|час|часа|часов)\b/i);
+    const minuteMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:м|мин|минут|минуты)\b/i);
+    const secondMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:с|сек|секунд|секунды)\b/i);
+
+    if (dayMatch) {
+        days = parseFloat(dayMatch[1].replace(",", "."));
+        found = true;
+    }
+
+    if (hourMatch) {
+        hours = parseFloat(hourMatch[1].replace(",", "."));
+        found = true;
+    }
+
+    if (minuteMatch) {
+        minutes = parseFloat(minuteMatch[1].replace(",", "."));
+        found = true;
+    }
+
+    if (secondMatch) {
+        seconds = parseFloat(secondMatch[1].replace(",", "."));
+        found = true;
+    }
+
+    // Формат с двоеточиями.
+    const colon = s.match(/(\d+):(\d{1,2})(?::(\d{1,2}))?/);
+
+    if (colon) {
+        const a = Number(colon[1]);
+        const b = Number(colon[2]);
+        const c = colon[3] !== undefined ? Number(colon[3]) : null;
+
+        if (c !== null) {
+            // HH:MM:SS.
+            // Если перед ним явно есть дни — часы остаются часами.
+            hours += a;
+            minutes += b;
+            seconds += c;
+        } else {
+            // MM:SS.
+            minutes += a;
+            seconds += b;
+        }
+
+        found = true;
+    }
+
+    if (!found) {
+        return null;
+    }
+
+    return timeToSeconds(days, hours, minutes, seconds);
+}
+
+/**
+ * Извлечение нескольких кандидатов времени из OCR-текста.
+ */
+function extractTimes(text) {
+    if (!text) return [];
+
+    const result = [];
+
+    // Времена с единицами.
+    const unitRegex =
+        /(?:\d+\s*(?:д|дн|день|дней))?(?:\s*\d+\s*(?:ч|час|часа|часов))?(?:\s*\d+\s*(?:м|мин|минут|минуты))?(?:\s*\d+\s*(?:с|сек|секунд|секунды))?/gi;
+
+    const unitMatches = text.match(unitRegex) || [];
+
+    for (const item of unitMatches) {
+        if (!/\d/.test(item)) continue;
+
+        const value = parseTimeString(item);
+
+        if (value !== null && value > 0) {
+            result.push({
+                text: item.trim(),
+                seconds: value
+            });
+        }
+    }
+
+    // Времена с двоеточиями.
+    const colonRegex = /\b\d{1,4}:\d{1,2}(?::\d{1,2})?\b/g;
+    const colonMatches = text.match(colonRegex) || [];
+
+    for (const item of colonMatches) {
+        const value = parseTimeString(item);
+
+        if (value !== null && value > 0) {
+            result.push({
+                text: item,
+                seconds: value
+            });
+        }
+    }
+
+    // Удаление дублей.
+    const unique = [];
+    const seen = new Set();
+
+    for (const item of result) {
+        if (!seen.has(item.seconds)) {
+            seen.add(item.seconds);
+            unique.push(item);
+        }
+    }
+
+    return unique;
+}
+
+
+/* ============================================================
+   OCR — ЛЕНИВАЯ ЗАГРУЗКА TESSERACT.JS
+============================================================ */
+
+let tesseractPromise = null;
+let tesseractWorker = null;
+let ocrProgressLocked = false;
+
+/**
+ * Tesseract загружается только после первого запуска OCR.
+ */
+function loadTesseract() {
+    if (window.Tesseract) {
+        return Promise.resolve(window.Tesseract);
+    }
+
+    if (tesseractPromise) {
+        return tesseractPromise;
+    }
+
+    tesseractPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+
+        script.src =
+            "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+
+        script.onload = () => {
+            if (window.Tesseract) {
+                resolve(window.Tesseract);
+            } else {
+                reject(new Error("Tesseract.js не найден."));
+            }
+        };
+
+        script.onerror = () => {
+            reject(new Error(
+                "Не удалось загрузить Tesseract.js. Проверьте подключение к интернету."
+            ));
+        };
+
+        document.head.appendChild(script);
+    });
+
+    return tesseractPromise;
+}
+
+/**
+ * Создание OCR worker.
+ */
+async function getOcrWorker() {
+    const Tesseract = await loadTesseract();
+
+    if (tesseractWorker) {
+        return tesseractWorker;
+    }
+
+    tesseractWorker = await Tesseract.createWorker("rus+eng", 1, {
+        logger: message => {
+            if (ocrProgressLocked) return;
+
+            if (message.status) {
+                setOcrProgress(
+                    Math.round((message.progress || 0) * 100),
+                    message.status
+                );
+            }
+        }
+    });
+
+    return tesseractWorker;
+}
+
+
+/* ============================================================
+   ПОДГОТОВКА ИЗОБРАЖЕНИЯ ДЛЯ OCR
+============================================================ */
+
+function preprocessImage(file) {
+    return new Promise((resolve, reject) => {
+
+        const img = new Image();
+
+        img.onload = () => {
+            try {
+                const maxWidth = 2400;
+                const scale = Math.min(
+                    3,
+                    maxWidth / Math.max(img.width, 1)
+                );
+
+                const width = Math.max(1, Math.round(img.width * scale));
+                const height = Math.max(1, Math.round(img.height * scale));
+
+                const canvas = document.createElement("canvas");
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d", {
+                    willReadFrequently: true
+                });
+
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const imageData = ctx.getImageData(
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+                const data = imageData.data;
+
+                // Серый + повышение контраста.
+                const contrast = 1.35;
+                const factor = (259 * (contrast + 255)) /
+                               (255 * (259 - contrast));
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const gray =
+                        0.299 * data[i] +
+                        0.587 * data[i + 1] +
+                        0.114 * data[i + 2];
+
+                    const adjusted =
+                        factor * (gray - 128) + 128;
+
+                    const value =
+                        Math.max(0, Math.min(255, adjusted));
+
+                    data[i] = value;
+                    data[i + 1] = value;
+                    data[i + 2] = value;
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        reject(new Error("Не удалось обработать изображение."));
+                        return;
+                    }
+
+                    resolve(blob);
+                }, "image/png");
+
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        img.onerror = () => {
+            reject(new Error("Не удалось открыть изображение."));
+        };
+
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+
+/* ============================================================
+   ТОЧНОЕ РАСПОЗНАВАНИЕ УСКОРЕНИЙ
+============================================================ */
+
+function normalizeOcrBoostText(value) {
+    return String(value || "")
+        .replace(/[\u00A0\u202F]/g, " ")
+        .replace(/[|]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function parseExactBoostDuration(value) {
+    const text = normalizeOcrBoostText(value)
+        .replace(/\bдн\.?\b/gi, "д")
+        .replace(/\bминут(?:а|ы)?\b/gi, "мин")
+        .replace(/\bчас(?:а|ов)?\b/gi, "ч");
+
+    // ВАЖНО: для ускорений принимаем только формат:
+    // XX д. XX ч XX мин.
+    // Точка после "ч" НЕ требуется.
+    const match = text.match(
+        /(?:^|\s)(\d+)\s*д\s*\.?\s*(\d+)\s*ч\s*(\d+)\s*мин\s*\.?(?=\s|$)/i
+    );
+
+    if (!match) return null;
+
+    const days = Number(match[1]);
+    const hours = Number(match[2]);
+    const minutes = Number(match[3]);
+
+    if (!Number.isInteger(days) || days < 0) return null;
+    if (!Number.isInteger(hours) || hours < 0 || hours > 23) return null;
+    if (!Number.isInteger(minutes) || minutes < 0 || minutes > 59) return null;
+
+    return {
+        days,
+        hours,
+        minutes,
+        totalMinutes: days * 1440 + hours * 60 + minutes,
+        raw: match[0].trim()
+    };
+}
+
+function boostCategoryFromText(value) {
+    const text = normalizeOcrBoostText(value).toLowerCase();
+
+    if (/ускорение\s+тренировки/.test(text)) {
+        return "training";
+    }
+
+    if (/общее\s+ускорение/.test(text)) {
+        return "general";
+    }
+
+    return null;
+}
+
+function getOcrLines(text, ocrLines) {
+    if (Array.isArray(ocrLines) && ocrLines.length) {
+        return ocrLines
+            .map(line => typeof line === "string" ? line : line?.text || "")
+            .map(normalizeOcrBoostText)
+            .filter(Boolean);
+    }
+
+    return String(text || "")
+        .split(/\r?\n/)
+        .map(normalizeOcrBoostText)
+        .filter(Boolean);
+}
+
+function findBoostDurationMatches(line) {
+    const text = normalizeOcrBoostText(line);
+    const regex = /(\d+)\s*д\s*\.?\s*(\d+)\s*ч\s*(\d+)\s*мин\s*\.?/gi;
+    const matches = [];
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+        const parsed = parseExactBoostDuration(match[0]);
+        if (!parsed) continue;
+
+        matches.push({
+            ...parsed,
+            index: match.index,
+            end: regex.lastIndex,
+            raw: match[0].trim()
+        });
+    }
+
+    return matches;
+}
+
+function detectBoostCategoryNear(lines, lineIndex, matchIndex) {
+    const current = lines[lineIndex] || "";
+    const direct = boostCategoryFromText(current);
+    if (direct) return direct;
+
+    // Сначала ищем подпись рядом с конкретным временем.
+    // Это надёжнее, чем искать отдельные слова "общее" или "тренировки".
+    const candidates = [];
+
+    for (let distance = 1; distance <= 3; distance++) {
+        const beforeIndex = lineIndex - distance;
+        const afterIndex = lineIndex + distance;
+
+        if (beforeIndex >= 0) {
+            candidates.push({
+                line: lines[beforeIndex],
+                distance,
+                direction: -1
+            });
+        }
+
+        if (afterIndex < lines.length) {
+            candidates.push({
+                line: lines[afterIndex],
+                distance,
+                direction: 1
+            });
+        }
+    }
+
+    // Если в текущей строке есть несколько фрагментов, попробуем
+    // определить категорию по ближайшей подписи слева/справа.
+    const before = current.slice(0, matchIndex || 0);
+    const after = current.slice((matchIndex || 0));
+    const beforeCategory = boostCategoryFromText(before);
+    const afterCategory = boostCategoryFromText(after);
+    if (beforeCategory) return beforeCategory;
+    if (afterCategory) return afterCategory;
+
+    candidates.sort((a, b) => a.distance - b.distance);
+
+    for (const candidate of candidates) {
+        const category = boostCategoryFromText(candidate.line);
+        if (category) return category;
+    }
+
+    return null;
+}
+
+function parseBoostOcr(text, ocrLines = null) {
+    const lines = getOcrLines(text, ocrLines);
+    const times = [];
+
+    lines.forEach((line, lineIndex) => {
+        if (/строител|исследов/i.test(line)) return;
+
+        const matches = findBoostDurationMatches(line);
+
+        matches.forEach((match, localIndex) => {
+            const category = detectBoostCategoryNear(
+                lines,
+                lineIndex,
+                match.index
+            );
+
+            times.push({
+                id: `boost-${lineIndex}-${localIndex}-${times.length}`,
+                text: match.raw,
+                days: match.days,
+                hours: match.hours,
+                minutes: match.minutes,
+                totalMinutes: match.totalMinutes,
+                category: category || "training",
+                categoryDetected: Boolean(category),
+                lineIndex
+            });
+        });
+    });
+
+    // Удаляем только полные дубли, не удаляя одинаковые значения,
+    // если они находятся в разных строках скриншота.
+    const unique = [];
+    const seen = new Set();
+
+    for (const item of times) {
+        const key = `${item.lineIndex}|${item.days}|${item.hours}|${item.minutes}`;
+        if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(item);
+        }
+    }
+
+    return unique;
+}
+
+function boostCategoryName(category) {
+    return category === "general"
+        ? "Общие ускорения"
+        : "Ускорения для тренировки";
+}
+
+function getCurrentBoostMinutes(category) {
+    const prefix = category === "general"
+        ? "generalBoost"
+        : "trainingBoost";
+
+    return timeToMinutes(
+        num(document.getElementById(prefix + "Days")?.value),
+        num(document.getElementById(prefix + "Hours")?.value),
+        num(document.getElementById(prefix + "Minutes")?.value)
+    );
+}
+
+function getSelectedBoostRows() {
+    if (!state.ocrData?.times?.length) return [];
+
+    const rows = document.querySelectorAll(".boost-ocr-row");
+    const selected = [];
+
+    rows.forEach(row => {
+        const checkbox = row.querySelector(".boost-ocr-select");
+        if (!checkbox?.checked) return;
+
+        const index = Number(row.dataset.index);
+        const days = Number(row.querySelector(".boost-ocr-days")?.value);
+        const hours = Number(row.querySelector(".boost-ocr-hours")?.value);
+        const minutes = Number(row.querySelector(".boost-ocr-minutes")?.value);
+        const destination = row.querySelector(".boost-ocr-destination")?.value || "training";
+
+        selected.push({ index, days, hours, minutes, destination });
+    });
+
+    return selected;
+}
+
+function isValidBoostParts(days, hours, minutes) {
+    return Number.isInteger(days) && days >= 0 &&
+           Number.isInteger(hours) && hours >= 0 && hours <= 23 &&
+           Number.isInteger(minutes) && minutes >= 0 && minutes <= 59;
+}
+
+function updateBoostApplyPreview() {
+    if (!state.ocrData || state.ocrData.type !== "boost") return;
+
+    const preview = document.getElementById("boostReplacePreview");
+    if (!preview) return;
+
+    const selected = getSelectedBoostRows();
+    const totals = { training: 0, general: 0 };
+    let invalid = false;
+
+    selected.forEach(item => {
+        if (!isValidBoostParts(item.days, item.hours, item.minutes)) {
+            invalid = true;
+            return;
+        }
+        totals[item.destination] += timeToMinutes(
+            item.days,
+            item.hours,
+            item.minutes
+        );
+    });
+
+    const trainingOld = getCurrentBoostMinutes("training");
+    const generalOld = getCurrentBoostMinutes("general");
+
+    const lines = [];
+
+    if (selected.length === 0) {
+        lines.push("<div>Ничего не выбрано для применения.</div>");
+    } else {
+        lines.push(`
+            <div class="ocr-replace-line">
+                <span>Ускорения для тренировки:</span>
+                <span>${formatMinutes(trainingOld)} → <strong>${formatMinutes(totals.training)}</strong></span>
+            </div>
+        `);
+        lines.push(`
+            <div class="ocr-replace-line">
+                <span>Общие ускорения:</span>
+                <span>${formatMinutes(generalOld)} → <strong>${formatMinutes(totals.general)}</strong></span>
+            </div>
+        `);
+    }
+
+    if (invalid) {
+        lines.push(`
+            <div class="notice danger" style="margin-top:9px;">
+                Проверьте выбранные значения: часы должны быть от 0 до 23,
+                минуты — от 0 до 59.
+            </div>
+        `);
+    }
+
+    preview.innerHTML = `
+        <div style="margin-bottom:5px;color:#d9cdb8;font-weight:700;">
+            Перед применением будет заменено:
+        </div>
+        ${lines.join("")}
+    `;
+}
+
+/* ============================================================
+   OCR UI
+============================================================ */
+
+function setOcrProgress(percent, text) {
+    const bar = document.getElementById("ocrProgressInner");
+    const label = document.getElementById("ocrProgressText");
+
+    bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    label.textContent = `${text || "Распознавание"} ${percent}%`;
+}
+
+function showOcrError(message) {
+    const box = document.getElementById("ocrError");
+
+    box.textContent = message;
+    box.style.display = "block";
+}
+
+function clearOcrError() {
+    const box = document.getElementById("ocrError");
+
+    box.textContent = "";
+    box.style.display = "none";
+}
+
+
+const RS_ICON_TEMPLATES_B64 = {
+    "gold": [
+        "////////////////////+fbv+/GB+e1l//KP8+zi////////////////////////////////////9e3h+Opm//Ee//Yg//og//wg//8g//Yu//6H/Pzq////////////////////697N/t8b/usYx4sVn1UQu3AJn2MK8MYb//og//8h//4z6d3C////////////////9c1D+dsbl1EN1YwU/cIR+scVsWgM6qUT1IEP+/If//8j7r0s8uLZ/////////N+4+skTuGwH97AV+78Vy50Q8doY8NgctHIL/88Y6acQ//8h/eo747p9////////+r8w3K0T04cR97UW27oS//Qf6tEa89gb9eIb/c8Z9MAV//8g+uUy5rZv////992o8LYVp10N6qEO45QO880U/e8d0HkG98wN3JIS/c8Y/dMZ//oh+t8i2J5I////+tuH9Mcc+L8YyIwN8agT6XII5b8U/ukb3a4U+cIX/MYT/MkX//Ie++kl3Jgv////+d2Z6aYS/+og55sR5IcP66ES2YwL7L0T/9UY/ekt8r0W+LwY/+ga/usm14wQ////6t7W5qUU/+Ie6qIX9r8W88gX240M0o0U/9gV/Nwg9rMT77EX/+YY37gSyX0M////////6qoS+asN8Lgc6ZAL87gS/dIY98gV3p0Q5IwM+boS/+AY6sIVpmEJq2kW////////57BD9s4a7bcY5aIY2ocQ0WoG13EP6qQP7KgR/toX99MYmVgLol8N3Ma2////////89el8bUR8sYV68sb660Y654O7aUP87QR/c4Y+9QYnmEMol0IzKqD////////////////3sKU67EX9bwY98EW/ccX/sYS/scU/cgUuoMWnl0PsIBK////////////////////////38zA5Kke8LQT6KwO0ZcNyo4OpWgMmVoPp2wt/v38////////////////////////////+vn50LOVroVarodevZ15yquG3dDH////////////////////",
+        "/////////////////////Pje+O+K9+lz/fis+/nY/vzu////////////////////////////////+vPW+uxb//Ag+/Ig+vUg//sg//4g//c3/vt0/f3m////////////////////6dvE/9sc+OMWv38Upl8RwnkLoWQK6cIa+vEf//4f/fpA6tzE/////////////v77+9VK78kXqF0L0IoT/MIR7L0TzogR4psR14cO+u8e//4k6rQ5+vLr/////////OO9+cgYz44N+rQV9bkU2bAT+OUa890dzZcT/coX88sX//8j9dcv9OTL/////fv6+L831qQTxnUL9K8U378T+ukd2rAU89IW7ckY/tAZ+t0b//8i880k79y/////+ujA8bkTvHEQ3ZYN7qER6a0Q+ukb2ZcN7K4L45wQ/9EZ/d4b//oi9c0c1qd2/////Oix8r0a/M0a4q8U8KYU634M3asT/uca3KwU87cV98AT+c8Z//Ec+t8l05JB////+OXB6agQ/ewi7JwT5ZcU34kQ5ZwQ7LQT/9cZ+s4k9boY+MgX/+ga++Qmz4IV////9vHr6KkU+88X8awV9bMS+MsW4p4Q6bIW/twX+MIY87EW+dAY/eIYw4kNvnYS/////vz66ake+K0P9Mgd5ZIO5pkO+c0X6aoS0n0L5pMM/MkU/+EYyZYRol0HwJRg////////782J8bYR7MEc7rcY4JMU2nwJ4pIR6aEO7rAU/9sYyJsVoF4Rq3Ix+fXz////////+vDd6LIl874T7MYZ77kY8akP864P+MEU/s4X570XoGERpGQY8efc////////////////8und2aQ39rsV+L8U+8UW/scS+sES6bISomUVnFoL18Cs////////////////////////9vPz1Kxc3aEcyIoOnmEOmmAOllsRnmUj1Lid////////////////////////////////////6t/W1sS01MGx5tnM6dzN9PHw////////////////////",
+        "/////////////////f3+/vvn+PTB9eWV//3W/v3h//zt/////////////////////////////////Prt+OuF/vBA//IV/fcZ//sY/fsz/vhW//2S//7p////////////////////9O7l+tc0/e4a27AXq2oSvHQLrXgP5skZ/foh//0i//5G6+HL////////////////+N6B+NITsGwLtWwO87EQ9MAS35wU0IIP0HwN++wd//8k67c19Ofb/////////efJ+sof3acR4ZYR+boW5bkU7tcX6M0Z2acU+cgX7bUS//8h+N835b2E/////vv4+9Ft6roWtmQJ+bYXw5QO//Qd69Ea7M4Z7M0a/M8Z9cgW//8g99wv6bx6/////PPf878ox4UR2pIM7KAR35sO+OIZ0ZAN5qYJ554P/dAY/tYa/vsh99Yj4a5j+/j4/fHS9cAO86kU6bkV5p0S640O26MS/OYa57sW6a0U9cAU+sgX/e8c+uMm5KxP+fPu/PHY6aUW/dwd76YW5I4Q6qMV4pUP57IS/9oZ/c4g874W+MAY/eQY++Ul4KVA+fLo+vXs5K1G/OYh9LAT8LAV8bgU5qcS67AV/94Z+ccY9LIX98gY/+kZzpsSyo04+fHo/vv28MRd87EQ+NQe6JcQ5pAM/NkY67US2IYN4IsK+sQT/+AY1qYUpWEJvY1Q+fby/vz87sh88b0a8KUU5rIa3pAT024I2XYP6qMO7q4Q/tkY4bcUpmcMqmwi5NPI/////////fXm6rMl88AV7sYZ57UX8KQP76gP+cIU/MoX8cgXqG0QnloK3s27////////////////9O3i1aA19LsX98IW+sIW+8MR+cER9r8TrHAUnVwOza6R/v39////////////////////9/Hr58Fv2J4fyosGwIMKt3kHmFkDom0zxaB4+PTx/////////////////////////////Pv58ujc2MWxybKh3dHF69/R8erl/Pr5////////////////",
+        "/////////////////////////fKf8+Zu+fKR9+29////////////////////////////////////////+/Kk/uUc//Uh//og//wh//8f//gb/fqH/fzX/////////////////////f389s1A/uwY7tMWqmoRrV0Oq3IP1KUU/Pgh//sf//8l5NST////////////////69iw/9UWrHUSyXwR9LQQ/8kTvnkN8LQX2ogN68wZ//8h+dgr58ap////////////+8ku7MUU5ZMM/b0Y4a4T6c0X/ewdvH4P+9Ua650N//8h//pC2540////////+dOY+MgVolEF+K8Uol8J//Ic9uYe3bAX/vEe770Z9bkU//8g//w54Z0s////////77chzo4Q144N8KcR1IML//AZ3q4W67QL5JQQ7a8T/soX/vsh//sn3pYf////////87UM9qYX+N4b45gT9KQQzoIR/eUZ8tYb15IQ/MYT+r0U/O4d//Mf56Yg////////7K0a+MkZ9LQZ5pkT45MW6Z8Q5aQS/tgY/+on9K8W+b4a/OEY/+gc4qUX////////4rFT+OMn/bwT6Z0U/s8W1IUM6KcT/dcW/+Ib9rMV76oV/+YZ6MYTwHQI////////8cp177QR/t0e5JsS5okM+9QW+s4Y45oPzWoG97QR/98Y9tQWqGULp2QO////////8uPT7rAU9LUX8MMc45YU13gK13YK6J4R56AQ/NEX/+EZoWMQoV8M0rSd////////////57I087kT578X4LQW76UQ7J8O97wT+cEU/tcZrXUOol4Lv5do/////////////////v38y5lG9LkW+MUZ+cIU/MUW/MMR/cQSyJEWnl8Qo2gr/Pv7////////////////////////1biG6asU36IOvX8MqGsLomYLklYRoGMf+PTw////////////////////////////////8u3r1sa3tJJ31cW26NzP7eXd////////////////////"
+    ],
+    "wood": [
+        "////////////////////////////////////////////////////////////////////////////////////////////////7Ni9+/Pn/////////////////////////////////////////////////Pz86LRv5LBh4KVV35tK5LBZx6uH/////////////////////////////////fn057No57Vm3ZpN5rto57dn6LZj6LNhomIs+/r6////////////////////8dWq6Ltq6rxs57Jj68Bt6b5u6r5u36hYjkkhczca8u/u////////////9fDo6b1v6bhn7cNz7cd26rlj7cNz7cd1z5RHiEQdeTcXek44/Pv7////////6cOL6rhlyHg1571u78l57MVy7MNs99KHzI5KhD8egj4geDoX1q2S/v//////////2I1Brlgn1aRU7sBu7sZz6rli9tCEyYpGikMeiEEedTkXx3Y21YxD3ZxK48Sh////zHw8mUcc0Xsz1H4z14k68MhzxodEiEMfhkEcjUsez4U/05JHtHY8eDwggVQ/2J9Zt2MncTQWp1Qi0XAtzGwp1oc6gz8fez0cmlImvHY7klIngEEeeD0dcDgdiV1LzI1b2JND1IY8x3Eyp1MkfToWynUweTsbbjUYgkEdfj4dez0cdDkegk875uDe/v7+3L2pxHAt0IA7rFci2I0+y3o4iUIbaC4VfDsdeTwddTwirJOJ+/z8////////////////8+bgwG40lkUd0YpBiUQiejkbczgdeEMo2c/L/f39////////////////////////////8/HxroVwwXAyfzwdfUUs0sbB////////////////////////////////////////////////69nO2crE///+////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "////////////////////////////////////////////////////////////////////////////////////////////+vHl7NOo79Ww////////////////////////////////////////////////9OfY57Bh4alb355N5KtZ4a9a8OPO+PLt////////////////////////////7Mya57Zn4qxc5rJh57po57dm6Lhjvn89u5+M////////////////////9+/j7MJ+6b1r6rpo671u7MJx6sBu5rdlmlgpezoclnVn////////////////7tGf6r5r6LZj78V17cd568Js78Nw5rhojksifzsahVE46+rp////8/P0////5K5i255Rrmcu7cVz7sZ27sZ18cdy6L1xiEEehj8gfDsauGox2ayA+fPv/v7+////0YhOqVIhxXo26rZh7L1l8cdy6LpvkEogkEYfbjQWyn051ZFE0pBIqW068O7u9ujYyYdWnE0gtWMo0XcxzHAs4aZXfj0eh0IfjEgfzIA9tnY4iEsiekAgcjke4tzb1aB21ZBArmAprFcmuF0muFohynUxczcZeT0bnlUpikgigkEedzsdekYrlX107+/v4sGpx3Uw2pNHwG0tzXkzwm0woFQibzMaezsdfD0feDwgiWBOyL27////////////////2aySx3M2plIh4aVTn1QodjYZczYZeD0hmnJj8e/u////////////////////////////4cOuoV45vm0xfjscfUMnsJWI////////////////////////////////////////////////1qF7qYd3////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "///////////////////////////////////////////////////////////////////////////////////////////////+8ODJ9Ozb+/fx/v37///+//////////////////////////////////////7+7MKI461b36RR4qZb57dp3MOe/Pjx////////////////////////////9+zb6LVv57Vk4KNW5rlm6LZn6Ldk5bFfr3dH/fz7/////////////////f3+79Gi6L1w675u6bhp679t6b5u68Fv1JtQjEkkdj8k/Pr6////////////+O3a7cmH57Fg7sNz7cNy679r7cRy7MZ1yI9KjEggejkZn4Fx/f39////////7Mub6LRhz4lB4rNm78h47cRy7MJq9c+AxIZFgTsegT0ffTwYzqB/+/Xu//7+////15RYvGkwoVoo7Ltm8Ml07rxl9tKDwYVHi0MefjobkU0jzX461pBD1pRJ3Mm4/vv40Zdsq1YikUoc03ow0Xsw6LZjwIFDgj4dhEAcp14pz4U+wIA+oWMyczgemHVn4LWLzX84gj8afToZymosw2Ik0H00jkgheTwcolkpqGUyhUYigEIfdTwdcz0iq5KI5MexzYE42pFEz3s1tF8onU8hvWYqhEIfczcahUQffDwddTcZfU43uJ+V7Obk/f7+9O3px35JzHk3rFcj15BCyns5lEggai8VdzgafUIlgVM/2M/M/v7+////////////////+vXyz5Rpn0sfzoE7ikUhfTsdczYZo4R26eHd+vn5/////////////////////////////P//2b6uyn9HfTwep39u4tvZ/////////////////////////////////////////////////v375N7c/v7+////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "////////////////////////////////////////////////////////////////////////////////////////////////7Ne7+vPm/////////////////////////////////////////////////fv66LRw5LBg4KZW35pG5K5UzraX/Pn2////////////////////////////+fHk57Jn57dn355Q5rto57dn6Lhk57JgklQk/v7+////////////////////7s+e6Lto675u57Rl68Ft6b5u679v2J1Qg0AecTYY9/b2////////////9urZ6L5t6LVj7sR07sh36bpk7cBw7cl4wII9gz8beDcYjHJm/v7+////////68GE6rllwHMy6L5u7sd368Ft7L9l99SJunc6hD8fgz8ffDwZz5lr/f7+////////1YxNtVknvH4967to8Mh06rhf9tGFu3Y3i0QeiEEdjUsgzX8625VJ2ZlJ3si0/v392ad+s1klrGAn0nkx038z7L1ns3Y9iEMghEEbq2Ap0oxCw4RAlVkuczgdkW9hz49YzHw1dDUWikEcymkszWwo04A2hT8ddzobp10rqWYyg0Mgf0Aedz4ebjccrpaN5c+/zH413plJzHo0tl8pkUgfxG0sgj8ecTYZfT4cfz8edTgacT8ovKSb/v///////fz8xHY+zXk2nkQY3JlIy3w5jEIdbjEXejsddDYXjWVS6+fm////////////////////////wXtOlEIcz344gj4efTwddDodr5OH+fn5////////////////////////////////////8evnx3c6fDcYm3Ni9vTz/////////////////////////////////////////////////v39+Pf3////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "////////////////////////////////////////////////////////////////////////////////////////////////6Ni9+/Pn/////////////////////////////////////////////////Pz957Rv5LBh4KVV35tK5LBZxaqH/////////////////////////////////fn057No57Vm3ZpN5rto57dn6LZj6LNhomIs+vr6////////////////////8dWq6Ltq6rxs57Jj68Bt6b5u6r5u36hYjkkhczca8u/u////////////8+/p6b1v6bhn7cNz7cd26rlj7cNz7cd1z5RHiEQdeTcXek44+/v7////////58KM6rhlyHg1571u78l57MVy7MNs99KHzI5KhD8egj4geDoX1a2S/v//////////2I1Brlgn1aRU7sBu7sZz6rli9tCEyYpGikMeiEEedTkXx3Y21YxD3ZxK48Sh////y3w8mUcc0Xsz1H4z14k68MhzxodEiEMfhkEcjUsez4U/05JHtHY8eDwggVQ/2J9Zt2MncTQWp1Qi0XAtzGwp1oc6gz8fez0cmlImvHY7klIngEEeeD0dcDgdiV1LzI1b2JND1IY8x3Eyp1MkfToWynUweTsbbjUYgkEdfj4dez0cdDkegU875ODe/v7+272pxHAt0IA7rFci2I0+y3o4iUIbaC4VfDsdeTwddTwiq5OJ+/v8////////////////8+bgwG40lkUd0YpBiUQiejkbczgdeEMo2M7L/f39////////////////////////////8/HxrYVwwXAyfzwdfUUt0sXB////////////////////////////////////////////////6tnO2MrE/v/+////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "/////////////////////////////////////////////////////////////////////////////////////////////Pbt5MOO6Muc9ejX+O/i/fz7////////////////////////////////////9ura57Np4qlc36NT46ZU5rBY27iC8Ny/////////////////////////////7tiz5rJh5bJj5axd6L1r57dn6bpm1ZpQiVIv/P3+////////////////+/Lm68WG6Lxp67xr6rtr7MNx6b9t6r5tuXo8fTwddDwf5+fo/////////Pz679mz6blk5bBf78Z27ch468Br7sNx7MV2qWkygj0ccjIUuqqk////////////469o3qRVsmgu7MFw7sZ17sZ078Rv882AoVwshT4feTcbn1QlyYhT8dvE////////045ZsVcltG8y5axZ671n7Lli8cp7ol0ri0QfgD0bqmMt1IpA2ZdLwYE9waKL+OzfzI5grVglnVMg0HUvznMt3Z1PpWU1hUEfhEAcvnE0xYE9pWUvg0YkczgelXVm16V40og7l08ho1MktlwmsFYfynQwhkAddzsbo1oqklAnfj8efD0dcDYZflM/0MO+5MSrx3cx2pRHx3UxwW4url4prl0mdzgZeDkcez0cfDwecTkfpop+49rY////////+fr71J14yHMzo00e46RQt2oygDsacjUZcjMUhVI6s5uS+vz8////////////////////////2bWdkkIXy3k1fToceTgag1Q9z8G7/P3+////////////////////////////////////////0ZRpilM6x7St////////////////////////////////////////////////////////+vr6////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "///////////////////////////////////////////////////////////////////////////////////////////////+7OPV/Pv5/v38/v78//////////////////////////////////////////7967+D461Z3Z9L5K9s5r955djE////////////////////////////////9efS6LVw5rNl36BS5bdl6LZm6Ldj5rJevI5m/v39/////////////////P3979Wr57xt67xs57Zm68Bt6b5t68Fu0pdNjEkkf1A6/Pv7////////////9+zZ68R/6rdj7cNz7cJx68Jv7cJw7MRzw4hFhUEcejobo4l8/f39////////6cib6LZjz4U+5bdp78h47cZz7cNr9c+DwIA/gDsffzwecjUU3b6q/Pj0////+fLt2ZFLs18rvH0878Ju8Ml17Lxl99GCuXxAjEQffDobk04izoA71pBE2Z5Y59vP/Pr5yoFJnkwetGUo03wz038z7cBst3k/h0Ieg0AbqmEqzYU/wH88n2IyeD0hrJOI151ow3IwcDMVk0ce0G8uvV0i1oY6iEMgdzsarWEuqGQyiUkigUIfdDsdczwiuKOa372j0Yc62Y9CyHMytF8ooE4gxG0tfz4deDobiUYhfT0ddDYYd0cxvaWc49vY/f7+8OLYxXY8zHo4q1ci2pNDx3Y1hT8bay8VeTocez8ihVlGzcG8/v//////////////////9uvlw3tInUofzYM9hUAeezscbC8Sqo2A5tzY/Pv8////////////////////////////9/b3xqWRxHQ5eDogpX9u493a////////////////////////////////////////////////8u7u4NrY/v7+////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "/////////////////////////////////////////////////////////////////////////////////////////////Pn14b6D58aS/Pr2/Pr1////////////////////////////////////////+vHn6LBk46xe3J5O46VW5rZgyKl88+fY////////////////////////////69Gm57Rl5bRk57Fi57xq57dm6bpl1ZlQgUom/v7+////////////////+PDk671x6L1q67xr675w7cNx6b9t68FvtnQ3fjwedToc+fn5////////////68uY6bxo46pa78V17sl56rxl7L1p68V2nFgogz4cdzYXxcC+////////////5a5f4alZp1sm8Md27cV17cNw7sFo88+ElU0jhkAfeDgbnlQmxoFF8uXY////////0INFrlIjxX056rZg78Zt7rxi88+Bk00hjUQffDoZumwy1IpA25pMyIhCxrSr+/j1yYhVrFYktGQp0Hcy0Hcv5bBcjEsmh0MhgT8bx3g3yodApmgyfkMidTodnIF3zIxY1Y0+kUogqlUluF0nxmYm0X00ejkaeDwasWMwkU8mgEAeez0edTwebz8o29TS5cm0yHgx3ZpLx3UxwW0tvWYut2IoeDgcejocgEAegD8gbTUbj3Bk8/Ly/////////v7+yoheynY0nUQY4qRSuGsyfTkacjQYdzkceT4kybiw////////////////////////////zJl4izwUyHg1fjsdezobhlZA5+Dd////////////////////////////////////////////yXtBez0f3dLN/////////////////////////////////////////////////////////v7+////////////////////////////////////////////////////////////////////////////////////////////////////////"
+    ],
+    "ore": [
+        "/////////////////////////////////////////////////////////////////////////////////P3+9/j5+vv8////////////////////////////////////////////+vv94+331uLt1uHr2+fy3Ojx4+ns////////////////////////////////0uHrvsrVxNDb2+n0ytTftcHIsLnG1N3p5Ov19Pj7////////////////////maOlytbez9vixczVv8zZws3ausjT2+fx2ODprbW8XmRs////////////////////iIyRYmhxam1vztni4u3zz9nj1+PsfnyAUlBKLzU9Mjc+9/f4////////////////lpqgXGJshYmPbXJ4usTKo6mta2djLjM1LDM4LjU7Mzs/9PX15+vy/v7+////////5ertXWFpYmRrd3uBZGhteXR3LDA1LDE1OT5EKzM6O0BGscDJv8rVxc/Zz9Xa+vv7iY6RV11nYGZxam5xaW1wX2FlLzU9MjY6Ki8zQ0pSOUFG0tvkt8DJrra+uMLMio2RnqOoVFhgX2ZwYWNpbnR5cW9yMTQ5Ky4zKC01LDI6Sk5SmqKnztXcrrS7VVheV1le////bXN7VV5lWl5mg4aKT01SPT9DO0BEPEJMNz5ISUxSYmNln5qTSEhLRUhNZWZr////////trq8Wl1kXmJmbG90Tk1OWlVbp6esWF9oWlxiWVleampuQ0RGR0lOen2B////////////5+jpc3d6gIOHTU1OnJ+j/////Pz8d3uAVFZYb3J0SlFZaWlu9vf4////////////////////4eHh9/f3////////////////t7m9UFBUoKGj////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "////////////////////////////////////////////////////////////////////////////////////9vj6/////////////////////////////////////////////////v//9vn80+DqsL3H1d/p+Pr7+/z9/////////////////////////////v//3ubx1N7mxdLd4ev04Ory0Nrir7nC1N/r6e73/f3+////////////////////uMPJzd3p0t7o2eLs0d7nwMzY0Nzm5uvw6O3y093ii5CX////////////////////ZGtzk5uhdHl6ydXf1N/rwtHbydTioqGfamxwOj5FWmBm/v7+////////////////YGVuYmZukpievcjMu8jMz9ffh4mIUU1NLTM4KzI3SFBT/v79////////////////jJGXX2Nsd3t+ZGpyiZGRYFxaMDQ5KjA1OD9JNjxCS1FXyNXdv8jR2N7l+/v8////aXJ4YGdzYmZten6CY2luRUVHKzA1LDE2KjA0OkJLTlRbzNfiwcvVrbbCsbrD1NbZWmBmWWFrZ2hubnF1cHR6SEdLLDA2LDA0LTQ7OD5DanJ4sLnByNThq7K5f4SJd3h9jpOYVltkWV5obG90aGtwW1xdLzM5LjM6KzQ8LjM6TE9UnZ6euaKBXmBlSUpQfoCD////pquwVl5mWFxkXmNoUlJUTExOSUxSV1tlQ0lRWFhfcXJ0XFpfREVIRUdNnJ+i/////v7/5ebnYGNpX2FmaWtvUE5QZmFn7+/wl5qeXWJlX2FmaGZqQ0ZOSElRxMTG////////////8vPzs7O2g4WGury9+vv7/////f39srW4SExSVFRYWVtg5eXm////////////////////////////////////////////////8vLzyMjI/Pz8////////////////////////////////////////////////////////////////////////",
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8/b64+nuz9vm2uXw3Obv1N7ow83X1N/n9vj8////////////////////////3OToy9royNXh2OPt4Ovzx9Lc1uHqydLc3+jx3efslZyh////////////////////l56in6eumZ+jvsjRzNjkwM3ZxdPfuL3DjJCVWV1lVlxj////////////////////m5+kWV1lgYaN0dvex9PZ1t/ns7i7XFZVNTo9KjE3P0ZK8/T2/P39////////////uLvAXGJrdHh9Y2hxiZGVfHh0ODo+KjA0NT1FNTtBRkxSyNLax8/Y4+fs////////rbW6XWRuYmRsfYGGaW9zU1BRKzA2LTE2LDI2MzpCTlVcydXgyNPdtL7KtL3F5ebomZ2iVl1mYmlwaGpwcXZ8T01SLTE2LTA1LDI5Nj1DbXV8p7C5x9Hdpauyh4uSj5GVvcDDVFpiXGNsYGNpdXl/bGttMjU6LjI5KzQ7LjQ8SkxRkpOTuamTX2JnRUZMk5WY/f39xsnMYWlwWF1kXWJoWFpeSklLS01SUFVfQkhQVldebG1vY2BiQ0RIREdNtLa5////////7e7vh4qPWl5ien6CSUZIcW918PDwoaWpX2NnYWNnZGRnQ0dMTU9V39/g////////////+/v7uru9mpyepqeo/Pz8////////p6msXF9lVVZbYmNo+fn5////////////////////////////////////////////////8fHyubm59vf3////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "/////////////////////////////////////////////////////////////////////////////////////Pz9/v7+/////////////////////////////////////////////v7+4+730d3nztrl2eXw4Onx/P39/////////////////////////////v7+2uXvzdjhvMrU3ur00dvjwc3Upa+50t3q5uv1/f3+////////////////////jpud2OXv0t/o1t7owc7buMLQv83X4uvz3+jxyNPZZm52////////////////////b3N7cHd+YWVmztvk3+vzyNXez9rlgoCCP0NGLzQ8QkhO////////////////////cniAW2JrjJCWkpmesLzCtbzDcnFuOTw+KjI3Mjg9PURJ/f3+/f39/v7+////////3uHlXWJpZmhua294Y2hsa2NjLDA0LzM4PkRLMztBSU5WucjRv8nUzdXf6Ort////ZW1wWWJtXmRtcXV5ZGltSUpMLDI5LDE1KS8zQkpSOT5F0tzmr7jCrbfCs7vEo6Wpe4KIU1hgYWZvZGZscXd9WVRXKy40Ky4zKC83KzE3UVZbp7G30NzpmqCnVFVbdXZ6+Pj4W2JqVVxlXWFnd3t/RkNIOjtANDpBNz1HMDc+WVtgbW1sq5Z7R0lORkhOlZeZ////+/z8kpicWF1jWF5icHR5UE5RW1Vdq6ywTVRcVFZcZmZqWllcREVHRkhO0NHS////////////yszOam1whIiMTk1Or7K1////5OXmbHB0XWBiZmVoSlFZb3B1/v7+/////////////////Pz8zMzN+vr6////////////+/v7h4qPRkZJq6yv////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "/////////////////////////////////////////////////////////////////////////////////P3+9/j5+vv8////////////////////////////////////////////+vv94+331uLt1uHr2+fy3Ojx4+ns////////////////////////////////0uHrvsrVxNDb2+n0ytTftcHIsLnG1N3p5Ov19fj7////////////////////maOlytbez9vixczVv8zZws3ausjT2+fx2ODprbW8XmRs////////////////////iIyRYmhxam1vztni4u3zz9nj1+PsfnyAUlBKLzU9Mjc+9/f4////////////////lpqgXGJshYmPbXJ4usTKo6mta2djLjM1LDM4LjU7Mzs/9PX16Ovy/v7+////////5ertXWFpYmRrd3uBZGhteXR3LDA1LDE1OT5EKzM6O0BGscDJv8rVxc/Z0Nba+vv7iY6RV11nYGZxam5xaW1wX2FlLzU9MjY6Ki8zQ0pSOUFG0tvkt8DJrra+uMLMio2RnqOoVFhgX2ZwYWNpbnR5cW9yMTQ5Ky4zKC01LDI6Sk5SmqKnztXcrrS7VVheV1le////bXN7VV5lWl5mg4aKT01SPT9DO0BEPEJMNz5ISUxSYmNln5qTSEhLRUhNZWZr////////trq8Wl1kXmJmbG90Tk1OWlVbp6esWF9oWlxiWVleampuQ0RGR0lOen2B////////////5+jpc3d6gIOHTU1OnJ+j/////Pz8d3uAVFZYb3J0SlFZaWlu9vf4////////////////////4eHh9/f3////////////////uLm9UFBUoKGj////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "////////////////////////////////////////////////////////////////////////////////9fn84ufq8PT3////////////////////////////////////////////9/n77fP51eDs0Nvm2eXw3Obu7/P1////////////////////////////+vv82ufxyNPdws/Z4Ov10tzmxdDXrLXA1N7r4erz6evt////////////////////uL7AxtHXzdngwsvUws/cw87avszW2+Xv1NzlrLW6YWhw////////////////////n6OpZmx0bXBzz9rj3Ojvzdnj0Nvkenh6Oj0+LTM6PUNJ+fr6////////////////tLe7W2Jsg4aNb3R6tsDGoKWoYl9cLjM1KzM5NTtAPUVK9Pb38fP2+/v8////////3+LlVFlhZGdten6EZ2pvc3ByLDA1LjI2OT9FMztCSk9XuMbQxtDbw8zY1drf/f3+q66wWWBqYWhzbXF1bHB0XV5jMDU9MDU5KzE1R05UQElP0tvjtr/Kt8DJucDHn6Cjur2/UVVdX2dxZGZrcXZ7enp8LjE2Ky80KC82KzE3R0tPqK+yysvKjJKYTk9ViIqN/f39iI6UVl5lWFxkgYaKUlBVQUJGPkJHRUtVOEFJWVphamxsfnZxRkhLRUdMnJ6h/////f39z9HTWV1kXWFma25yT01PWVRa09PVZ2xzV1leYWFmX19iQkRIQURLu7y/////////////5+nqgoSIfYCDUlRV29vc/v7+9PP0cnV5UlVZX2BkPD9Ftra5+/v7////////////////////6enq////////////////////xMXIcXFz1dXW////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////P3+9Pj82ufwucbQzNfh8vb68vb4////////////////////////////////5ezz1d7nvMrU3Ofx3ejx0tvksLrCztnk5+32+/z8////////////////////2uDhy9rky9jiz9jiy9jkxM7bw9Da1N/q3+jxxs/VfYSL////////////////////qK2ydn6FfYGEucPL1+PtydXgy9jjn6KmYWNlOj5GPEJJ////////////////////trq/WF5of4OJlpyiucXJusHJjI6NQkFCLTM3LDQ5Nj1C9vf28/b5////////////2dvdYGZuaW1zbHF4dX2Dd3BpMTY8KzE2Nz5IOT5FQkdNrrrDw8zXy9La8fP0/f7+ur2/WF9pYWZwcXR5a3B1Y2RnLDI3MDM4KjA0PUVMNz1Dzdbhtr7IrrfCrrjCuLq+ubzAU1lhYmhxY2ZrcHV6bGtxLjE2LC81KjA4LzU8ZWxxl5+my9HWnKKoeXuCcXN34uPlYGZuV19mXWBnbnB2WFdbOjw/Mzg/MjlBLTM7UFJYc3NxsaOPUFFURUhNioqO////6OnrlpygV1xiXGFmYGJmTUtOUlBUkJGYVVtkVlheY2RoZGVrQ0NHQ0ZMt7i6////////////vL7BYGRpeHp/TUxNfH2C8/Pz3N3fb3R4XmBjb3BzR0xTW1tj6Ojo////////////////4+PkxcbIycvL////////////2drclZebS0tOjo+S////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
+        "/////////////////////////////////////////////////////////////////////////////////v//3+br////////////////////////////////////////////////////4ez31uDr2eTt3Ofy3+rz4uns////////////////////////////////0uHtws3YxNHc2efzw83XtcHJrbbD1t/r6vD3////////////////////////eoaK0d3lytbdx8/Xu8jXvsjVv87X3efx2uLqrra8XWRr////////////////////ZGhwaW51bG9y1ODn8vf6zdjh2uXud3V5TExILzQ8NTpB////////////////////aG13WmJrh4yRgIaNrbi9qa6zaGZjMjc4KzI5MDc9ND1B8vT17vH2////////////zNLWXmJqZWhucXV8YWZqbWZmKzA1LTI2OT9GMDc+PkNKs8LMwMzXxtDa1tre////VV1gXGZyXmRtcnV5Y2hsUVJULTM6LzM4KS8zRE1UNjxC09zmsbrDq7S9sLrFkJOZbnV7U1hgYmZvZGZsb3V7Y19iLTE2Ky4zKC42KjA3VFldm6Sq0NjhrbS7YGJnUlRa7e/wWWFpVFxlXF9md3p+SkdLOz1BNjtBNz5HMTlBS05TY2Rlq6GTR0hLRkhOYWNo////////io+UWFxiV11hbXB1TkxPWVVclZacTVRdV1lfY2NnaGhsQ0NGR0lPeHp+////////////u73AZ2pugYWJS0pLmJqe+Pj48fHyam5zV1hbc3R3SVBZVVVc6Ojq////////////////////xMPE9vb2////////////////iYyRUlJXenp//////////////////////////////////////////////////////////v7+////////////////////////////////////////////////////////////////////////////"
+    ],
+    "mana": [
+        "////////////////8Ofi6caa2K193sas/////////////////////////////////////////fjx6rpw6LNi46lYxYQ7mmpS////////////////////////////////////////8ct3771w3JtQqFslczkhalhUw8LA////////////////////////////////////4M6336ZXxYNFiG1WXVdUPDs14Ons////////////////////////////////////09TV0MvInI18amtnSUxIOj49YYSSdIeLt8bB/Pz5////////////////////////////x9bZoJmAa4KGMWqNLXynNH+nP5e5QGFqfZKW5ero////////////////////6vHyia+6c7zSOIWxLZbAL6zTKpG6KWuaQI61PGNwgpSX/v//////////////////qcLLpMLNjtTqZsfiV+j1IZbCIoOwK3mgOJq+SrzUTW93xdDP////////////3eXobZen////e+Hz/v//c///IcDnMt7zLK7QqPz+eu/1PoOTnrO5////////////tsfPgbPH6Pj+Vuz8f/3/XfT6IZWwIqrNMdbxovz+kf//V7/RhKKp////////////y9ndbMPXPtDsSuz8a/z+XvP8MNbrOOX5ffj+i///fPn+UNHkgaq3////////////9vf3ab/QLMnsPeP2YPX+cfz/d/7/d/7/ev7/c/r/V+v5QMDci6Ck////////////////rMbJLLnkJtHyOOL5R+z6TvP7TvL+SO38PeP4MdPxVp+/6+7s////////////////9/n5k8nfQsnqKMzvJ9TwHNTzI9TxItDwJc3vTLHOvsvK////////////////////////////w+Puf9jxZdnxX9jyIsXqKr/nTKTNtcDC////////////////////////////////////7fH13uXnrsbOoLW7vcXD6uzt////////////////////",
+        "////////////////9ebU6cWY3bWEzqR//f38/////////////////////////////////////Pbq6r506rdj5KpayYY/lFAw6Ofm////////////////////////////////////9Nqf7bxm4KRcsmUqeT8nZUtEeHd1////////////////////////////////////7OPY2qhhyIlJkntmUUQ5PTs3s8PG+vr6////////////////////////////////8/P0wcHAqJyLeXRsTEk+PlNWUH2QW3J5jaGg6Orp////////////////////////////1tzeur2ycZGVNGqMK3SiLG6bOIWrPXWKWnN6zdbV////////////////////+Pr7nr3GernNRpa+K5C8MbfbLqXLKGyaNX2pQ4ecUmx07fDw////////////////u87Vfqe3uOf0hdPpZfH6MrzdH4e0KIauOJ7ARLrYP2x5mqyt/P39////////9Pb3mbrGzOHqkOn30v3+dv//NdbxJr/fM8Pfdeb2l/z9Q6e5eZWc8/b2////////6/DzjbTDmdboYOz7dvv/VvL7IqXCIZ+9I83vhfb8mv//Y+HtZ42X8vX1////////8/b3j8/aRs7oPeX5Z/r/b/v+Ven2We36evj+i///fPr+UuLzdKW29Pf3/////////f39ncXNNL/hM9r0Uu79avr+dP3/dv7/dP3/bfj/V+v5PsznhJme+Pn4////////////3efnS63UJsrvLtn0OOb5POv4POz5Puj5NuH3LtTxSZ7Gx87N/////////////////v7+1+XoZ83oNsnsJM/wG9DxINHwIs7vKs7wSa/PuMjK////////////////////////////6vH1tOLxgNfxfNjxKMftLbThYaTCytTX////////////////////////////////////9fb39PX0x9PWvcnJ19nZ7/Dv////////////////////",
+        "////////////+/fy+eza5LyL3K510Kd+9vTy////////////////////////////////////+O7X7caB6bVe5KpaxH44lVw71NHP////////////////////////////////////89eZ7r9s4qlhtGgrfkMnXj82fXt5////////////////////////////////////6uPX1qdnwoxWkm5OXVROPDg0oa+x6u3r//7+////////////////////////////8fDwuLa0o5N9f358T05GPERCSW1+WXeAjKKi3uLf////////////////////////////2ODitrWncoyKPml/LnKbLnOeNnSVPHaNWnZ9w83P/v7+////////////////+/z8oL3HkMfZU53CKYCxMa3TLqPJJ22bNHyoQoihU2x12eDh////////////////vc/VmLfCwun1YL7dV+LyOrzaIIWzLYuwOo6xULzXQoSUgpea////////////6ezvl7fDuMzWe+Lzy/r+g///TOHyJLzfO9fradTokvP5ULbEZIeQ3eTk////////ydXbjrbFpdjnXuv5dvn/bv3+I7XQIJayI8HpdO74of//bePtW4mR1N7e////////2uLmicrWRM7oQeb4avv/YPf9TdnqTtzvYu37if7/iv3/Wej3ZaW21N/i////////////jcjSPcnlNt71WPL9bfv/dPz/ef3/ef3/d/3/ZvP8RtnwZo2a4OXk////////////x9bZRanLJs3wNt/3SOz7U/L8U/P8U/D7Ren6N9rzPbnbnrO2/f38////////////9/n5n8vbT83qLcvsKdTxH9XyIdbzJdTxI9DwO8fjearB7vHx////////////////////////x+TuiNvxVtLwVNXyKsvuI8DoQrbbh7DE4Onr////////////////////////////+/v8+f3+2+rusM3WjLjDoL7HxdHX9fb2////////////////",
+        "////////////////////79vC48iq07KT////////////////////////////////////////////79Gh6LRi565d3KJTo1cq+fj3////////////////////////////////////9uK18MVt67pzyH02jkQiZj4zYl5a////////////////////////////////////+/v73Kxj0ZBHqXlRX0tAQDk0pri6////////////////////////////////////////rq6tsKifgXduTElBPUE9W3+PbIWJpLWw+vn5////////////////////////////6u3tsraphYt9OWZ/LXqkL3WgPIytPWV0YXuC19/c////////////////////////yNvfY6S6UaDEKH2uN8LhMKzQJ2qYNHqnQX2QVm11/Pz8////////////////1+Hla5en8fv+csHeWub0OcPgHnysJ3+oMpCzR73aP2x4mKqp////////////////tczUl7rJlef13fv+ev//Ruf6IrviQdzubOL0l/v8QaK0eZSc////////////////lrXAhM3ifu37bff/a/v+ILDOII+pJ8rvdPD7nf//aObxZomP////////////////o8nTT8vkOOH2Zvn/cfv9S+j3S+j3a/X9jP//hPz+U+b2cKO1////////////////ts7TQbTSMNbzUe39bPr+cfz/dP3/ef3/cfr/W+36PdHtcoiO////////////////9Pf3YqfDJsjtLdnzOef5Qez5Qe76Q+r6OeP4LdPxQ6LLwcjG////////////////////4+npa8vnOsnqJM7vGc/wH9HxIs/vKM7wS7jSq7/C////////////////////////////9fb4v+f0ftjwgtz0LcntKrnjUKTJvcfJ/////////////////////////////////////v7++fr6vMnKtMLA297e+vr6////////////////////",
+        "////////////////8Ofi6caa2a193sas/////////////////////////////////////////fjx6rpw6LNi46lYxYQ7mmpS////////////////////////////////////////8ct3771w3JtQqFslczkhalhUw8LA////////////////////////////////////4c6336ZXxYNFiG1WXVdUPDs14Ons////////////////////////////////////09TV0MvInI18amtnSUxIOj49YYSSdIeLt8bB/Pz5////////////////////////////x9bZoJmAa4KGMWqNLXynNH+nP5e5QGFqfZKW5evo////////////////////6vHyia+6c7zSOIWxLZbAL6zTKpG6KWuaQI61PGNwgpSX/v//////////////////qcLLpMLNjtTqZ8fiV+j1IZbCIoOwK3mgOJq+SrzUTW93xdDP////////////3eXobZen////e+Hz8P//c///IcDnMt7zLK7QqPz+eu/1PoOTnrO5////////////tsfPgbPH6Pj+Vuz8f/3/XfT6IZWwIqrNMdbxovz+kf//V7/RhKKp////////////y9ndbMPXPtDsSuz8a/z+XvP8MNbrOOX5ffj+i///fPn+UNHkgaq3////////////9vf3ab/QLMnsPeP2YPX+cfz/d/7/d/7/ev7/c/r/V+v5QMDci6Ck////////////////rMbJLLnkJtHyOOL5R+z6TvP7TvL+SO38PeP4MdPxVp+/6+7s////////////////9/n5k8nfQsnqKMzvJ9TwHNTzI9TxItDwJc3vTLHOvsvK////////////////////////////w+Puf9jxZdnxX9jyIsXqKr/nTKTNtcDC////////////////////////////////////7fH13uXnrsbOoLW7vcXD6uzt////////////////////",
+        "////////////////9vLx89/E4car59fG/////////////////////////////////////////frz682h56xc5KlY0pdLomxT+/v6/////////////////////////////////vz38Mt88MFw46havXM0gz4dblNMycjI////////////////////////////////////7Nm+4qlYzIZCkGE9Y1VQR0M+2uHk////////////////////////////////////1tPPzL2tpY54bGplRkZBPTs3fJaglqSm0NjV////////////////////////////////xs3NoZd+a3dxPF1tNYqxN3qdPHiRR2hwo7Gz8/b0/////////////////////f7+oLzGoM/fOo+7LYazKYq0KH+sK22cPY6xPmNwn62w////////////////////us3Wl7nFnNruTK/URtTqJJXBI4KvLHSbNYevTLbMUW51zdbV////////////9Pj5d5mo5e3xddvw3f//cv//IcLoL9nuLLDQi+33a+LsQX2Nqr3C/fz8////////y9fdibLF7fb5au37hfz/Yvb8IZy5JK3NK8vrj/b9kv//VbjHiKSr+vv6////////1ODkdsPVO8roSe39cf3/TOz4McbcN9rzY/D7lv//gPv/VNLlfKWy+vv6////////9ff3cc3aM8zsPuT3Y/f/dv3/fv7/gv//gf//ePz/W+76RMPcjaeu/f39/////////P39r8jMMbnhKdPyPeX5U/H8Xvf9X/b+UvD9Ruf5NdTyT6fF5Ono////////////////+Pr6gsLbOcfqKs/vJ9byHtf0JNfyJNPxJc7wRrjXprrB/f39////////////////////+vz8u+XwctbxVdbxU9jzIsjsJsPqSq7Vpra9////////////////////////////////////7fT40OLopcbQirnFpsDK3ODh////////////////////",
+        "////////////+/fw7drI6cea2K5/17qi/v//////////////////////////////////////9uO/7MF56bRh36NUvHU0nWtV8PHx/////////////////////////////////PTj8Mt67r9y2ZVKql4pczokX0tG09PS////////////////////////////////////3sWd159Vv4BGfWNQUkY/Tk9My9DR9/j2////////////////////////////////0dDQxL22oJB+aWdiSEpGPkdHXHqHcYiMsb67+vv7/////////////////////////Pz8w8nGqaWSXHt/OWB3MISvMnOZOHGNPWp5iJqe5Onp////////////////////5+/wirG+g8HTOYeyLpjCLqjOKo+5KmybPIyyPmt6e46T9/n5////////////+fv7orzGt87Vf9DpXsDdT9rtJJvFJIu2LHyjOpC2T8LXSXF7ucbG////////////3+nreaKxzufvkuT00v//ef//JMXrM9bsM7rYd+LyeefwQpCgkamv9fb1////////v9DWh7fJuOr2Ye77gP3/V/L6IJm1IqrMKcToiPT8lf3+WsHPdZmh8vTy////////ydbcbcvdPtLtTe79cf3/Uu34Ps3gR93zZ/H8k///gfv/Vdfoc6Sz9fb0////////4ufoYszdM8/tQOf3Y/j/cPz/eP3/ev7/ev7/ePv+Xu76RMXdiKat+Pj3////////+Pr6lrjDLrjgK9PzP+b6UfD8VvX8VvT+VPD8Ruj5NdXyS6rJwMvN////////////////7/T2csLdNsfqK9DvJ9byH9j0JtjyJdXyJc/xRsDblrTB+Pj4////////////////////9fn6qd/uZtPvS9HxQtLxI8jtJr/oTLfanLC99fn3////////////////////////////+/v94e3zzeTqocfUhbPBmba+1d/h+fn5////////////////",
+        "////////////////7uLZ4bBx2aRm1K6H////////////////////////////////////////+/Pk6rlp6bVh46hYw343kVpB+fn6////////////////////////////////////889+7Lhm25tSpFgjcTghaVdTnZya////////////////////////////////////4dPD3adcw4VJiHZlV1FLNjUv1+To9/j4////////////////////////////////5eXm0M/PnI15cHR0S0lAO0RETniLWnJ7n7Sw+Pj3////////////////////////////zdzhqqWPbYuRLW2XKXOhL3ikPprBPWZ0YHp/2+Lg////////////////////9vj6haq2jMvfO4m0KIm5L6/VLqPJKGeWOYWuPXOHZHuA+Pr6////////////////rcTNkbbEodzuhdfrY/L6JKTNIYazKH6nOKTERbzZRmx2sL29////////////4OXpeaGx8Pj7beHz6P//c///J8bpLdLqMbzboPn9ivj7PY+hiqOp////////////x9XcgrPF0+/4T+v7ef3/WvX7IZq1IKTFLtf0mfr9lf//XdLkdpWb////////////2uPmeM3cQM/rRen7avv/bvn9ROLzTOv7ffn+if//fPr+T9jrfKi4//////////////7+ebTDLMbrOd72W/L+cfv/c/3/c/3/e/7/b/n/VOr5PcXje42S////////////////wNLTMrHeJM7xMt73Pun5RO/6Q+77Q+r6OeL4LtLxUp3B29/d////////////////////tNXiU87qLMruJdHwGdHxIdLxIc/wK8/wUK/Kwc7N////////////////////////////2ufvldzxctrxctrxIMXsLLrkUaDGv8fI/////////////////////////////////////f7+4ufmssTIrru90NLQ8PHy////////////////////"
+    ]
+};
+
+/* ============================================================
+   РАСПОЗНАВАНИЕ СКРИНШОТА ВОЙСК ПО ИКОНКАМ
+
+   1. Находим на скриншоте чёрные числа (группы цифр).
+   2. Слева от каждого числа ищем иконку и определяем ресурс
+      по её внешнему виду (золото / дерево / руда / мана).
+   3. Само число читаем отдельным OCR по вырезанному фрагменту.
+   4. Время обучения ищем как белое время на синей кнопке.
+   5. Число над ресурсами (ползунок) — количество юнитов,
+      на которое рассчитана стоимость.
+============================================================ */
+
+const RS_RES_TYPES = ["gold", "wood", "ore", "mana"];
+
+const RS_RES_LABELS = {
+    gold: "золото",
+    wood: "дерево",
+    ore: "руда",
+    mana: "мана"
+};
+
+const RS_ICON_TEMPLATES = (() => {
+    const out = {};
+    for (const type of Object.keys(RS_ICON_TEMPLATES_B64)) {
+        out[type] = RS_ICON_TEMPLATES_B64[type].map(b64 => {
+            const bin = atob(b64);
+            const arr = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+            return arr;
+        });
+    }
+    return out;
+})();
+
+const RS_DESC_SIZE = 16;
+
+function rsMakeCanvas(w, h) {
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(w));
+    c.height = Math.max(1, Math.round(h));
+    return c;
+}
+
+function rsToOcrInput(canvas) {
+    // В браузере Tesseract принимает canvas напрямую.
+    return typeof canvas.toBuffer === "function"
+        ? canvas.toBuffer("image/png")
+        : canvas;
+}
+
+/* ---------- Компоненты связности ---------- */
+
+function rsLabelComponents(mask, W, H) {
+    const labels = new Int32Array(W * H);
+    const stack = new Int32Array(W * H);
+    const comps = [];
+    let next = 0;
+
+    for (let i = 0; i < W * H; i++) {
+        if (!mask[i] || labels[i]) continue;
+
+        next++;
+        let sp = 0;
+        stack[sp++] = i;
+        labels[i] = next;
+
+        let x0 = W, y0 = H, x1 = -1, y1 = -1, area = 0;
+
+        while (sp) {
+            const p = stack[--sp];
+            const y = (p / W) | 0;
+            const x = p - y * W;
+
+            area++;
+            if (x < x0) x0 = x;
+            if (x > x1) x1 = x;
+            if (y < y0) y0 = y;
+            if (y > y1) y1 = y;
+
+            for (let dy = -1; dy <= 1; dy++) {
+                const ny = y + dy;
+                if (ny < 0 || ny >= H) continue;
+
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx;
+                    if (nx < 0 || nx >= W) continue;
+
+                    const q = ny * W + nx;
+                    if (mask[q] && !labels[q]) {
+                        labels[q] = next;
+                        stack[sp++] = q;
+                    }
+                }
+            }
+        }
+
+        comps.push({ x0, y0, x1: x1 + 1, y1: y1 + 1, area });
+    }
+
+    return comps;
+}
+
+/* ---------- Группировка символов в «строки» ---------- */
+
+function rsGroupRuns(comps, opts = {}) {
+    const minH = opts.minH ?? 7;
+    const maxH = opts.maxH ?? 90;
+    const maxGap = opts.maxGap ?? 0.9;
+
+    const glyphs = comps
+        .filter(c => {
+            const h = c.y1 - c.y0;
+            const w = c.x1 - c.x0;
+            return h >= minH && h <= maxH && w <= h * 1.3 && w >= h * 0.12;
+        })
+        .sort((a, b) => a.x0 - b.x0);
+
+    const runs = [];
+
+    for (const g of glyphs) {
+        const gh = g.y1 - g.y0;
+        const gcy = (g.y0 + g.y1) / 2;
+
+        let target = null;
+
+        for (let r = runs.length - 1; r >= 0; r--) {
+            const run = runs[r];
+            const gap = g.x0 - run.x1;
+
+            if (gap > run.h * maxGap + 2) continue;
+            if (gap < -2) continue;
+            if (Math.abs(gcy - run.cy) > run.h * 0.3) continue;
+
+            const ratio = gh / run.h;
+            if (ratio < 0.72 || ratio > 1.38) continue;
+
+            target = run;
+            break;
+        }
+
+        if (target) {
+            target.glyphs.push(g);
+            target.x1 = Math.max(target.x1, g.x1);
+            target.y0 = Math.min(target.y0, g.y0);
+            target.y1 = Math.max(target.y1, g.y1);
+            target.h = target.glyphs
+                .map(x => x.y1 - x.y0)
+                .sort((a, b) => a - b)[(target.glyphs.length / 2) | 0];
+            target.cy = (target.y0 + target.y1) / 2;
+        } else {
+            runs.push({
+                glyphs: [g],
+                x0: g.x0,
+                x1: g.x1,
+                y0: g.y0,
+                y1: g.y1,
+                h: gh,
+                cy: gcy
+            });
+        }
+    }
+
+    return runs.filter(r => r.glyphs.length <= 14);
+}
+
+/* ---------- Определение иконки слева от числа ---------- */
+
+function rsIconBoxLeftOfRun(px, W, H, run) {
+    const h = run.y1 - run.y0;
+    const cy = (run.y0 + run.y1) / 2;
+
+    const wx0 = Math.max(0, Math.floor(run.x0 - 4.4 * h));
+    const wx1 = Math.max(wx0 + 1, Math.floor(run.x0 - 1));
+    const wy0 = Math.max(0, Math.floor(cy - 2.1 * h));
+    const wy1 = Math.min(H, Math.ceil(cy + 2.1 * h));
+
+    const ww = wx1 - wx0;
+    const wh = wy1 - wy0;
+
+    if (ww < h * 0.8 || wh < h) return null;
+
+    // Цвет фона — самый частый цвет в окне.
+    const bins = new Map();
+
+    for (let y = wy0; y < wy1; y++) {
+        for (let x = wx0; x < wx1; x++) {
+            const i = (y * W + x) * 4;
+            const key =
+                (px[i] >> 4) * 256 + (px[i + 1] >> 4) * 16 + (px[i + 2] >> 4);
+
+            let b = bins.get(key);
+            if (!b) {
+                b = { n: 0, r: 0, g: 0, b: 0 };
+                bins.set(key, b);
+            }
+
+            b.n++;
+            b.r += px[i];
+            b.g += px[i + 1];
+            b.b += px[i + 2];
+        }
+    }
+
+    let best = null;
+    for (const b of bins.values()) {
+        if (!best || b.n > best.n) best = b;
+    }
+
+    const bgR = best.r / best.n;
+    const bgG = best.g / best.n;
+    const bgB = best.b / best.n;
+
+    const fg = new Uint8Array(ww * wh);
+
+    for (let y = 0; y < wh; y++) {
+        for (let x = 0; x < ww; x++) {
+            const i = ((wy0 + y) * W + (wx0 + x)) * 4;
+            const d =
+                Math.abs(px[i] - bgR) +
+                Math.abs(px[i + 1] - bgG) +
+                Math.abs(px[i + 2] - bgB);
+
+            if (d > 70) fg[y * ww + x] = 1;
+        }
+    }
+
+    let comps = rsLabelComponents(fg, ww, wh);
+
+    comps = comps.filter(c => {
+        const bw = c.x1 - c.x0;
+        const bh = c.y1 - c.y0;
+
+        if (c.area < 0.03 * h * h) return false;
+        if (bw <= 0.15 * h || bh <= 0.15 * h) return false; // линии рамок
+        if (bh > 3.5 * h || bw > 3.7 * h) return false;     // крупные объекты
+
+        return true;
+    });
+
+    if (!comps.length) return null;
+
+    // Основа иконки — самый крупный фрагмент рядом с числом.
+    const near = comps.filter(c => c.x1 >= ww - 1.6 * h);
+    const pool = near.length ? near : comps;
+
+    pool.sort((a, b) => b.area - a.area);
+
+    let box = {
+        x0: pool[0].x0,
+        y0: pool[0].y0,
+        x1: pool[0].x1,
+        y1: pool[0].y1
+    };
+
+    // Присоединяем близкие мелкие части (пробка флакона и т.п.).
+    let changed = true;
+
+    while (changed) {
+        changed = false;
+
+        for (const c of comps) {
+            if (c.x0 >= box.x0 && c.x1 <= box.x1 &&
+                c.y0 >= box.y0 && c.y1 <= box.y1) continue;
+
+            const gapX = Math.max(c.x0 - box.x1, box.x0 - c.x1, 0);
+            const gapY = Math.max(c.y0 - box.y1, box.y0 - c.y1, 0);
+
+            if (gapX <= 0.2 * h && gapY <= 0.2 * h) {
+                const nb = {
+                    x0: Math.min(box.x0, c.x0),
+                    y0: Math.min(box.y0, c.y0),
+                    x1: Math.max(box.x1, c.x1),
+                    y1: Math.max(box.y1, c.y1)
+                };
+
+                if (nb.x1 - nb.x0 <= 3.7 * h && nb.y1 - nb.y0 <= 3.5 * h) {
+                    box = nb;
+                    changed = true;
+                }
+            }
+        }
+    }
+
+    const bw = box.x1 - box.x0;
+    const bh = box.y1 - box.y0;
+
+    if (bw < 0.7 * h || bh < 0.7 * h) return null;
+    if (run.x0 - (wx0 + box.x1) > 1.6 * h) return null;
+
+    return {
+        x0: wx0 + box.x0,
+        y0: wy0 + box.y0,
+        x1: wx0 + box.x1,
+        y1: wy0 + box.y1,
+        bg: [bgR, bgG, bgB],
+        bgDist: 70
+    };
+}
+
+function rsIconDescriptor(px, W, box) {
+    const bw = box.x1 - box.x0;
+    const bh = box.y1 - box.y0;
+    const side = Math.max(bw, bh);
+
+    // Вырезаем иконку, заменяя фон на белый.
+    const src = rsMakeCanvas(side, side);
+    const sctx = src.getContext("2d", { willReadFrequently: true });
+
+    const id = sctx.createImageData(side, side);
+    const out = id.data;
+
+    for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255;
+        out[i + 1] = 255;
+        out[i + 2] = 255;
+        out[i + 3] = 255;
+    }
+
+    const offX = Math.floor((side - bw) / 2);
+    const offY = Math.floor((side - bh) / 2);
+
+    for (let y = 0; y < bh; y++) {
+        for (let x = 0; x < bw; x++) {
+            const si = ((box.y0 + y) * W + (box.x0 + x)) * 4;
+            const di = ((offY + y) * side + (offX + x)) * 4;
+
+            const d =
+                Math.abs(px[si] - box.bg[0]) +
+                Math.abs(px[si + 1] - box.bg[1]) +
+                Math.abs(px[si + 2] - box.bg[2]);
+
+            if (d > 40) {
+                out[di] = px[si];
+                out[di + 1] = px[si + 1];
+                out[di + 2] = px[si + 2];
+            }
+        }
+    }
+
+    sctx.putImageData(id, 0, 0);
+
+    const small = rsMakeCanvas(RS_DESC_SIZE, RS_DESC_SIZE);
+    const mctx = small.getContext("2d", { willReadFrequently: true });
+
+    mctx.fillStyle = "#fff";
+    mctx.fillRect(0, 0, RS_DESC_SIZE, RS_DESC_SIZE);
+    mctx.imageSmoothingEnabled = true;
+    mctx.imageSmoothingQuality = "high";
+    mctx.drawImage(src, 0, 0, RS_DESC_SIZE, RS_DESC_SIZE);
+
+    const data = mctx.getImageData(0, 0, RS_DESC_SIZE, RS_DESC_SIZE).data;
+    const desc = new Uint8Array(RS_DESC_SIZE * RS_DESC_SIZE * 3);
+
+    for (let i = 0, j = 0; i < data.length; i += 4) {
+        desc[j++] = data[i];
+        desc[j++] = data[i + 1];
+        desc[j++] = data[i + 2];
+    }
+
+    return desc;
+}
+
+function rsClassifyIcon(desc) {
+    const scores = {};
+
+    for (const type of Object.keys(RS_ICON_TEMPLATES)) {
+        let best = Infinity;
+
+        for (const tpl of RS_ICON_TEMPLATES[type]) {
+            let sum = 0;
+            for (let i = 0; i < desc.length; i++) {
+                sum += Math.abs(desc[i] - tpl[i]);
+            }
+            best = Math.min(best, sum / desc.length);
+        }
+
+        scores[type] = best;
+    }
+
+    const ranked = Object.entries(scores).sort((a, b) => a[1] - b[1]);
+    const [type, dist] = ranked[0];
+    const second = ranked[1] ? ranked[1][1] : Infinity;
+
+    if (dist > 34 || second - dist < 10) {
+        return { type: null, dist, scores };
+    }
+
+    return { type, dist, scores };
+}
+
+/* ---------- Подготовка фрагмента для OCR ---------- */
+
+function rsBuildOcrCanvas(px, W, H, box, mode) {
+    const h = box.y1 - box.y0;
+    const pad = Math.max(2, Math.round(h * 0.3));
+
+    const x0 = Math.max(0, Math.floor(box.x0 - pad));
+    const y0 = Math.max(0, Math.floor(box.y0 - pad));
+    const x1 = Math.min(W, Math.ceil(box.x1 + pad));
+    const y1 = Math.min(H, Math.ceil(box.y1 + pad));
+
+    const cw = x1 - x0;
+    const ch = y1 - y0;
+
+    const base = rsMakeCanvas(cw, ch);
+    const bctx = base.getContext("2d", { willReadFrequently: true });
+    const id = bctx.createImageData(cw, ch);
+    const out = id.data;
+
+    for (let y = 0; y < ch; y++) {
+        for (let x = 0; x < cw; x++) {
+            const si = ((y0 + y) * W + (x0 + x)) * 4;
+            const di = (y * cw + x) * 4;
+
+            const r = px[si], g = px[si + 1], b = px[si + 2];
+            let v;
+
+            if (mode === "white") {
+                // Белый текст на цветной кнопке -> чёрный на белом.
+                const m = Math.min(r, g, b);
+                v = 255 - Math.max(0, Math.min(255, (m - 110) * 255 / 125));
+            } else {
+                // Тёмный (или красный) текст на светлом фоне.
+                const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                const chroma = Math.max(r, g, b) - Math.min(r, g, b);
+                const redness = r - (g + b) / 2;
+
+                if (redness > 60 && g < 140 && b < 140) {
+                    v = Math.max(0, 255 - redness * 1.6);
+                } else if (chroma > 70) {
+                    v = 255;
+                } else {
+                    v = lum;
+                }
+
+                v = Math.max(0, Math.min(255, (v - 70) * 255 / 120));
+            }
+
+            out[di] = v;
+            out[di + 1] = v;
+            out[di + 2] = v;
+            out[di + 3] = 255;
+        }
+    }
+
+    bctx.putImageData(id, 0, 0);
+
+    // Увеличиваем и добавляем белые поля.
+    const scale = Math.max(1, Math.min(6, 64 / Math.max(h, 1)));
+    const margin = 24;
+
+    const big = rsMakeCanvas(cw * scale + margin * 2, ch * scale + margin * 2);
+    const gctx = big.getContext("2d");
+
+    gctx.fillStyle = "#fff";
+    gctx.fillRect(0, 0, big.width, big.height);
+    gctx.imageSmoothingEnabled = true;
+    gctx.imageSmoothingQuality = "high";
+    gctx.drawImage(base, margin, margin, cw * scale, ch * scale);
+
+    return big;
+}
+
+/* ---------- Разбор прочитанных значений ---------- */
+
+function rsNormalizeNumberText(text) {
+    return String(text || "")
+        .replace(/[Кк]/g, "K")
+        .replace(/[Мм]/g, "M")
+        .replace(/k/g, "K")
+        .replace(/m/g, "M")
+        .replace(/[\s\u00a0]+/g, "")
+        .trim();
+}
+
+function rsParseCompactNumber(raw) {
+    const s = rsNormalizeNumberText(raw);
+    const m = s.match(/^(\d[\d.,]*)([KM])?$/);
+
+    if (!m) return null;
+
+    let digits = m[1].replace(/[.,]+$/, "");
+    const suffix = m[2] || "";
+
+    const seps = digits.match(/[.,]/g) || [];
+    let value;
+
+    if (suffix) {
+        // 202,5K — запятая здесь десятичная.
+        if (seps.length > 1) {
+            const last = Math.max(digits.lastIndexOf(","), digits.lastIndexOf("."));
+            const intPart = digits.slice(0, last).replace(/[.,]/g, "");
+            digits = intPart + "." + digits.slice(last + 1);
+        } else {
+            digits = digits.replace(",", ".");
+        }
+
+        value = parseFloat(digits) * (suffix === "K" ? 1e3 : 1e6);
+    } else if (seps.length === 1 && /^\d{1,3}[.,]\d{3}$/.test(digits)) {
+        value = parseInt(digits.replace(/[.,]/g, ""), 10);
+    } else if (seps.length) {
+        value = parseFloat(digits.replace(",", "."));
+    } else {
+        value = parseInt(digits, 10);
+    }
+
+    if (!Number.isFinite(value) || value < 0) return null;
+
+    return Math.round(value);
+}
+
+function rsParseTrainingTime(raw) {
+    const s = String(raw || "")
+        .replace(/[\u00a0]+/g, " ")
+        .replace(/[дdD]/g, "д")
+        .trim();
+
+    const m = s.match(
+        /(?:(\d+)\s*д\s*)?(\d{1,3})\s*[:.]\s*(\d{2})(?:\s*[:.]\s*(\d{2}))?/
+    );
+
+    if (!m) return null;
+
+    const days = m[1] ? Number(m[1]) : 0;
+    let hours, minutes, seconds;
+
+    if (m[4] !== undefined) {
+        hours = Number(m[2]);
+        minutes = Number(m[3]);
+        seconds = Number(m[4]);
+    } else {
+        hours = 0;
+        minutes = Number(m[2]);
+        seconds = Number(m[3]);
+    }
+
+    if (minutes > 59 || seconds > 59) return null;
+
+    const total = ((days * 24 + hours) * 60 + minutes) * 60 + seconds;
+
+    return total > 0 ? total : null;
+}
+
+async function rsOcrParse(worker, canvas, whitelist, psmList, parseFn) {
+    let lastText = "";
+
+    for (const psm of psmList) {
+        await worker.setParameters({
+            tessedit_pageseg_mode: psm,
+            tessedit_char_whitelist: whitelist
+        });
+
+        const res = await worker.recognize(rsToOcrInput(canvas));
+        const text = (res?.data?.text || "").replace(/\s+/g, " ").trim();
+
+        if (text) lastText = text;
+
+        const value = parseFn(text);
+
+        if (value !== null && value !== undefined) {
+            return { text, value };
+        }
+    }
+
+    return { text: lastText, value: null };
+}
+
+/* ---------- Белый текст на синей кнопке (время обучения) ---------- */
+
+function rsFindTimeRuns(px, W, H) {
+    const mask = new Uint8Array(W * H);
+
+    for (let i = 0, p = 0; p < W * H; i += 4, p++) {
+        const r = px[i], g = px[i + 1], b = px[i + 2];
+        const mn = Math.min(r, g, b);
+        const mx = Math.max(r, g, b);
+
+        if (mn > 215 && mx - mn < 45) mask[p] = 1;
+    }
+
+    const comps = rsLabelComponents(mask, W, H);
+    const runs = rsGroupRuns(comps, { minH: 8, maxGap: 1.0 });
+
+    const result = [];
+
+    for (const run of runs) {
+        if (run.glyphs.length < 4) continue;
+
+        const h = run.y1 - run.y0;
+        const rx0 = Math.max(0, Math.floor(run.x0 - 0.6 * h));
+        const rx1 = Math.min(W, Math.ceil(run.x1 + 0.6 * h));
+        const ry0 = Math.max(0, Math.floor(run.y0 - 0.6 * h));
+        const ry1 = Math.min(H, Math.ceil(run.y1 + 0.6 * h));
+
+        // Вокруг текста должна быть синяя кнопка.
+        let blue = 0;
+        let total = 0;
+
+        for (let y = ry0; y < ry1; y++) {
+            for (let x = rx0; x < rx1; x++) {
+                if (x >= run.x0 && x < run.x1 && y >= run.y0 && y < run.y1) {
+                    continue;
+                }
+
+                const i = (y * W + x) * 4;
+                total++;
+
+                if (px[i + 2] > px[i] + 45 && px[i + 2] > px[i + 1] - 10) {
+                    blue++;
+                }
+            }
+        }
+
+        if (total && blue / total >= 0.4) {
+            result.push(run);
+        }
+    }
+
+    // Самые нижние строки кнопки — первыми.
+    result.sort((a, b) => b.y0 - a.y0);
+
+    return result.slice(0, 5);
+}
+
+/* ---------- Поиск строк «иконка + число» ---------- */
+
+function rsDetectCostRuns(px, W, H, lumLimit) {
+    const textMask = new Uint8Array(W * H);
+
+    for (let i = 0, p = 0; p < W * H; i += 4, p++) {
+        const r = px[i], g = px[i + 1], b = px[i + 2];
+        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        const chroma = Math.max(r, g, b) - Math.min(r, g, b);
+
+        if (lum < lumLimit && chroma < 50) {
+            textMask[p] = 1;
+        } else if (r > 150 && g < 90 && b < 90 && r - g > 80) {
+            textMask[p] = 1; // красный текст (не хватает ресурсов)
+        }
+    }
+
+    const runs = rsGroupRuns(rsLabelComponents(textMask, W, H), {
+        minH: 7,
+        maxGap: 0.9
+    });
+
+    const costRuns = [];
+
+    for (const run of runs) {
+        const box = rsIconBoxLeftOfRun(px, W, H, run);
+        if (!box) continue;
+
+        const cls = rsClassifyIcon(rsIconDescriptor(px, W, box));
+
+        if (cls.type) {
+            costRuns.push({ run, box, type: cls.type, dist: cls.dist });
+        }
+    }
+
+    // Для каждого типа — самое уверенное совпадение.
+    const bestByType = {};
+
+    for (const item of costRuns) {
+        if (!bestByType[item.type] || item.dist < bestByType[item.type].dist) {
+            bestByType[item.type] = item;
+        }
+    }
+
+    const used = Object.values(bestByType);
+
+    // Больше найденных ресурсов лучше; при равенстве — более полные числа.
+    const score =
+        used.length * 10000 +
+        used.reduce((sum, u) => sum + (u.run.x1 - u.run.x0), 0);
+
+    return { runs, bestByType, score };
+}
+
+/* ---------- Основная функция ---------- */
+
+async function recognizeTroopCanvas(sourceCanvas, worker, onProgress) {
+    const progress = (p, t) => {
+        if (typeof onProgress === "function") onProgress(p, t);
+    };
+
+    // Рабочий размер: слишком большие уменьшаем, совсем маленькие увеличиваем.
+    let W = sourceCanvas.width;
+    let H = sourceCanvas.height;
+    let scale = 1;
+
+    const longSide = Math.max(W, H);
+
+    if (longSide > 2600) scale = 2600 / longSide;
+    else if (longSide < 1200) scale = Math.min(3, 1400 / longSide);
+
+    let canvas = sourceCanvas;
+
+    if (scale !== 1) {
+        canvas = rsMakeCanvas(W * scale, H * scale);
+        const c2 = canvas.getContext("2d");
+        c2.imageSmoothingEnabled = true;
+        c2.imageSmoothingQuality = "high";
+        c2.drawImage(sourceCanvas, 0, 0, canvas.width, canvas.height);
+        W = canvas.width;
+        H = canvas.height;
+    }
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const px = ctx.getImageData(0, 0, W, H).data;
+
+    const result = {
+        gold: null,
+        wood: null,
+        ore: null,
+        mana: null,
+        trainingSeconds: null,
+        batchCount: null,
+        found: [],
+        debug: { icons: [], time: null, batch: null }
+    };
+
+    progress(8, "Поиск чисел на скриншоте...");
+
+    // 1–2. Тёмные (чёрные или красные) числа и иконка слева от каждого.
+    // Пробуем строгий и более мягкий порог «чёрного» и берём тот,
+    // что нашёл больше ресурсов и более полные числа.
+    const passes = [32, 60].map(lumLimit =>
+        rsDetectCostRuns(px, W, H, lumLimit)
+    );
+
+    progress(15, "Определение иконок ресурсов...");
+
+    let chosen = passes[0];
+
+    if (passes[1].score > passes[0].score) chosen = passes[1];
+
+    const runs = chosen.runs;
+    const bestByType = chosen.bestByType;
+
+    result.debug.icons = Object.values(bestByType).map(item => ({
+        run: {
+            x0: item.run.x0,
+            y0: item.run.y0,
+            x1: item.run.x1,
+            y1: item.run.y1
+        },
+        type: item.type,
+        dist: Math.round(item.dist * 10) / 10
+    }));
+
+    const types = Object.keys(bestByType);
+
+    for (let n = 0; n < types.length; n++) {
+        const type = types[n];
+        const item = bestByType[type];
+
+        progress(
+            20 + Math.round((n / Math.max(types.length, 1)) * 45),
+            `Чтение числа: ${RS_RES_LABELS[type]}...`
+        );
+
+        const crop = rsBuildOcrCanvas(px, W, H, item.run, "dark");
+        const read = await rsOcrParse(
+            worker,
+            crop,
+            "0123456789.,KMКМ ",
+            ["7", "8", "13"],
+            rsParseCompactNumber
+        );
+
+        result.debug.icons.forEach(d => {
+            if (d.run.x0 === item.run.x0 && d.run.y0 === item.run.y0) {
+                d.text = read.text;
+                d.value = read.value;
+            }
+        });
+
+        if (read.value !== null) {
+            result[type] = read.value;
+            result.found.push(type);
+        }
+    }
+
+    // 3. Время обучения.
+    progress(70, "Поиск времени обучения...");
+
+    const timeRuns = rsFindTimeRuns(px, W, H);
+
+    for (const run of timeRuns) {
+        const crop = rsBuildOcrCanvas(px, W, H, run, "white");
+        const read = await rsOcrParse(
+            worker,
+            crop,
+            "0123456789:дdD ",
+            ["7", "13", "8"],
+            rsParseTrainingTime
+        );
+
+        result.debug.time = {
+            run: { x0: run.x0, y0: run.y0, x1: run.x1, y1: run.y1 },
+            text: read.text,
+            value: read.value
+        };
+
+        if (read.value !== null) {
+            result.trainingSeconds = read.value;
+            break;
+        }
+    }
+
+    // 4. Количество юнитов (число рядом с ползунком над стоимостью).
+    progress(85, "Определение количества юнитов...");
+
+    const used = Object.values(bestByType);
+
+    if (used.length) {
+        const hs = used.map(u => u.run.y1 - u.run.y0).sort((a, b) => a - b);
+        const hCost = hs[(hs.length / 2) | 0];
+        const costTop = Math.min(...used.map(u => u.run.y0));
+        const cxs = used
+            .map(u => (u.run.x0 + u.run.x1) / 2)
+            .sort((a, b) => a - b);
+        const cxMed = cxs[(cxs.length / 2) | 0];
+
+        const candidates = runs
+            .filter(r => {
+                const h = r.y1 - r.y0;
+                const gap = costTop - r.y1;
+                const cx = (r.x0 + r.x1) / 2;
+
+                return (
+                    h >= hCost * 0.7 &&
+                    h <= hCost * 1.45 &&
+                    gap >= hCost * 0.4 &&
+                    gap <= hCost * 6 &&
+                    cx >= cxMed &&
+                    r.glyphs.length <= 5
+                );
+            })
+            .sort((a, b) => b.y1 - a.y1)
+            .slice(0, 3);
+
+        for (const run of candidates) {
+            const crop = rsBuildOcrCanvas(px, W, H, run, "dark");
+            const read = await rsOcrParse(
+                worker,
+                crop,
+                "0123456789",
+                ["8", "7", "10"],
+                t => {
+                    const n = /^\d{1,5}$/.test(t.replace(/\s/g, ""))
+                        ? parseInt(t.replace(/\s/g, ""), 10)
+                        : null;
+
+                    return n && n >= 1 ? n : null;
+                }
+            );
+
+            result.debug.batch = {
+                run: { x0: run.x0, y0: run.y0, x1: run.x1, y1: run.y1 },
+                text: read.text,
+                value: read.value
+            };
+
+            if (read.value !== null) {
+                result.batchCount = read.value;
+                break;
+            }
+        }
+    }
+
+    // Сбрасываем настройки, чтобы не влиять на остальное OCR.
+    await worker.setParameters({
+        tessedit_pageseg_mode: "6", // значение по умолчанию в Tesseract.js
+        tessedit_char_whitelist: ""
+    });
+
+    progress(100, "Готово");
+
+    return result;
+}
+
+
+/* ============================================================
+   РАСПОЗНАВАНИЕ РЕСУРСОВ
+============================================================ */
+
+function extractNumberAfterLabel(text, labels) {
+    for (const label of labels) {
+        const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        const regex = new RegExp(
+            escaped + "\\s*[:\\-]?\\s*([\\d\\s.,]+)",
+            "i"
+        );
+
+        const match = text.match(regex);
+
+        if (match) {
+            const raw = match[1]
+                .replace(/\s/g, "")
+                .replace(/(\d)[,.](\d{3})(?!\d)/g, "$1$2")
+                .replace(",", ".");
+
+            const value = Number(raw);
+
+            if (Number.isFinite(value)) {
+                return value;
+            }
+        }
+    }
+
+    return null;
+}
+
+function parseTroopOcr(text) {
+    const result = {
+        gold: extractNumberAfterLabel(text, [
+            "золото",
+            "gold",
+            "золот"
+        ]),
+
+        wood: extractNumberAfterLabel(text, [
+            "дерево",
+            "wood"
+        ]),
+
+        ore: extractNumberAfterLabel(text, [
+            "руда",
+            "ore",
+            "железо"
+        ]),
+
+        mana: extractNumberAfterLabel(text, [
+            "мана",
+            "mana"
+        ]),
+
+        trainingSeconds: null,
+        batchCount: null
+    };
+
+    const times = extractTimes(text);
+
+    if (times.length) {
+        // Обычно самый короткий временной показатель на экране
+        // является временем обучения одного юнита.
+        result.trainingSeconds = times
+            .map(x => x.seconds)
+            .sort((a, b) => a - b)[0];
+    }
+
+    // Попытка определить количество юнитов партии.
+    const batchRegexes = [
+        /(?:количество|число|units?|юнитов?|войск)\s*[:\-]?\s*([\d\s]+)/i,
+        /x\s*([\d\s]+)/i,
+        /×\s*([\d\s]+)/i
+    ];
+
+    for (const regex of batchRegexes) {
+        const match = text.match(regex);
+
+        if (match) {
+            const n = Number(match[1].replace(/\s/g, ""));
+
+            if (Number.isFinite(n) && n > 0) {
+                result.batchCount = n;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+
+/* ============================================================
+   СОЗДАНИЕ OCR-ПРЕДПРОСМОТРА
+============================================================ */
+
+function fieldHtml(
+    label,
+    id,
+    value,
+    options = {}
+) {
+    const {
+        missing = false,
+        type = "number",
+        placeholder = ""
+    } = options;
+
+    const safeValue =
+        value === null ||
+        value === undefined ||
+        !Number.isFinite(Number(value))
+            ? ""
+            : value;
+
+    return `
+        <div class="field ${missing ? "missing" : ""}">
+            <label>${label}</label>
+            <input
+                id="${id}"
+                type="${type}"
+                min="${type === "number" ? "0" : ""}"
+                step="${type === "number" ? "any" : ""}"
+                value="${safeValue}"
+                placeholder="${placeholder}"
+            >
+        </div>
+    `;
+}
+
+function renderTroopOcrFields(data) {
+    const container = document.getElementById("ocrFields");
+
+    const p = secondsToParts(data.trainingSeconds || 0);
+
+    const foundList = Array.isArray(data.found) ? data.found : [];
+
+    let summaryHtml = "";
+
+    if (foundList.length) {
+        const foundNames = foundList.map(t => RS_RES_LABELS[t]);
+        const absentNames = RS_RES_TYPES
+            .filter(t => !foundList.includes(t))
+            .map(t => RS_RES_LABELS[t]);
+
+        summaryHtml = `
+            <div class="notice success" style="margin-top:0;">
+                Распознано по иконкам: ${foundNames.join(", ")}.
+                ${absentNames.length
+                    ? `На скриншоте нет: ${absentNames.join(", ")} — стоимость принята равной 0.`
+                    : ""}
+            </div>
+        `;
+    }
+
+    container.innerHTML = `
+        ${summaryHtml}
+
+        <div class="grid grid-2">
+
+            ${fieldHtml(
+                "Золото",
+                "ocrGold",
+                data.gold,
+                { missing: data.gold === null }
+            )}
+
+            ${fieldHtml(
+                "Дерево",
+                "ocrWood",
+                data.wood,
+                { missing: data.wood === null }
+            )}
+
+            ${fieldHtml(
+                "Руда",
+                "ocrOre",
+                data.ore,
+                { missing: data.ore === null }
+            )}
+
+            ${fieldHtml(
+                "Мана",
+                "ocrMana",
+                data.mana,
+                { missing: data.mana === null }
+            )}
+
+        </div>
+
+        <div class="field ${data.trainingSeconds === null ? "missing" : ""}">
+            <label>Время 1 юнита</label>
+
+            <div class="time-row four">
+
+                <div class="time-cell">
+                    <input id="ocrDays" type="number" min="0" value="${data.trainingSeconds === null ? "" : p.days}">
+                    <span class="time-unit">д.</span>
+                </div>
+
+                <div class="time-cell">
+                    <input id="ocrHours" type="number" min="0" value="${data.trainingSeconds === null ? "" : p.hours}">
+                    <span class="time-unit">ч.</span>
+                </div>
+
+                <div class="time-cell">
+                    <input id="ocrMinutes" type="number" min="0" value="${data.trainingSeconds === null ? "" : p.minutes}">
+                    <span class="time-unit">м.</span>
+                </div>
+
+                <div class="time-cell">
+                    <input id="ocrSeconds" type="number" min="0" value="${data.trainingSeconds === null ? "" : p.seconds}">
+                    <span class="time-unit">с.</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Количество юнитов на скриншоте <small>(необязательно)</small></label>
+            <input
+                id="ocrBatchCount"
+                type="number"
+                min="1"
+                step="1"
+                value="${data.batchCount || ""}"
+                placeholder="Например, 100"
+            >
+        </div>
+
+        <div class="notice">
+            Если на скриншоте выбрано больше одного юнита (число рядом с
+            ползунком), стоимость и время указаны сразу для всей партии.
+            Количество определяется автоматически — проверьте его.
+            При применении стоимость и время будут разделены на это число.
+        </div>
+    `;
+}
+
+function renderBoostOcrFields(data) {
+    const container = document.getElementById("ocrFields");
+
+    if (!data.times.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                Не найдено значений в точном формате
+                «XX д. XX ч XX мин.». Введите ускорение вручную.
+            </div>
+
+            <div class="grid grid-3">
+                <div class="field">
+                    <label>Дни</label>
+                    <input id="ocrBoostDays" type="number" min="0" step="1" value="">
+                </div>
+                <div class="field">
+                    <label>Часы</label>
+                    <input id="ocrBoostHours" type="number" min="0" max="23" step="1" value="">
+                </div>
+                <div class="field">
+                    <label>Минуты</label>
+                    <input id="ocrBoostMinutes" type="number" min="0" max="59" step="1" value="">
+                </div>
+            </div>
+
+            <div class="field" style="margin-top:10px;">
+                <label>Куда записать</label>
+                <select id="ocrBoostDestination">
+                    <option value="training">Ускорения для тренировки</option>
+                    <option value="general">Общие ускорения</option>
+                </select>
+            </div>
+
+            <div class="notice" style="margin-top:10px;">
+                Автоматически распознаются только длительности вида
+                «XX д. XX ч XX мин.». Данные можно проверить и исправить вручную.
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div>
+            <div style="display:block;margin-bottom:4px;color:#bdb5c8;font-size:.78rem;font-weight:600;">
+                Распознанные значения ускорений
+            </div>
+            <div class="ocr-selection-hint">
+                Отметьте одно или несколько значений. Для каждого выбранного
+                значения отдельно укажите категорию, куда его записать.
+                Значения не округляются и не переводятся в часы — дни, часы и минуты сохраняются точно.
+            </div>
+
+            ${data.times.map((item, index) => `
+                <div class="boost-ocr-row" data-index="${index}">
+                    <div class="boost-ocr-top">
+                        <input
+                            class="boost-ocr-select"
+                            data-index="${index}"
+                            type="checkbox"
+                            checked
+                            aria-label="Выбрать ${escapeHtml(item.text)}"
+                        >
+                        <div>
+                            <div class="boost-ocr-raw">${escapeHtml(item.text)}</div>
+                            <div class="boost-ocr-category">
+                                ${item.categoryDetected
+                                    ? `Категория определена: ${boostCategoryName(item.category)}`
+                                    : item.categoryGuessed
+                                        ? `Категория выбрана по порядку строк (${boostCategoryName(item.category)}) — проверьте`
+                                        : "Категория не определена — выберите вручную"}${item.uncertain ? " · время распознано приблизительно, проверьте" : ""}
+                            </div>
+                        </div>
+                        <div style="color:#8f8898;font-size:.75rem;">
+                            №${index + 1}
+                        </div>
+                    </div>
+
+                    <div class="time-row">
+                        <div class="time-cell">
+                            <input
+                                class="boost-ocr-days"
+                                data-index="${index}"
+                                type="number"
+                                min="0"
+                                step="1"
+                                value="${item.days}"
+                            >
+                            <span class="time-unit">д.</span>
+                        </div>
+
+                        <div class="time-cell">
+                            <input
+                                class="boost-ocr-hours"
+                                data-index="${index}"
+                                type="number"
+                                min="0"
+                                max="23"
+                                step="1"
+                                value="${item.hours}"
+                            >
+                            <span class="time-unit">ч.</span>
+                        </div>
+
+                        <div class="time-cell">
+                            <input
+                                class="boost-ocr-minutes"
+                                data-index="${index}"
+                                type="number"
+                                min="0"
+                                max="59"
+                                step="1"
+                                value="${item.minutes}"
+                            >
+                            <span class="time-unit">м.</span>
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top:9px;">
+                        <label>Куда записать это ускорение</label>
+                        <select
+                            class="boost-ocr-destination"
+                            data-index="${index}"
+                        >
+                            <option value="training" ${item.category === "training" ? "selected" : ""}>
+                                Ускорения для тренировки
+                            </option>
+                            <option value="general" ${item.category === "general" ? "selected" : ""}>
+                                Общие ускорения
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            `).join("")}
+        </div>
+
+        <div id="boostReplacePreview" class="ocr-replace-preview"></div>
+
+        <div class="notice">
+            При нажатии «Применить» выбранные значения будут суммированы отдельно
+            по каждой категории и заменят текущие значения соответствующих ускорений.
+        </div>
+    `;
+
+    container.querySelectorAll(".boost-ocr-select, .boost-ocr-days, .boost-ocr-hours, .boost-ocr-minutes, .boost-ocr-destination")
+        .forEach(element => {
+            element.addEventListener("input", updateBoostApplyPreview);
+            element.addEventListener("change", updateBoostApplyPreview);
+        });
+
+    updateBoostApplyPreview();
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+const modal = document.getElementById("ocrModal");
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("imageFileInput");
+
+function openOcrModal(mode, troopId = null) {
+    state.importMode = mode;
+    state.importTroopId = troopId;
+    state.ocrData = null;
+
+    document.getElementById("ocrModalTitle").textContent =
+        mode === "troop"
+            ? "Импорт данных войск"
+            : "Импорт ускорений";
+
+    document.getElementById("ocrPreview").style.display = "none";
+    document.getElementById("ocrProgress").style.display = "none";
+
+    clearOcrError();
+
+    document.getElementById("ocrApplyBtn").style.display = "none";
+
+    modal.classList.add("open");
+}
+
+function closeOcrModal() {
+    modal.classList.remove("open");
+
+    state.importMode = null;
+    state.importTroopId = null;
+    state.ocrData = null;
+
+    fileInput.value = "";
+}
+
+function setPreviewImage(file) {
+    const url = URL.createObjectURL(file);
+
+    document.getElementById("previewImage").src = url;
+    document.getElementById("ocrPreview").style.display = "grid";
+}
+
+function fileToCanvas(file) {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+
+        img.onload = () => {
+            try {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+
+                const ctx = canvas.getContext("2d", {
+                    willReadFrequently: true
+                });
+
+                // Белая подложка — на случай прозрачных областей PNG.
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                URL.revokeObjectURL(url);
+                resolve(canvas);
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error("Не удалось открыть изображение."));
+        };
+
+        img.src = url;
+    });
+}
+
+async function processTroopImage(file) {
+    setOcrProgress(3, "Загрузка OCR...");
+
+    const worker = await getOcrWorker();
+    const sourceCanvas = await fileToCanvas(file);
+
+    let data;
+
+    ocrProgressLocked = true;
+
+    try {
+        data = await recognizeTroopCanvas(
+            sourceCanvas,
+            worker,
+            (percent, text) => setOcrProgress(percent, text)
+        );
+    } finally {
+        ocrProgressLocked = false;
+    }
+
+    const foundSomething =
+        data.found.length > 0 || data.trainingSeconds !== null;
+
+    if (foundSomething) {
+        // Ресурс, у которого на скриншоте нет иконки, в игре не требуется.
+        for (const type of RS_RES_TYPES) {
+            if (data[type] === null) data[type] = 0;
+        }
+
+        state.ocrData = { type: "troop", text: "", ...data };
+        return;
+    }
+
+    // Резервный вариант: старое распознавание по текстовым подписям.
+    setOcrProgress(60, "Резервное распознавание текста...");
+
+    const processed = await preprocessImage(file);
+    const result = await worker.recognize(processed);
+    const text = result?.data?.text || "";
+
+    const legacy = parseTroopOcr(text);
+
+    state.ocrData = {
+        type: "troop",
+        text,
+        ...legacy,
+        found: []
+    };
+
+    const legacyFound =
+        legacy.gold !== null ||
+        legacy.wood !== null ||
+        legacy.ore !== null ||
+        legacy.mana !== null ||
+        legacy.trainingSeconds !== null;
+
+    if (!legacyFound) {
+        showOcrError(
+            "Не удалось найти на скриншоте ресурсы и время обучения. " +
+            "Обрежьте скриншот так, чтобы остались стоимость и кнопка " +
+            "«Обучить» с временем, и загрузите снова — или введите " +
+            "значения вручную."
+        );
+    }
+}
+
+/* ============================================================
+   РАСПОЗНАВАНИЕ УСКОРЕНИЙ ПО РАСКЛАДКЕ
+   Работает и с обрезанным скриншотом (только таблица),
+   и с полным скриншотом окна «Статистика предметов ускорения».
+
+   1. Находим светлую панель и в её правой части — строки с тёмным текстом.
+   2. Каждую строку времени вырезаем, увеличиваем, бинаризуем и читаем
+      отдельным OCR (одна строка, PSM 7).
+   3. Подпись слева читаем отдельно, чтобы определить категорию.
+      Если подпись не распознана — берём порядок строк в игре:
+      общее → тренировка → строительство → исследование.
+============================================================ */
+
+function boostMergeRuns(indices, gap) {
+    const runs = [];
+    let start = null;
+    let prev = null;
+
+    for (const i of indices) {
+        if (start === null) {
+            start = prev = i;
+            continue;
+        }
+        if (i - prev > gap) {
+            runs.push([start, prev]);
+            start = i;
+        }
+        prev = i;
+    }
+
+    if (start !== null) runs.push([start, prev]);
+    return runs;
+}
+
+function boostLongestRun(runs) {
+    let best = null;
+    for (const r of runs) {
+        if (!best || r[1] - r[0] > best[1] - best[0]) best = r;
+    }
+    return best;
+}
+
+function boostFindRows(canvas) {
+    const k = Math.min(1, 1400 / canvas.width);
+    const w = Math.max(1, Math.round(canvas.width * k));
+    const h = Math.max(1, Math.round(canvas.height * k));
+
+    const small = rsMakeCanvas(w, h);
+    const sctx = small.getContext("2d", { willReadFrequently: true });
+    sctx.drawImage(canvas, 0, 0, w, h);
+
+    const px = sctx.getImageData(0, 0, w, h).data;
+    const gray = new Uint8Array(w * h);
+
+    for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+        gray[j] = (px[i] * 299 + px[i + 1] * 587 + px[i + 2] * 114) / 1000;
+    }
+
+    // 1. Светлая панель: столбцы, где много светлых пикселей.
+    const cols = [];
+    for (let x = 0; x < w; x++) {
+        let bright = 0;
+        for (let y = 0; y < h; y++) {
+            if (gray[y * w + x] > 205) bright++;
+        }
+        if (bright / h > 0.2) cols.push(x);
+    }
+
+    const xr = boostLongestRun(boostMergeRuns(cols, Math.round(w * 0.05)));
+    if (!xr) return null;
+    const x0 = xr[0];
+    const x1 = xr[1];
+    const pw = x1 - x0;
+    if (pw < 40) return null;
+
+    const rowsBright = [];
+    for (let y = 0; y < h; y++) {
+        let bright = 0;
+        for (let x = x0; x <= x1; x++) {
+            if (gray[y * w + x] > 205) bright++;
+        }
+        if (bright / (pw + 1) > 0.3) rowsBright.push(y);
+    }
+
+    const yr = boostLongestRun(boostMergeRuns(rowsBright, Math.round(h * 0.03)));
+    if (!yr) return null;
+    const y0 = yr[0];
+    const y1 = yr[1];
+
+    // 2. Тёмный текст в правой колонке (там всегда стоит время).
+    const rx0 = Math.round(x0 + pw * 0.55);
+    const rx1 = Math.round(x0 + pw * 0.97);
+
+    const ys = [];
+    for (let y = y0; y <= y1; y++) {
+        let dark = 0;
+        for (let x = rx0; x <= rx1; x++) {
+            if (gray[y * w + x] < 90) dark++;
+        }
+        if (dark >= 2) ys.push(y);
+    }
+
+    let bands = boostMergeRuns(ys, Math.max(3, Math.round(h * 0.006)))
+        .filter(b => {
+            const len = b[1] - b[0] + 1;
+            return len >= h * 0.012 && len <= h * 0.12;
+        });
+
+    // Отсекаем заголовки и декор: высота строки должна быть как у большинства.
+    if (bands.length >= 3) {
+        const heights = bands.map(b => b[1] - b[0] + 1).sort((a, b) => a - b);
+        const median = heights[Math.floor(heights.length / 2)];
+        bands = bands.filter(b => {
+            const len = b[1] - b[0] + 1;
+            return len >= median * 0.75 && len <= median * 1.35;
+        });
+    }
+
+    return {
+        x0: x0 / k,
+        pw: pw / k,
+        rx0: rx0 / k,
+        rx1: rx1 / k,
+        bands: bands.map(b => ({ top: b[0] / k, bottom: b[1] / k }))
+    };
+}
+
+function boostBuildCrop(src, left, top, right, bottom, scale, threshold) {
+    left = Math.max(0, Math.floor(left));
+    top = Math.max(0, Math.floor(top));
+    right = Math.min(src.width, Math.ceil(right));
+    bottom = Math.min(src.height, Math.ceil(bottom));
+
+    const cw = Math.max(1, right - left);
+    const ch = Math.max(1, bottom - top);
+    const margin = 24;
+
+    const ow = Math.round(cw * scale);
+    const oh = Math.round(ch * scale);
+
+    const out = rsMakeCanvas(ow + margin * 2, oh + margin * 2);
+    const ctx = out.getContext("2d", { willReadFrequently: true });
+
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(src, left, top, cw, ch, margin, margin, ow, oh);
+
+    if (threshold) {
+        const img = ctx.getImageData(0, 0, out.width, out.height);
+        const d = img.data;
+
+        for (let i = 0; i < d.length; i += 4) {
+            const g = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+            const v = g < threshold ? 0 : 255;
+            d[i] = d[i + 1] = d[i + 2] = v;
+            d[i + 3] = 255;
+        }
+
+        ctx.putImageData(img, 0, 0);
+    }
+
+    return out;
+}
+
+async function boostOcrLine(worker, canvas) {
+    const res = await worker.recognize(canvas);
+    return String(res?.data?.text || "").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Разбор текста одной строки времени. Сначала строгий формат
+ * «XX д. XX ч XX мин.», затем — терпимый (по трём числам).
+ */
+function parseBoostCropText(raw) {
+    const text = normalizeOcrBoostText(raw);
+    if (!text) return null;
+
+    const strict = parseExactBoostDuration(text);
+    if (strict) return { ...strict, approx: false };
+
+    const mapped = text
+        .replace(/[OoОо]/g, "0")
+        .replace(/[lIіІ!]/g, "1");
+
+    const strict2 = parseExactBoostDuration(mapped);
+    if (strict2) return { ...strict2, approx: false };
+
+    let nums = mapped.match(/\d+/g) || [];
+
+    // «ч» часто читается как одиночная цифра 4 → получается 4 числа.
+    if (nums.length === 4 && nums[2].length === 1) {
+        nums = [nums[0], nums[1], nums[3]];
+    }
+
+    if (nums.length !== 3) return null;
+
+    const days = Number(nums[0]);
+    const hours = Number(nums[1]);
+    const minutes = Number(nums[2]);
+
+    if (!isValidBoostParts(days, hours, minutes)) return null;
+
+    return {
+        days,
+        hours,
+        minutes,
+        totalMinutes: days * 1440 + hours * 60 + minutes,
+        raw: text,
+        approx: true
+    };
+}
+
+function boostCategoryFromLabelText(raw) {
+    const t = String(raw || "").toLowerCase().replace(/ё/g, "е");
+
+    if (/тренир|ренировк|тренев/.test(t)) return "training";
+    if (/строит|роител|ьства/.test(t)) return "other";
+    if (/исслед|следова|сслед/.test(t)) return "other";
+    if (/общ|бще|щее/.test(t)) return "general";
+
+    return null;
+}
+
+async function recognizeBoostLayout(canvas, worker, onProgress) {
+    const layout = boostFindRows(canvas);
+    if (!layout || !layout.bands.length) return [];
+
+    const rows = [];
+
+    await worker.setParameters({ tessedit_pageseg_mode: "7" });
+
+    try {
+        for (let i = 0; i < layout.bands.length; i++) {
+            const band = layout.bands[i];
+
+            onProgress(
+                10 + Math.round(80 * i / layout.bands.length),
+                `Распознавание строки ${i + 1} из ${layout.bands.length}...`
+            );
+
+            const bh = band.bottom - band.top + 1;
+            const pad = bh * 0.45;
+            const top = band.top - pad;
+            const bottom = band.bottom + pad;
+            const scale = Math.max(1, Math.min(5, 70 / bh));
+
+            let best = null;
+            let rawText = "";
+
+            for (const threshold of [130, 100, 165, 0]) {
+                const crop = boostBuildCrop(
+                    canvas, layout.rx0, top, layout.rx1, bottom,
+                    scale, threshold
+                );
+
+                rawText = await boostOcrLine(worker, crop);
+                const parsed = parseBoostCropText(rawText);
+
+                if (!parsed) continue;
+
+                if (!parsed.approx) {
+                    best = parsed;
+                    break;
+                }
+
+                if (!best) best = parsed;
+            }
+
+            if (!best) continue;
+
+            const labelCrop = boostBuildCrop(
+                canvas,
+                layout.x0 + layout.pw * 0.213,
+                top,
+                layout.x0 + layout.pw * 0.66,
+                bottom,
+                scale,
+                130
+            );
+
+            const labelText = await boostOcrLine(worker, labelCrop);
+            const category =
+                boostCategoryFromText(labelText) ||
+                boostCategoryFromLabelText(labelText);
+
+            rows.push({ parsed: best, category });
+        }
+    } finally {
+        await worker.setParameters({ tessedit_pageseg_mode: "6" });
+    }
+
+    const order = ["general", "training", "other", "other"];
+    const times = [];
+
+    rows.forEach((row, index) => {
+        let category = row.category;
+        let detected = Boolean(category);
+        let guessed = false;
+
+        if (!category) {
+            category = order[index] || "other";
+            guessed = true;
+        }
+
+        // Строительство и исследования в калькуляторе не используются.
+        if (category === "other") return;
+
+        const p = row.parsed;
+
+        times.push({
+            id: `boost-row-${index}`,
+            text: `${p.days} д. ${p.hours} ч ${p.minutes} мин.`,
+            days: p.days,
+            hours: p.hours,
+            minutes: p.minutes,
+            totalMinutes: p.totalMinutes,
+            category,
+            categoryDetected: detected,
+            categoryGuessed: guessed,
+            uncertain: p.approx,
+            lineIndex: index
+        });
+    });
+
+    return times;
+}
+
+async function processBoostImage(file) {
+    setOcrProgress(5, "Загрузка OCR...");
+
+    const worker = await getOcrWorker();
+
+    setOcrProgress(10, "Поиск строк ускорений...");
+
+    let times = [];
+    let text = "";
+
+    ocrProgressLocked = true;
+
+    try {
+        const canvas = await fileToCanvas(file);
+
+        times = await recognizeBoostLayout(
+            canvas,
+            worker,
+            (percent, label) => setOcrProgress(percent, label)
+        );
+    } catch (error) {
+        console.warn("Распознавание по раскладке не удалось:", error);
+        times = [];
+    } finally {
+        ocrProgressLocked = false;
+    }
+
+    // Резервный вариант: обычное распознавание всего текста.
+    if (!times.length) {
+        setOcrProgress(60, "Резервное распознавание текста...");
+
+        const processed = await preprocessImage(file);
+        const result = await worker.recognize(processed);
+
+        text = result?.data?.text || "";
+
+        if (!text.trim()) {
+            throw new Error("Tesseract не обнаружил текст на изображении.");
+        }
+
+        times = parseBoostOcr(text, result?.data?.lines || null);
+    }
+
+    setOcrProgress(100, "Готово");
+
+    state.ocrData = {
+        type: "boost",
+        text,
+        times
+    };
+
+    renderBoostOcrFields(state.ocrData);
+}
+
+async function processImage(file) {
+    if (!file || !file.type.startsWith("image/")) {
+        showOcrError("Выберите файл изображения.");
+        return;
+    }
+
+    clearOcrError();
+
+    document.getElementById("ocrProgress").style.display = "block";
+    document.getElementById("ocrPreview").style.display = "none";
+    document.getElementById("ocrApplyBtn").style.display = "none";
+
+    setOcrProgress(0, "Подготовка изображения...");
+
+    try {
+        setPreviewImage(file);
+
+        if (state.importMode === "troop") {
+            await processTroopImage(file);
+            renderTroopOcrFields(state.ocrData);
+        } else {
+            await processBoostImage(file);
+        }
+
+        setOcrProgress(100, "Готово");
+
+        document.getElementById("ocrPreview").style.display = "grid";
+        document.getElementById("ocrApplyBtn").style.display = "inline-block";
+
+    } catch (error) {
+        console.error(error);
+
+        showOcrError(
+            `Не удалось выполнить распознавание. ${error.message || ""} ` +
+            `Можно закрыть окно и ввести данные вручную.`
+        );
+
+        document.getElementById("ocrPreview").style.display = "none";
+        document.getElementById("ocrApplyBtn").style.display = "none";
+
+    } finally {
+        ocrProgressLocked = false;
+
+        setTimeout(() => {
+            document.getElementById("ocrProgress").style.display = "none";
+        }, 500);
+    }
+}
+
+
+/* ============================================================
+   ПРИМЕНЕНИЕ OCR
+============================================================ */
+
+function applyTroopOcr() {
+    const troop = state.troops.find(
+        t => t.id === state.importTroopId
+    );
+
+    if (!troop) {
+        closeOcrModal();
+        return;
+    }
+
+    const gold = num(document.getElementById("ocrGold")?.value);
+    const wood = num(document.getElementById("ocrWood")?.value);
+    const ore = num(document.getElementById("ocrOre")?.value);
+    const mana = num(document.getElementById("ocrMana")?.value);
+
+    const days = num(document.getElementById("ocrDays")?.value);
+    const hours = num(document.getElementById("ocrHours")?.value);
+    const minutes = num(document.getElementById("ocrMinutes")?.value);
+    const seconds = num(document.getElementById("ocrSeconds")?.value);
+
+    const batch = num(document.getElementById("ocrBatchCount")?.value);
+
+    const divisor = batch > 0 ? batch : 1;
+
+    troop.gold = gold / divisor;
+    troop.wood = wood / divisor;
+    troop.ore = ore / divisor;
+    troop.mana = mana / divisor;
+
+    troop.unitSeconds =
+        timeToSeconds(days, hours, minutes, seconds) / divisor;
+
+    renderTroops();
+    calculateAll();
+
+    closeOcrModal();
+}
+
+function applyBoostOcr() {
+    if (!state.ocrData) return;
+
+    // Ручной режим, если OCR ничего не нашёл.
+    if (!state.ocrData.times.length) {
+        const days = Number(document.getElementById("ocrBoostDays")?.value);
+        const hours = Number(document.getElementById("ocrBoostHours")?.value);
+        const minutes = Number(document.getElementById("ocrBoostMinutes")?.value);
+
+        const destination =
+            document.getElementById("ocrBoostDestination")?.value || "training";
+
+        if (!isValidBoostParts(days, hours, minutes)) {
+            showOcrError("Проверьте время: часы 0–23, минуты 0–59.");
+            return;
+        }
+
+        writeBoostValue(destination, days, hours, minutes);
+        calculateAll();
+        closeOcrModal();
+        return;
+    }
+
+    const selected = getSelectedBoostRows();
+
+    if (!selected.length) {
+        showOcrError("Выберите хотя бы одно распознанное ускорение.");
+        return;
+    }
+
+    const totals = {
+        training: 0,
+        general: 0
+    };
+
+    for (const item of selected) {
+        if (!isValidBoostParts(item.days, item.hours, item.minutes)) {
+            showOcrError(
+                "Одно из выбранных значений некорректно. " +
+                "Часы должны быть 0–23, минуты — 0–59."
+            );
+            return;
+        }
+
+        totals[item.destination] += timeToMinutes(
+            item.days,
+            item.hours,
+            item.minutes
+        );
+    }
+
+    // Каждая категория получает сумму выбранных значений именно этой категории.
+    // Не складываем их с прежним значением — OCR заменяет поле, как требовалось.
+    for (const destination of ["training", "general"]) {
+        const parts = secondsToParts(totals[destination] * 60);
+        writeBoostValue(
+            destination,
+            parts.days,
+            parts.hours,
+            parts.minutes
+        );
+    }
+
+    calculateAll();
+    closeOcrModal();
+}
+
+
+function writeBoostValue(destination, days, hours, minutes) {
+
+    const prefix =
+        destination === "training"
+            ? "trainingBoost"
+            : "generalBoost";
+
+    document.getElementById(prefix + "Days").value = days;
+    document.getElementById(prefix + "Hours").value = hours;
+    document.getElementById(prefix + "Minutes").value = minutes;
+}
+
+
+/* ============================================================
+   ВОЙСКА
+============================================================ */
+
+function createTroop() {
+    const id = state.nextTroopId++;
+
+    state.troops.push({
+        id,
+        name: "",
+        gold: 0,
+        wood: 0,
+        ore: 0,
+        mana: 0,
+        unitSeconds: 0,
+        points: 0,
+        quantity: 0
+    });
+
+    renderTroops();
+    calculateAll();
+}
+
+function removeTroop(id) {
+    if (state.troops.length <= 1) return;
+
+    state.troops =
+        state.troops.filter(t => t.id !== id);
+
+    renderTroops();
+    calculateAll();
+}
+
+function getTroopById(id) {
+    return state.troops.find(t => t.id === id);
+}
+
+function troopDisplayName(troop, index) {
+    const name = String(troop.name || "").trim();
+
+    return name || `Войска ${index + 1}`;
+}
+
+function renderTroops() {
+
+    const container =
+        document.getElementById("troopsContainer");
+
+    container.innerHTML = "";
+
+    state.troops.forEach((troop, index) => {
+
+        const card = document.createElement("div");
+
+        card.className = "card troop-card";
+
+        card.innerHTML = `
+            <div class="troop-head">
+
+                <div class="troop-number">
+                    Вид войск №${index + 1}
+                </div>
+
+                ${
+                    state.troops.length > 1
+                        ? `
+                            <button
+                                class="btn danger small"
+                                data-remove="${troop.id}"
+                            >
+                                ✕ Удалить
+                            </button>
+                          `
+                        : ""
+                }
+
+            </div>
+
+            <div class="field">
+                <label>Вид войск</label>
+
+                <input
+                    class="troop-name-input"
+                    data-id="${troop.id}"
+                    data-field="name"
+                    type="text"
+                    value="${escapeHtmlAttribute(troop.name)}"
+                    placeholder="Например: Всадники T5"
+                >
+            </div>
+
+            <div class="grid grid-4 resource-grid">
+
+                <div class="field">
+                    <label>Золото</label>
+                    <input
+                        data-id="${troop.id}"
+                        data-field="gold"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value="${troop.gold || ""}"
+                        placeholder="0"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Дерево</label>
+                    <input
+                        data-id="${troop.id}"
+                        data-field="wood"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value="${troop.wood || ""}"
+                        placeholder="0"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Руда</label>
+                    <input
+                        data-id="${troop.id}"
+                        data-field="ore"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value="${troop.ore || ""}"
+                        placeholder="0"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Мана</label>
+                    <input
+                        data-id="${troop.id}"
+                        data-field="mana"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value="${troop.mana || ""}"
+                        placeholder="0"
+                    >
+                </div>
+
+            </div>
+
+            <div style="margin-top:14px;">
+
+                <div class="field">
+                    <label>Время тренировки 1 юнита</label>
+
+                    <div class="time-row four">
+
+                        <div class="time-cell">
+                            <input
+                                data-id="${troop.id}"
+                                data-time="days"
+                                type="number"
+                                min="0"
+                                value="${secondsToParts(troop.unitSeconds).days || ""}"
+                                placeholder="0"
+                            >
+                            <span class="time-unit">д.</span>
+                        </div>
+
+                        <div class="time-cell">
+                            <input
+                                data-id="${troop.id}"
+                                data-time="hours"
+                                type="number"
+                                min="0"
+                                value="${secondsToParts(troop.unitSeconds).hours || ""}"
+                                placeholder="0"
+                            >
+                            <span class="time-unit">ч.</span>
+                        </div>
+
+                        <div class="time-cell">
+                            <input
+                                data-id="${troop.id}"
+                                data-time="minutes"
+                                type="number"
+                                min="0"
+                                value="${secondsToParts(troop.unitSeconds).minutes || ""}"
+                                placeholder="0"
+                            >
+                            <span class="time-unit">м.</span>
+                        </div>
+
+                        <div class="time-cell">
+                            <input
+                                data-id="${troop.id}"
+                                data-time="seconds"
+                                type="number"
+                                min="0"
+                                value="${secondsToParts(troop.unitSeconds).seconds || ""}"
+                                placeholder="0"
+                            >
+                            <span class="time-unit">с.</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid grid-2" style="margin-top:14px;">
+
+                <div class="field">
+                    <label>Очки за тренировку 1 юнита</label>
+                    <input
+                        data-id="${troop.id}"
+                        data-field="points"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value="${troop.points || ""}"
+                        placeholder="Например, 100"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Количество юнитов этого вида</label>
+                    <input
+                        data-id="${troop.id}"
+                        data-field="quantity"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value="${troop.quantity || ""}"
+                        placeholder="0"
+                    >
+                </div>
+
+            </div>
+
+            <div class="troop-actions">
+
+                <button
+                    class="btn small"
+                    data-import-troop="${troop.id}"
+                >
+                    Загрузить скриншот войск
+                </button>
+
+            </div>
+
+            <div class="troop-result">
+
+                <div class="result-line">
+                    <span>Время тренировки этого вида:</span>
+                    <strong data-result="time-${troop.id}">
+                        0 д. 0 ч. 0 м.
+                    </strong>
+                </div>
+
+                <div class="result-line">
+                    <span>Золото:</span>
+                    <strong data-result="gold-${troop.id}">0</strong>
+                </div>
+
+                <div class="result-line">
+                    <span>Дерево:</span>
+                    <strong data-result="wood-${troop.id}">0</strong>
+                </div>
+
+                <div class="result-line">
+                    <span>Руда:</span>
+                    <strong data-result="ore-${troop.id}">0</strong>
+                </div>
+
+                <div class="result-line">
+                    <span>Мана:</span>
+                    <strong data-result="mana-${troop.id}">0</strong>
+                </div>
+
+                <div class="result-line">
+                    <span>Очки:</span>
+                    <strong data-result="points-${troop.id}">0</strong>
+                </div>
+
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function escapeHtmlAttribute(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+
+/* ============================================================
+   СИНХРОНИЗАЦИЯ ПОЛЕЙ ВОЙСК
+============================================================ */
+
+function handleTroopInput(event) {
+
+    const target = event.target;
+
+    const id = Number(target.dataset.id);
+
+    if (!id) return;
+
+    const troop = getTroopById(id);
+
+    if (!troop) return;
+
+    if (target.dataset.field) {
+
+        const field = target.dataset.field;
+
+        if (field === "name") {
+            troop.name = target.value;
+        } else {
+            const value = target.value;
+
+            if (value !== "" && Number(value) < 0) {
+                target.classList.add("invalid");
+                return;
+            }
+
+            target.classList.remove("invalid");
+
+            troop[field] = num(value);
+        }
+    }
+
+    if (target.dataset.time) {
+
+        const card = target.closest(".troop-card");
+
+        if (!card) return;
+
+        const days =
+            num(card.querySelector('[data-time="days"]')?.value);
+
+        const hours =
+            num(card.querySelector('[data-time="hours"]')?.value);
+
+        const minutes =
+            num(card.querySelector('[data-time="minutes"]')?.value);
+
+        const seconds =
+            num(card.querySelector('[data-time="seconds"]')?.value);
+
+        troop.unitSeconds =
+            timeToSeconds(
+                days,
+                hours,
+                minutes,
+                seconds
+            );
+    }
+
+    calculateAll();
+}
+
+
+/* ============================================================
+   РАСЧЁТ ОТДЕЛЬНОГО ВИДА ВОЙСК
+============================================================ */
+
+function calculateTroop(troop) {
+
+    const quantity = num(troop.quantity);
+
+    return {
+        timeSeconds:
+            num(troop.unitSeconds) * quantity,
+
+        gold:
+            num(troop.gold) * quantity,
+
+        wood:
+            num(troop.wood) * quantity,
+
+        ore:
+            num(troop.ore) * quantity,
+
+        mana:
+            num(troop.mana) * quantity,
+
+        points:
+            num(troop.points) * quantity
+    };
+}
+
+
+/* ============================================================
+   ОБЩИЙ РАСЧЁТ
+============================================================ */
+
+function calculateAll() {
+
+    let totalTrainingSeconds = 0;
+    let totalGold = 0;
+    let totalWood = 0;
+    let totalOre = 0;
+    let totalMana = 0;
+    let totalPoints = 0;
+
+    state.troops.forEach((troop, index) => {
+
+        const result = calculateTroop(troop);
+
+        totalTrainingSeconds += result.timeSeconds;
+        totalGold += result.gold;
+        totalWood += result.wood;
+        totalOre += result.ore;
+        totalMana += result.mana;
+        totalPoints += result.points;
+
+        const timeElement =
+            document.querySelector(
+                `[data-result="time-${troop.id}"]`
+            );
+
+        const goldElement =
+            document.querySelector(
+                `[data-result="gold-${troop.id}"]`
+            );
+
+        const woodElement =
+            document.querySelector(
+                `[data-result="wood-${troop.id}"]`
+            );
+
+        const oreElement =
+            document.querySelector(
+                `[data-result="ore-${troop.id}"]`
+            );
+
+        const manaElement =
+            document.querySelector(
+                `[data-result="mana-${troop.id}"]`
+            );
+
+        const pointsElement =
+            document.querySelector(
+                `[data-result="points-${troop.id}"]`
+            );
+
+        if (timeElement)
+            timeElement.textContent =
+                formatTime(result.timeSeconds);
+
+        if (goldElement)
+            goldElement.textContent =
+                formatNumber(result.gold);
+
+        if (woodElement)
+            woodElement.textContent =
+                formatNumber(result.wood);
+
+        if (oreElement)
+            oreElement.textContent =
+                formatNumber(result.ore);
+
+        if (manaElement)
+            manaElement.textContent =
+                formatNumber(result.mana);
+
+        if (pointsElement)
+            pointsElement.textContent =
+                formatNumber(result.points);
+    });
+
+    const trainingBoostMinutes =
+        timeToMinutes(
+            document.getElementById("trainingBoostDays").value,
+            document.getElementById("trainingBoostHours").value,
+            document.getElementById("trainingBoostMinutes").value
+        );
+
+    const generalBoostMinutes =
+        timeToMinutes(
+            document.getElementById("generalBoostDays").value,
+            document.getElementById("generalBoostHours").value,
+            document.getElementById("generalBoostMinutes").value
+        );
+
+    const availableBoostSeconds =
+        (trainingBoostMinutes + generalBoostMinutes) * 60;
+
+    /*
+       Ускорения вводятся с точностью до минуты.
+       Внутри они переводятся в секунды, поэтому сравнение
+       с временем обучения не теряет точность.
+    */
+    const spentBoostSeconds =
+        Math.min(
+            totalTrainingSeconds,
+            availableBoostSeconds
+        );
+
+    const remainingSeconds =
+        Math.max(
+            0,
+            totalTrainingSeconds - availableBoostSeconds
+        );
+
+    const remainingBoostSeconds =
+        Math.max(
+            0,
+            availableBoostSeconds - totalTrainingSeconds
+        );
+
+    document.getElementById("availableBoosts").textContent =
+        formatMinutes(trainingBoostMinutes + generalBoostMinutes);
+
+    document.getElementById("spentBoosts").textContent =
+        formatTime(spentBoostSeconds);
+
+    document.getElementById("totalTrainingTime").textContent =
+        formatTime(totalTrainingSeconds);
+
+    document.getElementById("totalTrainingPoints").textContent =
+        formatNumber(totalPoints);
+
+    document.getElementById("totalGold").textContent =
+        formatNumber(totalGold);
+
+    document.getElementById("totalWood").textContent =
+        formatNumber(totalWood);
+
+    document.getElementById("totalOre").textContent =
+        formatNumber(totalOre);
+
+    document.getElementById("totalMana").textContent =
+        formatNumber(totalMana);
+
+    updateTrainingWarning(
+        totalTrainingSeconds,
+        availableBoostSeconds,
+        remainingSeconds,
+        remainingBoostSeconds
+    );
+
+    calculateDark();
+
+    updateFinal(
+        totalTrainingSeconds,
+        totalGold,
+        totalWood,
+        totalOre,
+        totalMana,
+        totalPoints,
+        spentBoostSeconds,
+        availableBoostSeconds
+    );
+}
+
+
+/* ============================================================
+   ПРЕДУПРЕЖДЕНИЕ ОБ УСКОРЕНИЯХ
+============================================================ */
+
+function updateTrainingWarning(
+    totalTrainingSeconds,
+    availableSeconds,
+    remainingSeconds,
+    remainingBoostSeconds
+) {
+    const element =
+        document.getElementById("trainingWarning");
+
+    const boostWarning =
+        document.getElementById("boostWarning");
+
+    if (totalTrainingSeconds > availableSeconds) {
+
+        const message = `
+            <div class="notice danger">
+                Не хватает ускорений:
+                <strong>${formatTime(remainingSeconds)}</strong>.
+            </div>
+        `;
+
+        element.innerHTML = message;
+        boostWarning.innerHTML = message;
+
+    } else {
+
+        const message = `
+            <div class="notice success">
+                Ускорений хватит.
+                Останется:
+                <strong>${formatTime(remainingBoostSeconds)}</strong>.
+            </div>
+        `;
+
+        element.innerHTML = message;
+        boostWarning.innerHTML = message;
+    }
+}
+
+
+/* ============================================================
+   ТЁМНЫЕ
+============================================================ */
+
+function calculateDark() {
+
+    const bags500 =
+        num(document.getElementById("darkBags500").value);
+
+    const bags100 =
+        num(document.getElementById("darkBags100").value);
+
+    const pointsPerDark =
+        num(document.getElementById("darkPoints").value) || 3000;
+
+    const totalOU =
+        bags500 * 500 +
+        bags100 * 100;
+
+    const darkCount =
+        Math.floor(totalOU / 50);
+
+    const spentOU =
+        darkCount * 50;
+
+    const totalPoints =
+        darkCount * pointsPerDark;
+
+    document.getElementById("darkTotalOU").textContent =
+        formatNumber(totalOU);
+
+    document.getElementById("darkCount").textContent =
+        formatNumber(darkCount);
+
+    document.getElementById("darkSpentOU").textContent =
+        formatNumber(spentOU);
+
+    document.getElementById("darkTotalPoints").textContent =
+        formatNumber(totalPoints);
+
+    document.getElementById("kvkWarning").style.display =
+        pointsPerDark === 4000
+            ? "block"
+            : "none";
+
+    return {
+        totalOU,
+        darkCount,
+        spentOU,
+        totalPoints
+    };
+}
+
+
+/* ============================================================
+   ИТОГ
+============================================================ */
+
+function updateFinal(
+    trainingSeconds,
+    gold,
+    wood,
+    ore,
+    mana,
+    trainingPoints,
+    spentBoostSeconds,
+    availableBoostSeconds
+) {
+
+    const dark = calculateDark();
+
+    document.getElementById("finalSpentBoosts").textContent =
+        formatTime(spentBoostSeconds);
+
+    document.getElementById("finalSpentOU").textContent =
+        formatNumber(dark.spentOU);
+
+    document.getElementById("finalPoints").textContent =
+        formatNumber(
+            trainingPoints + dark.totalPoints
+        );
+
+    document.getElementById("finalGold").textContent =
+        formatNumber(gold);
+
+    document.getElementById("finalWood").textContent =
+        formatNumber(wood);
+
+    document.getElementById("finalOre").textContent =
+        formatNumber(ore);
+
+    document.getElementById("finalMana").textContent =
+        formatNumber(mana);
+
+    const warning =
+        document.getElementById("finalWarning");
+
+    if (trainingSeconds > availableBoostSeconds) {
+
+        warning.innerHTML = `
+            <div class="notice danger">
+                Не хватает ускорений:
+                <strong>
+                    ${formatTime(
+                        trainingSeconds - availableBoostSeconds
+                    )}
+                </strong>.
+            </div>
+        `;
+
+    } else {
+
+        warning.innerHTML = `
+            <div class="notice success">
+                Ускорений достаточно. Остаток:
+                <strong>
+                    ${formatTime(
+                        availableBoostSeconds - trainingSeconds
+                    )}
+                </strong>.
+            </div>
+        `;
+    }
+
+    const table =
+        document.getElementById("finalTroopsTable");
+
+    if (!state.troops.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">
+                    Нет видов войск
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    table.innerHTML =
+        state.troops.map((troop, index) => {
+
+            const result =
+                calculateTroop(troop);
+
+            return `
+                <tr>
+                    <td>
+                        ${escapeHtml(
+                            troopDisplayName(troop, index)
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatNumber(troop.quantity)}
+                    </td>
+
+                    <td>
+                        ${formatTime(result.timeSeconds)}
+                    </td>
+
+                    <td>
+                        ${formatNumber(result.points)}
+                    </td>
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+/* ============================================================
+   ЭКРАНИРОВАНИЕ ТЕКСТА
+============================================================ */
+
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* ============================================================
+   ВКЛАДКИ
+============================================================ */
+
+document.querySelectorAll(".tab").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const tabName = button.dataset.tab;
+
+        document.querySelectorAll(".tab").forEach(tab => {
+            tab.classList.remove("active");
+        });
+
+        document.querySelectorAll(".tab-content").forEach(section => {
+            section.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        document
+            .getElementById(`tab-${tabName}`)
+            .classList.add("active");
+    });
+
+});
+
+
+/* ============================================================
+   СОБЫТИЯ УСКОРЕНИЙ
+============================================================ */
+
+[
+    "trainingBoostDays",
+    "trainingBoostHours",
+    "trainingBoostMinutes",
+    "generalBoostDays",
+    "generalBoostHours",
+    "generalBoostMinutes"
+].forEach(id => {
+
+    document.getElementById(id)
+        .addEventListener("input", event => {
+
+            const value = event.target.value;
+
+            if (value !== "" && Number(value) < 0) {
+                event.target.classList.add("invalid");
+                return;
+            }
+
+            event.target.classList.remove("invalid");
+
+            calculateAll();
+        });
+});
+
+
+/* ============================================================
+   СОБЫТИЯ ТЁМНЫХ
+============================================================ */
+
+[
+    "darkBags500",
+    "darkBags100",
+    "darkPoints"
+].forEach(id => {
+
+    document.getElementById(id)
+        .addEventListener("input", calculateAll);
+
+    document.getElementById(id)
+        .addEventListener("change", calculateAll);
+});
+
+
+/* ============================================================
+   СОБЫТИЯ ДИНАМИЧЕСКИХ ВОЙСК
+============================================================ */
+
+document
+    .getElementById("troopsContainer")
+    .addEventListener("input", handleTroopInput);
+
+document
+    .getElementById("troopsContainer")
+    .addEventListener("change", handleTroopInput);
+
+document
+    .getElementById("troopsContainer")
+    .addEventListener("click", event => {
+
+        const removeButton =
+            event.target.closest("[data-remove]");
+
+        if (removeButton) {
+
+            const id =
+                Number(removeButton.dataset.remove);
+
+            removeTroop(id);
+
+            return;
+        }
+
+        const importButton =
+            event.target.closest("[data-import-troop]");
+
+        if (importButton) {
+
+            const id =
+                Number(importButton.dataset.importTroop);
+
+            openOcrModal("troop", id);
+        }
+    });
+
+
+document
+    .getElementById("addTroopBtn")
+    .addEventListener("click", createTroop);
+
+
+/* ============================================================
+   КНОПКА ИМПОРТА УСКОРЕНИЙ
+============================================================ */
+
+document
+    .getElementById("importBoostsBtn")
+    .addEventListener("click", () => {
+        openOcrModal("boost");
+    });
+
+
+/* ============================================================
+   MODAL СКРИНШОТА
+============================================================ */
+
+document
+    .getElementById("ocrCloseBtn")
+    .addEventListener("click", closeOcrModal);
+
+document
+    .getElementById("ocrCancelBtn")
+    .addEventListener("click", closeOcrModal);
+
+document
+    .getElementById("ocrApplyBtn")
+    .addEventListener("click", () => {
+
+        if (state.importMode === "troop") {
+            applyTroopOcr();
+        } else if (state.importMode === "boost") {
+            applyBoostOcr();
+        }
+    });
+
+document
+    .getElementById("chooseImageBtn")
+    .addEventListener("click", () => {
+        fileInput.click();
+    });
+
+fileInput.addEventListener("change", event => {
+
+    const file = event.target.files?.[0];
+
+    if (file) {
+        processImage(file);
+    }
+});
+
+
+/* ============================================================
+   DRAG & DROP
+============================================================ */
+
+["dragenter", "dragover"].forEach(type => {
+
+    dropZone.addEventListener(type, event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        dropZone.classList.add("drag");
+    });
+});
+
+["dragleave", "drop"].forEach(type => {
+
+    dropZone.addEventListener(type, event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        dropZone.classList.remove("drag");
+    });
+});
+
+dropZone.addEventListener("drop", event => {
+
+    const file = event.dataTransfer.files?.[0];
+
+    if (file) {
+        processImage(file);
+    }
+});
+
+
+/* ============================================================
+   CTRL+V / БУФЕР ОБМЕНА
+============================================================ */
+
+document.addEventListener("paste", event => {
+
+    if (!modal.classList.contains("open")) {
+        return;
+    }
+
+    const items =
+        event.clipboardData?.items || [];
+
+    for (const item of items) {
+
+        if (item.type.startsWith("image/")) {
+
+            const file = item.getAsFile();
+
+            if (file) {
+                event.preventDefault();
+                processImage(file);
+                return;
+            }
+        }
+    }
+});
+
+
+/* ============================================================
+   ESC ЗАКРЫВАЕТ MODAL
+============================================================ */
+
+document.addEventListener("keydown", event => {
+
+    if (
+        event.key === "Escape" &&
+        modal.classList.contains("open")
+    ) {
+        closeOcrModal();
+    }
+});
+
+
+/* ============================================================
+   ЗАПУСК
+============================================================ */
+
+createTroop();
+calculateAll();
+
+</script>
+
+</body>
+</html>
