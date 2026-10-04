@@ -3239,10 +3239,38 @@ function fieldHtml(
     `;
 }
 
+const TROOP_POINT_PRESETS = [
+    { label: "Т3 - 20", value: 20 },
+    { label: "Т3 (5й день) - 16", value: 16 },
+    { label: "Т4 - 40", value: 40 },
+    { label: "Т4 (5й день) - 32", value: 32 },
+    { label: "Т5 - 100", value: 100 },
+    { label: "Т5 (5й день) - 80", value: 80 }
+];
+
+function pointsOptionsHtml(current) {
+    const cur = Number(current) || 0;
+    const known = TROOP_POINT_PRESETS.some(p => p.value === cur);
+
+    let html = `<option value="" ${cur === 0 ? "selected" : ""}>Выберите значение</option>`;
+
+    if (cur !== 0 && !known) {
+        html += `<option value="${cur}" selected>Своё значение - ${cur}</option>`;
+    }
+
+    html += TROOP_POINT_PRESETS.map(p =>
+        `<option value="${p.value}" ${p.value === cur ? "selected" : ""}>${p.label}</option>`
+    ).join("");
+
+    return html;
+}
+
 function renderTroopOcrFields(data) {
     const container = document.getElementById("ocrFields");
 
     const p = secondsToParts(data.trainingSeconds || 0);
+
+    const ocrTroop = state.troops.find(t => t.id === state.importTroopId);
 
     const foundList = Array.isArray(data.found) ? data.found : [];
 
@@ -3327,23 +3355,32 @@ function renderTroopOcrFields(data) {
             </div>
         </div>
 
-        <div class="field">
-            <label>Количество юнитов на скриншоте <small>(необязательно)</small></label>
-            <input
-                id="ocrBatchCount"
-                type="number"
-                min="1"
-                step="1"
-                value="${data.batchCount || ""}"
-                placeholder="Например, 100"
-            >
+        <div class="grid grid-2">
+            <div class="field">
+                <label>Очки за тренировку 1 юнита</label>
+                <select id="ocrPoints">
+                    ${pointsOptionsHtml(ocrTroop ? ocrTroop.points : 0)}
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Желаемое кол-во тренируемых войск</label>
+                <input
+                    id="ocrQuantity"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value="${ocrTroop && ocrTroop.quantity ? ocrTroop.quantity : ""}"
+                    placeholder="0"
+                >
+            </div>
         </div>
 
         <div class="notice">
             Если на скриншоте выбрано больше одного юнита (число рядом с
-            ползунком), стоимость и время указаны сразу для всей партии.
-            Количество определяется автоматически — проверьте его.
-            При применении стоимость и время будут разделены на это число.
+            ползунком), стоимость и время указаны сразу для всей партии —
+            при применении они автоматически делятся на это число.
+            Очки и желаемое количество переносятся в поля войска как есть.
         </div>
     `;
 }
@@ -4105,7 +4142,8 @@ function applyTroopOcr() {
     const minutes = num(document.getElementById("ocrMinutes")?.value);
     const seconds = num(document.getElementById("ocrSeconds")?.value);
 
-    const batch = num(document.getElementById("ocrBatchCount")?.value);
+    // Размер партии на скриншоте определяется автоматически при распознавании.
+    const batch = Number(state.ocrData?.batchCount) || 0;
 
     const divisor = batch > 0 ? batch : 1;
 
@@ -4116,6 +4154,17 @@ function applyTroopOcr() {
 
     troop.unitSeconds =
         timeToSeconds(days, hours, minutes, seconds) / divisor;
+
+    const pointsRaw = document.getElementById("ocrPoints")?.value;
+    const quantityRaw = document.getElementById("ocrQuantity")?.value;
+
+    if (pointsRaw !== undefined && pointsRaw !== "") {
+        troop.points = num(pointsRaw);
+    }
+
+    if (quantityRaw !== undefined && quantityRaw !== "") {
+        troop.quantity = num(quantityRaw);
+    }
 
     renderTroops();
     calculateAll();
@@ -4415,15 +4464,12 @@ function renderTroops() {
 
                 <div class="field">
                     <label>Очки за тренировку 1 юнита</label>
-                    <input
+                    <select
                         data-id="${troop.id}"
                         data-field="points"
-                        type="number"
-                        min="0"
-                        step="any"
-                        value="${troop.points || ""}"
-                        placeholder="Например, 100"
                     >
+                        ${pointsOptionsHtml(troop.points)}
+                    </select>
                 </div>
 
                 <div class="field">
