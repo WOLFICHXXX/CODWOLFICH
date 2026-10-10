@@ -2245,7 +2245,7 @@ td { border-bottom: 1px solid rgba(214,166,72,.14); }
             </div>
 
             <div class="notice" style="margin-top:12px;">
-                Расчёт ведётся на безостановочном уничтожении тёмных, т.е. со скидкой при непрерывной битве.
+                Расчёт ведётся на безостановочном уничтожении тёмных, т.е. со скидкой при непрерывной битве. Каждые 100 убитых тёмных скидка на ОУ отсчитывается заново.
             </div>
 
             <div class="dark-value">
@@ -6387,29 +6387,38 @@ function updateTrainingWarning(
  */
 const DARK_OU_COSTS = [50, 48, 46, 44, 42];
 const DARK_OU_COST_TAIL = 40;
+// Каждые 100 убитых тёмных скидка на ОУ начинается заново (снова 50, 48, ...).
+const DARK_DISCOUNT_BLOCK = 100;
+
+// Цена k-го тёмного (k с нуля) внутри блока из 100 при заданном числе маршей.
+function darkCostAt(k, marches) {
+    const round = Math.floor(k / marches);
+    return round < DARK_OU_COSTS.length ? DARK_OU_COSTS[round] : DARK_OU_COST_TAIL;
+}
 
 function calculateDarkKills(totalOU, marches) {
     let remaining = totalOU;
     let darkCount = 0;
     let spentOU = 0;
 
-    for (const cost of DARK_OU_COSTS) {
-        for (let m = 0; m < marches; m++) {
-            if (remaining < cost) {
-                return { darkCount, spentOU };
-            }
+    // Стоимость одного полного блока из 100 тёмных.
+    let blockCost = 0;
+    for (let k = 0; k < DARK_DISCOUNT_BLOCK; k++) blockCost += darkCostAt(k, marches);
 
-            remaining -= cost;
-            spentOU += cost;
-            darkCount++;
-        }
+    // Полные блоки считаем сразу.
+    const fullBlocks = Math.floor(remaining / blockCost);
+    darkCount += fullBlocks * DARK_DISCOUNT_BLOCK;
+    spentOU += fullBlocks * blockCost;
+    remaining -= fullBlocks * blockCost;
+
+    // Остаток — в начале нового блока, скидка снова с первого тёмного.
+    for (let k = 0; k < DARK_DISCOUNT_BLOCK; k++) {
+        const cost = darkCostAt(k, marches);
+        if (remaining < cost) break;
+        remaining -= cost;
+        spentOU += cost;
+        darkCount++;
     }
-
-    // Дальше каждый тёмный стоит 40 ОУ вне зависимости от числа маршей.
-    const tailKills = Math.floor(remaining / DARK_OU_COST_TAIL);
-
-    darkCount += tailKills;
-    spentOU += tailKills * DARK_OU_COST_TAIL;
 
     return { darkCount, spentOU };
 }
