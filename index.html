@@ -2089,9 +2089,8 @@ td { border-bottom: 1px solid rgba(214,166,72,.14); }
     .side .nav-item .nav-tk-ico { width: 28px; height: 28px; margin: 0; }
 }
 
-.rm-tg { margin: 0 auto 14px; max-width: 920px; padding: 14px 16px; border: 1px solid rgba(217,164,65,.28);
-         border-radius: 14px; background: rgba(20,17,31,.7); }
-.rm-tg-t { color: #ffe09a; font-weight: 700; }
+.rm-tg { margin: 0 0 18px; }
+.rm-tg-t { color: #f5d68c; font-family: Cinzel, serif; font-size: 1.12rem; letter-spacing: .06em; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
 .rm-tg-s { color: #a9a3b5; font-size: .85rem; margin-top: 4px; line-height: 1.4; }
 .rm-tg-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; min-height: 40px; }
 .rm-tg-msg { margin-top: 8px; font-size: .85rem; color: #9be3b9; }
@@ -2737,7 +2736,7 @@ td { border-bottom: 1px solid rgba(214,166,72,.14); }
     </div>
     <div class="ov-main-msg" id="rmMainMsg"></div>
 
-    <div class="rm-tg" id="rmTg" style="display:none;">
+    <div class="card rm-tg" id="rmTg" style="display:none;">
         <div class="rm-tg-t">Уведомления в Telegram</div>
         <div class="rm-tg-s" id="rmTgSub"></div>
         <div class="rm-tg-row" id="rmTgRow"></div>
@@ -2758,34 +2757,40 @@ window.WOLFICH_TG = { bot: "WOLFICH_COD_BOT", api: "https://wolfich-notify.wolfi
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WOLFICH · Очереди и напоминания</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d0b1f;--card:#17142e;--card2:#1f1b3d;--line:rgba(233,198,119,.28);--gold:#e9c677;--gold2:#ffe3a0;--txt:#efe7d6;--mut:#a9a3b5;--ok:#7ee0a6;--warn:#ffb36b}
+:root{--bg:#0a0b17;--card:rgba(8,11,27,.97);--card2:rgba(17,24,56,.96);--line:rgba(217,164,65,.38);--gold:#e0a946;--gold2:#f5d68c;--txt:#f3eee4;--mut:#a9a3b5;--ok:#63c58a;--warn:#ed9b42;--field:linear-gradient(180deg,rgba(5,8,22,.95),rgba(10,14,34,.95))}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,Segoe UI,sans-serif}
-body{min-height:100vh;background:radial-gradient(ellipse 80% 40% at 10% 0,rgba(110,90,255,.18),transparent 60%),radial-gradient(ellipse 80% 40% at 100% 100%,rgba(190,70,40,.16),transparent 60%),var(--bg)}
+body{min-height:100vh;background:radial-gradient(ellipse 80% 45% at 50% -8%,rgba(255,122,31,.20),transparent 70%),radial-gradient(circle at 8% 100%,rgba(190,40,30,.26),transparent 42%),linear-gradient(180deg,#0a0b17 0%,#0c0a14 55%,#160a0c 100%)}
 .wrap{max-width:860px;margin:0 auto;padding:18px 14px 80px}
 h1{font:800 30px Lora,Georgia,serif;margin:6px 0 2px;background:linear-gradient(180deg,#fffbe6,#e7a93a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{color:var(--mut);margin:0 0 14px}
-.card{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.card h2{font:700 19px Lora,Georgia,serif;color:var(--gold2);margin:0 0 10px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.card{position:relative;background:linear-gradient(#e6b34f,#e6b34f) left 7px top 7px / 18px 2px no-repeat,linear-gradient(#e6b34f,#e6b34f) left 7px top 7px / 2px 18px no-repeat,linear-gradient(#e6b34f,#e6b34f) right 7px top 7px / 18px 2px no-repeat,linear-gradient(#e6b34f,#e6b34f) right 7px top 7px / 2px 18px no-repeat,linear-gradient(#e6b34f,#e6b34f) left 7px bottom 7px / 18px 2px no-repeat,linear-gradient(#e6b34f,#e6b34f) left 7px bottom 7px / 2px 18px no-repeat,linear-gradient(#e6b34f,#e6b34f) right 7px bottom 7px / 18px 2px no-repeat,linear-gradient(#e6b34f,#e6b34f) right 7px bottom 7px / 2px 18px no-repeat,radial-gradient(ellipse at 100% 0%,rgba(255,122,31,.07),transparent 45%),linear-gradient(160deg,rgba(17,24,56,.96),rgba(8,11,27,.97));border:1.5px solid rgba(201,154,66,.7);border-radius:14px;padding:20px;margin:0 0 18px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),inset 0 0 0 2px rgba(224,169,70,.12),0 16px 44px rgba(0,0,0,.55),0 0 36px rgba(255,110,30,.05)}
+.card h2{font:700 1.12rem Cinzel,Georgia,serif;letter-spacing:.06em;color:#f5d68c;text-shadow:0 2px 6px rgba(0,0,0,.6);margin:0 0 17px;padding-bottom:11px;display:flex;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px solid transparent;border-image:linear-gradient(90deg,rgba(224,169,70,.8),rgba(224,169,70,0)) 1}
+.card h2 .note,.card h2 small{font:500 .75rem Inter,sans-serif;letter-spacing:0;text-shadow:none}
+.card h2 .btn{font-family:Inter,system-ui,sans-serif;letter-spacing:0;text-shadow:none}
 .note{font-size:13px;color:var(--mut);line-height:1.45}
-.warn{border-color:rgba(255,179,107,.5);background:rgba(255,179,107,.07);color:#ffd9b0;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.45}
+.warn{margin:0 0 18px;border:0;background:rgba(237,155,66,.13);color:#f3c995;border-radius:10px;padding:9px 13px;font-size:.85rem;line-height:1.45}
 button,select,input{font:inherit;color:inherit}
-.btn{border:1px solid var(--line);background:#252049;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
-.btn:hover{border-color:var(--gold)}
-.btn.gold{background:linear-gradient(180deg,#f7d278,#b8801f);color:#2a1a05;border-color:#f3d58b}
-.btn.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn{color:#e3e7ff;border:1px solid rgba(140,155,225,.4);background:linear-gradient(180deg,#343c68 0%,#232a50 55%,#181d3b 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 5px 16px rgba(0,0,0,.4);border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700;transition:.2s ease}
+.btn:hover{filter:brightness(1.12)}
+.btn.gold{color:#2b1704;border:1px solid #f0c878;background:linear-gradient(180deg,#efc269 0%,#d49a3d 50%,#a8702a 100%);text-shadow:0 1px 0 rgba(255,236,185,.5);box-shadow:inset 0 1px 0 rgba(255,245,210,.55),inset 0 -2px 4px rgba(90,50,10,.35),0 5px 16px rgba(0,0,0,.4)}
+.btn.gold:hover{box-shadow:inset 0 1px 0 rgba(255,245,210,.6),inset 0 -2px 4px rgba(90,50,10,.35),0 8px 24px rgba(255,150,40,.28)}
+.btn.sm{padding:7px 10px;font-size:.78rem}
 .btn:disabled{opacity:.5;cursor:default}
-input[type=text],input[type=number],input[type=datetime-local],select{background:#100e24;border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0}
-.drop{border:2px dashed var(--line);border-radius:14px;padding:22px 14px;text-align:center;cursor:pointer;transition:.2s}
-.drop.over{border-color:var(--gold);background:rgba(233,198,119,.08)}
+input[type=text],input[type=number],input[type=datetime-local],select{color:#f8f1e5;background:var(--field);border:1px solid rgba(120,135,190,.28);box-shadow:inset 0 2px 6px rgba(0,0,0,.45);border-radius:9px;padding:8px 10px;min-width:0;outline:none;transition:.18s ease}
+input[type=text]:focus,input[type=number]:focus,input[type=datetime-local]:focus,select:focus{border-color:rgba(240,190,95,.85);box-shadow:inset 0 2px 6px rgba(0,0,0,.45),0 0 0 3px rgba(224,169,70,.14)}
+input::placeholder{color:#5d6280}select option{background:#0e1330;color:#fff}
+.drop{border:2px dashed rgba(217,164,65,.5);background:rgba(8,7,18,.55);border-radius:18px;padding:22px 14px;text-align:center;cursor:pointer;transition:.2s}
+.drop.over{border-color:var(--gold2);background:rgba(217,164,65,.09)}
 .drop b{color:var(--gold2)}
 .qbox{display:flex;gap:14px;align-items:stretch}
 .qbox .drop{flex:none;width:210px;display:flex;align-items:center;justify-content:center;padding:14px 10px;font-size:14px;line-height:1.45}
 .shots{flex:1;min-width:0;display:flex;gap:10px;flex-wrap:wrap;align-content:flex-start;margin:0}
 .shots:empty::before{content:"Загруженные скриншоты появятся здесь";color:var(--mut);font-size:13px;align-self:center;padding:0 6px}
 @media (max-width:640px){.qbox{flex-direction:column}.qbox .drop{width:auto}}
-.shot{width:150px;background:#100e24;border:1px solid var(--line);border-radius:10px;padding:6px;font-size:12px}
+.shot{width:150px;background:rgba(8,7,18,.7);border:1px solid var(--line);border-radius:10px;padding:6px;font-size:12px}
 .shot img{width:100%;height:80px;object-fit:cover;border-radius:6px;display:block;margin-bottom:5px}
 .shot input{width:100%;font-size:11px;padding:4px}
 .shot .x{float:right;cursor:pointer;color:var(--mut)}
@@ -2813,25 +2818,27 @@ input[type=checkbox]{width:18px;height:18px;min-height:0;padding:0;margin:0;flex
 .done{opacity:.55}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .grid label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:4px}
-.big{font:800 26px Lora,Georgia,serif;color:var(--gold2)}
+.big{font:700 26px Cinzel,Georgia,serif;color:var(--gold2)}
 .msg{font-size:13px;color:var(--mut);margin-top:8px;min-height:18px}
 .msg.err{color:var(--warn)}
 .sw{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none}
 .toasts{position:fixed;left:0;right:0;top:12px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:50;pointer-events:none}
-.toast{pointer-events:auto;background:linear-gradient(180deg,#f7d278,#b8801f);color:#2a1a05;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:92vw}
-.card.pasteOn{border-color:var(--gold)}
+.toast{pointer-events:auto;background:linear-gradient(180deg,#efc269,#a8702a);color:#2b1704;border:1px solid #f0c878;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:92vw}
+.card.pasteOn{border-color:var(--gold2)}
 .cpbox{display:flex;gap:14px;align-items:stretch}
 .cpmain{flex:1;min-width:0}
-.cpdrop{flex:none;width:132px;min-height:112px;border:2px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.35;color:var(--mut);cursor:pointer;transition:.2s;padding:6px;overflow:hidden}
+.cpdrop{flex:none;width:132px;min-height:112px;border:2px dashed rgba(217,164,65,.5);background:rgba(8,7,18,.55);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.35;color:var(--mut);cursor:pointer;transition:.2s;padding:6px;overflow:hidden}
 .cpdrop b{color:var(--gold2);font-size:13px}
-.cpdrop.over{border-color:var(--gold);background:rgba(233,198,119,.08)}
+.cpdrop.over{border-color:var(--gold2);background:rgba(217,164,65,.09)}
 .cpdrop img{max-width:100%;max-height:96px;border-radius:6px;display:block}
 @media (max-width:640px){.cpbox{flex-direction:column}.cpdrop{width:auto;min-height:64px}}
-.bar{height:6px;border-radius:99px;background:#100e24;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#3aa0ff,#7bd0ff)}
+.bar{height:6px;border-radius:99px;background:rgba(5,8,22,.95);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#3aa0ff,#7bd0ff)}
 html.emb body{background:transparent;min-height:0}
 html.emb .wrap{max-width:none;padding:0 0 8px}
 html.emb h1,html.emb .sub{display:none}
 html.emb .card:first-of-type{margin-top:0}
+html.emb .wrap{padding:0 0 8px}
+@media (max-width:640px){.card{padding:14px}.card h2{font-size:1rem}}
 </style>
 <script>try{if(window.parent!==window&&window.frameElement)document.documentElement.classList.add("emb")}catch(e){}<\/script>
 </head>
@@ -2841,7 +2848,7 @@ html.emb .card:first-of-type{margin-top:0}
   <h1>Очереди и напоминания</h1>
   <p class="sub">WOLFICH COD HELPER · загрузите скриншот панели очередей — получите напоминания об окончании</p>
 
-  <div class="warn" id="bgWarn">⚠ Напоминания приходят, <b>пока открыта страница калькулятора</b> (на ПК можно переключиться на другую вкладку или окно). На телефоне вкладка в фоне засыпает — доставка на телефон будет следующим этапом.</div>
+  <div class="warn" id="bgWarn">⚠ Напоминания приходят, <b>пока открыта страница калькулятора</b> (на ПК можно переключиться на другую вкладку или окно). На мобильных устройствах используйте уведомления через Telegram.</div>
 
   <div class="card">
     <h2>1. Скриншоты очередей <button class="btn sm" id="clearShots">Очистить</button></h2>
@@ -2927,6 +2934,8 @@ html.emb .card:first-of-type{margin-top:0}
    ============================================================ */
 "use strict";
 var SECTIONS = { build: "Строительство", research: "Исследования", train: "Обучение", heal: "Исцеление" };
+// тексты и иконки Telegram-уведомлений: [буква иконки, фраза]
+var TG_DONE = { build: ["b", "Строительство", "завершено"], research: ["r", "Исследование", "завершено"], train: ["t", "Тренировка", "завершена"] };
 var SEC_DONE = { build: "строительство завершено", research: "исследование завершено", train: "обучение завершено", heal: "исцеление завершено" };
 var STORE = "wolfich_queues_v1";
 var qOcrImpl = null;            // подмена OCR для тестов: (gray, lang, psm) => Promise<string>
@@ -3836,14 +3845,19 @@ window.RM = {
     var now = Date.now(), out = [], lead = state.lead;
     state.reminders.forEach(function (r) {
       if (!r.on || r.fired) return;
-      var body = r.type === "queue" ? SEC_DONE[r.sec] : r.type === "cp" ? "очки управления заполнены" : r.type === "merit" ? "скоро сброс заслуг — потратьте их" : "время вышло";
-      var title = (r.type === "queue" ? SECTIONS[r.sec] + ": " : "") + r.label, l = r.type === "merit" ? 0 : lead;
-      if (l > 0) body = "через " + l + " мин: " + body;
-      out.push({ key: r.id, at: r.endMs - l * 60000, text: title + " — " + body });
+      var l = r.type === "merit" ? 0 : lead, text;
+      var nm = r.type === "queue" && r.label && r.label !== SECTIONS[r.sec] ? " «" + r.label + "»" : "";
+      if (r.type === "queue" && TG_DONE[r.sec]) text = "#" + TG_DONE[r.sec][0] + "|" + TG_DONE[r.sec][1] + nm + " " + TG_DONE[r.sec][2];
+      else if (r.type === "queue") text = "#g|" + SECTIONS[r.sec] + nm + " завершено";
+      else if (r.type === "cp") text = "#c|ОУ заполнено";
+      else if (r.type === "merit") text = "#m|Скоро сброс заслуг. Не забывай!";
+      else text = "#g|Тут скоро «" + r.label + "» приготовься!";
+      if (l > 0) text += "\n(это через " + l + " мин)";
+      out.push({ key: r.id, at: r.endMs - l * 60000, text: text });
     });
     if (state.merOn) {
       var nr = nextMeritReset(now);
-      if (state.merFired !== nr) out.push({ key: "mer" + nr, at: nr - state.merLead * 3600000, text: "Сброс заслуг через " + state.merLead + " ч — скоро сброс заслуг, потратьте их" });
+      if (state.merFired !== nr) out.push({ key: "mer" + nr, at: nr - state.merLead * 3600000, text: "#m|Скоро сброс заслуг. Не забывай!\n(сброс заслуг через " + state.merLead + " ч)" });
     }
     return out.filter(function (x) { return x.at > now - 3600000; }).sort(function (a, b) { return a.at - b.at; });
   }
