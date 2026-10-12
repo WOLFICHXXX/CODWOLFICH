@@ -2191,6 +2191,7 @@ td { border-bottom: 1px solid rgba(214,166,72,.14); }
 .side-brand { display: flex; align-items: center; gap: 10px; text-align: left; padding: 0 2px 12px; }
 .side-logo { flex: none; width: 62px; height: 62px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,.55)); }
 .side-brand-txt { min-width: 0; }
+@media (max-width: 820px) { .side-brand { display: none; } }
 </style>
 </head>
 
@@ -12269,6 +12270,38 @@ function pfTg() {
 
 function pfTgApi() { const c = window.WOLFICH_TG || {}; return c.api ? String(c.api).replace(/\/+$/, "") : ""; }
 
+/* Вход через бота: работает везде, в том числе в мобильных браузерах и внутри Telegram, где виджет Telegram не рисуется. */
+window.wolfichTgLogin = function (onMsg) {
+    const cfg = window.WOLFICH_TG || {};
+    if (!cfg.bot || !cfg.api) return;
+    const say = (t, bad) => { if (onMsg) onMsg(t, bad); };
+    let code = "";
+    try { const a = new Uint8Array(16); crypto.getRandomValues(a); code = Array.from(a, b => b.toString(16).padStart(2, "0")).join(""); } catch (e) { return say("Браузер не поддерживает вход. Обновите его.", true); }
+    const url = "https://t.me/" + cfg.bot + "?start=login_" + code;
+    clearInterval(window.__tgLoginTimer);
+    let tries = 0, busy = false;
+    const poll = async () => {
+        if (busy) return;
+        busy = true;
+        try {
+            if (++tries > 180) { clearInterval(window.__tgLoginTimer); return say("Время ожидания вышло. Нажмите кнопку входа ещё раз.", true); }
+            const r = await fetch(String(cfg.api).replace(/\/+$/, "") + "?r=lpoll", { method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ code }) });
+            const j = await r.json();
+            if (j && j.token) {
+                clearInterval(window.__tgLoginTimer);
+                try { localStorage.setItem(PF_TG_KEY, JSON.stringify({ token: j.token, uid: j.uid, name: j.name })); } catch (e) { return say("Не удалось сохранить вход: хранилище браузера недоступно.", true); }
+                say("");
+                window.dispatchEvent(new Event("wolfich-tg"));
+            }
+        } catch (e) { /* нет связи — повторим */ } finally { busy = false; }
+    };
+    window.__tgLoginPoll = poll;
+    window.__tgLoginTimer = setInterval(poll, 2000);
+    say("Открылся Telegram: нажмите «Старт» у бота и вернитесь сюда — вход завершится сам.");
+    if (!window.open(url, "_blank")) window.location.href = url;
+};
+document.addEventListener("visibilitychange", () => { if (!document.hidden && window.__tgLoginPoll && window.__tgLoginTimer) window.__tgLoginPoll(); });
+
 // «простой» запрос: POST + text/plain, токен в теле — без предварительной проверки CORS
 async function pfTgFetch(name, body) {
     const t = pfTg();
@@ -12328,13 +12361,11 @@ function pfTgRender() {
         b.onclick = pfEnterTg;
         row.appendChild(b);
     } else {
-        const s = document.createElement("script");
-        s.async = true; s.src = "https://telegram.org/js/telegram-widget.js?22";
-        s.setAttribute("data-telegram-login", window.WOLFICH_TG.bot);
-        s.setAttribute("data-size", "large"); s.setAttribute("data-radius", "10");
-        s.setAttribute("data-request-access", "write"); s.setAttribute("data-userpic", "false");
-        s.setAttribute("data-onauth", "rmTgAuth(user)");
-        row.appendChild(s);
+        const b = document.createElement("button");
+        b.className = "btn"; b.type = "button";
+        b.textContent = "Войти через Telegram";
+        b.onclick = () => window.wolfichTgLogin((text, bad) => pfAuthMsg(text, bad ? "err" : "warn"));
+        row.appendChild(b);
     }
 }
 
@@ -14098,6 +14129,10 @@ try { pfSaveHint(); } catch (e) { /* не критично */ }
             s.setAttribute("data-request-access", "write"); s.setAttribute("data-userpic", "false");
             s.setAttribute("data-onauth", "rmTgAuth(user)");
             row.appendChild(s);
+            const bb = document.createElement("button"); bb.className = "btn small secondary"; bb.type = "button";
+            bb.textContent = "Кнопка не видна? Войти через бота";
+            bb.onclick = () => window.wolfichTgLogin((t, bad) => tgMsg(t, bad));
+            row.appendChild(bb);
         }
     }
 
