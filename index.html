@@ -4262,6 +4262,13 @@ window.RM = {
     }).sort(function (a, b) { return a.endMs - b.endMs; });
   },
   lead: function () { return state.lead; },
+  getSync: function () { return { rem: state.reminders, cfg: { lead: state.lead, merOn: state.merOn, merLead: state.merLead, merFired: state.merFired } }; },
+  setSync: function (rem, cfg) {
+    state.reminders = rem;
+    if (cfg) { state.lead = cfg.lead; state.merOn = cfg.merOn; state.merLead = cfg.merLead; state.merFired = Math.max(state.merFired || 0, cfg.merFired || 0); }
+    save(); try { renderList(); } catch (e) {}
+    try { if (window.rmWinState) window.rmWinState(); } catch (e) {}
+  },
   syncItems: function () {
     var now = Date.now(), out = [], lead = state.lead;
     state.reminders.forEach(function (r) {
@@ -14425,6 +14432,60 @@ try { pfSaveHint(); } catch (e) { /* не критично */ }
             if (r.ok) { tgLast = sig; tgLastAt = Date.now(); if (tgCount !== r.j.count) { tgCount = r.j.count; if (tg) el("rmTgSub").textContent = "Подключено: " + tg.name + " · напоминаний на сервере: " + tgCount + ". Сообщения придут, даже если страница закрыта."; } }
         } catch (e) { /* повторим через 2 секунды */ } finally { tgBusy = false; }
     }
+    // перенос напоминаний между устройствами одного Telegram-аккаунта
+    const RSK = "wolfich_rm_known_v1";
+    let rsBusy = false, rsVer = 0, rsLastPull = 0, rsLocalSig = "";
+    const rsKnown = () => { try { return JSON.parse(localStorage.getItem(RSK + (tg ? tg.uid : "")) || "null") || { ids: {}, cfg: "" }; } catch (e) { return { ids: {}, cfg: "" }; } };
+    const rsSaveKnown = (k) => { try { localStorage.setItem(RSK + (tg ? tg.uid : ""), JSON.stringify(k)); } catch (e) { /* ничего */ } };
+    function rsMerge(local, remote, K) {
+        // remote = null — на сервере ничего нет
+        const L = {}, R = {}, out = [];
+        local.rem.forEach((r) => { L[r.id] = r; });
+        ((remote && remote.rem) || []).forEach((r) => { R[r.id] = r; });
+        Object.keys(Object.assign({}, L, R)).forEach((id) => {
+            const l = L[id], r = R[id], k = K.ids[id];
+            if (l && r) {
+                const lj = JSON.stringify(l), rj = JSON.stringify(r);
+                if (lj === rj) out.push(l);
+                else { const o = lj !== k ? l : r; if ((l.fired || r.fired) && !o.fired) o.fired = true; out.push(o); }
+            } else if (l) { if (k === undefined) out.push(l); }       // новое у меня (иначе — удалили на другом)
+            else if (r) { if (k === undefined) out.push(r); }         // новое на другом (иначе — удалил я)
+        });
+        const lc = JSON.stringify(local.cfg);
+        const cfg = !remote ? local.cfg : (lc !== K.cfg ? local.cfg : remote.cfg || local.cfg);
+        if (remote && remote.cfg && cfg === local.cfg && lc !== K.cfg) cfg.merFired = Math.max(cfg.merFired || 0, remote.cfg.merFired || 0);
+        return { rem: out, cfg: cfg };
+    }
+    async function rsSync() {
+        if (!tg || rsBusy || !cfg().api) return;
+        const a = api(); if (!a || !a.getSync) return;
+        const now = Date.now();
+        const loc = a.getSync(), sig = JSON.stringify(loc);
+        if (sig === rsLocalSig && now - rsLastPull < 15000) return;
+        rsBusy = true;
+        try {
+            for (let tries = 0; tries < 3; tries++) {
+                const g = await tgFetch("rget"); if (!g.ok) return;
+                rsVer = g.j.ver || 0;
+                const K = rsKnown(), cur = a.getSync();
+                const m = rsMerge(cur, g.j.data, K);
+                const mj = JSON.stringify(m), rj = JSON.stringify(g.j.data);
+                const nk = { ids: {}, cfg: JSON.stringify(m.cfg) }; m.rem.forEach((r) => { nk.ids[r.id] = JSON.stringify(r); });
+                if (mj !== JSON.stringify(cur)) a.setSync(m.rem, m.cfg);
+                if (mj !== rj) {
+                    const p = await tgFetch("rput", { data: m, ver: rsVer });
+                    if (p.status === 409) continue;
+                    if (!p.ok) return;
+                }
+                rsSaveKnown(nk); rsLocalSig = JSON.stringify(a.getSync()); rsLastPull = Date.now();
+                return;
+            }
+        } catch (e) { /* повторим */ } finally { rsBusy = false; }
+    }
+    setInterval(rsSync, 3000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) { rsLastPull = 0; rsSync(); } });
+    window.addEventListener("wolfich-tg", () => { rsLastPull = 0; rsLocalSig = ""; });
+
     setInterval(tgSyncNow, 2000);
     tgRender();
 
