@@ -1841,6 +1841,18 @@ td { border-bottom: 1px solid rgba(214,166,72,.14); }
 .pf-fields { display: grid; gap: 10px; margin-bottom: 12px; }
 .pf-note { margin-top: 12px; color: var(--muted); font-size: .76rem; line-height: 1.45; text-align: center; }
 
+.pf-adm { margin: 14px 0; border: 1.5px solid rgba(240,200,120,.6); border-radius: 14px; background: linear-gradient(160deg, rgba(34,46,108,.6), rgba(12,16,44,.7)); }
+.pf-adm > summary { cursor: pointer; padding: 12px 16px; font-family: Cinzel, serif; color: #f5d68c; letter-spacing: .04em; list-style: none; }
+.pf-adm > summary::-webkit-details-marker { display: none; }
+.pf-adm-in { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.pf-adm textarea, .pf-adm input[type=text], .pf-adm input[type=url] { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(217,164,65,.5); background: rgba(8,12,34,.8); color: #f3e7c9; font: inherit; }
+.pf-adm textarea { min-height: 120px; resize: vertical; }
+.pf-adm-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pf-adm-row > * { flex: 1 1 180px; }
+.pf-adm-prev { display: none; align-items: center; gap: 10px; }
+.pf-adm-prev img { max-width: 120px; max-height: 120px; border-radius: 10px; border: 1px solid rgba(217,164,65,.5); }
+.pf-adm-st { font-size: .85rem; color: #e8dec8; min-height: 1.2em; }
+.pf-adm-st.bad { color: #ff9b9b; }
 .pf-tgbox { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,224,154,.2); text-align: center; }
 .pf-tgtext { color: #e8dec8; font-size: .85rem; line-height: 1.45; margin-bottom: 10px; }
 .pf-tgrow { display: flex; justify-content: center; min-height: 40px; }
@@ -4372,6 +4384,27 @@ init();
         </div>
 
         <div class="pf-localnote" id="pfLocalNote"></div>
+
+        <details class="pf-adm" id="pfAdm" style="display:none">
+            <summary>📣 Рассылка в бота (только для владельца)</summary>
+            <div class="pf-adm-in">
+                <textarea id="pfAdmText" maxlength="3500" placeholder="Текст сообщения (ссылки в тексте станут кликабельными)"></textarea>
+                <div class="pf-adm-row">
+                    <input type="text" id="pfAdmBtnLbl" maxlength="40" placeholder="Текст кнопки со ссылкой (необязательно)">
+                    <input type="url" id="pfAdmBtnUrl" placeholder="https://…  ссылка для кнопки">
+                </div>
+                <div class="pf-adm-row">
+                    <button type="button" class="btn secondary small" id="pfAdmPick">🖼 Прикрепить картинку</button>
+                    <span class="pf-adm-prev" id="pfAdmPrev"><img alt=""><button type="button" class="btn secondary small" id="pfAdmPicDel">Убрать</button></span>
+                </div>
+                <div class="pf-adm-row">
+                    <button type="button" class="btn secondary small" id="pfAdmTest">Отправить тест себе</button>
+                    <button type="button" class="btn small" id="pfAdmSend">Отправить всем</button>
+                </div>
+                <div class="pf-adm-st" id="pfAdmSt"></div>
+                <input type="file" id="pfAdmFile" accept="image/jpeg,image/png,image/webp" class="visually-hidden-input" tabindex="-1">
+            </div>
+        </details>
 
         <div class="pf-tabs">
             <button class="pf-tab active" data-pftab="heroes">Мои герои</button>
@@ -11990,6 +12023,7 @@ function pfRender() {
     pfEl("pfNick").textContent = user.nick;
     pfRenderSyncState();
     pfRenderLocalNote(user);
+    if (window.pfAdminCheck) window.pfAdminCheck();
 
     pfEl("pf-heroes").innerHTML = user.heroes.length
         ? user.heroes.map(pfHeroHtml).join("")
@@ -12430,6 +12464,85 @@ function pfMoveToTg() {
     pfToast("Профиль перенесён в Telegram-аккаунт. Копия с ником осталась на этом устройстве.");
     pfSyncSoon(true);
 }
+
+
+// ---------- рассылка владельца ----------
+(function pfAdmin() {
+    const E = id => document.getElementById(id);
+    const bc = { photo: "", fid: "", busy: false, checked: "" };
+    const st = (t, bad) => { E("pfAdmSt").textContent = t || ""; E("pfAdmSt").className = "pf-adm-st" + (bad ? " bad" : ""); };
+    window.pfAdminCheck = async function () {
+        const t = pfTg(), box = E("pfAdm");
+        if (!t) { box.style.display = "none"; bc.checked = ""; return; }
+        if (bc.checked === t.token) return;
+        bc.checked = t.token;
+        try {
+            const r = await pfTgFetch("adm", { a: "check" });
+            box.style.display = (r.ok && r.j.admin) ? "" : "none";
+        } catch (e) { box.style.display = "none"; bc.checked = ""; }
+    };
+    E("pfAdmPick").onclick = () => E("pfAdmFile").click();
+    E("pfAdmPicDel").onclick = () => { bc.photo = ""; bc.fid = ""; E("pfAdmPrev").style.display = "none"; E("pfAdmFile").value = ""; };
+    E("pfAdmFile").onchange = () => {
+        const f = E("pfAdmFile").files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f), img = new Image();
+        img.onload = () => {
+            const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+            const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+            bc.photo = c.toDataURL("image/jpeg", 0.88); bc.fid = "";
+            E("pfAdmPrev").querySelector("img").src = bc.photo; E("pfAdmPrev").style.display = "flex";
+            URL.revokeObjectURL(url);
+        };
+        img.onerror = () => { st("Не удалось прочитать картинку", true); URL.revokeObjectURL(url); };
+        img.src = url;
+    };
+    const payload = () => {
+        const url = E("pfAdmBtnUrl").value.trim(), lbl = E("pfAdmBtnLbl").value.trim();
+        const o = { a: "send", text: E("pfAdmText").value.trim() };
+        if (url) o.btn = { url: url, label: lbl || "Открыть" };
+        if (bc.fid) o.fid = bc.fid; else if (bc.photo) o.photo = bc.photo;
+        return o;
+    };
+    const valid = o => {
+        if (!o.text && !o.photo && !o.fid) { st("Введите текст или прикрепите картинку", true); return false; }
+        if (o.btn && !/^https?:\/\/\S+$/i.test(o.btn.url)) { st("Ссылка для кнопки должна начинаться с http:// или https://", true); return false; }
+        return true;
+    };
+    E("pfAdmTest").onclick = async () => {
+        if (bc.busy) return;
+        const o = payload(); if (!valid(o)) return;
+        o.test = true; bc.busy = true; st("Отправляю тест…");
+        try {
+            const r = await pfTgFetch("adm", o);
+            if (r.ok && r.j.ok) { if (r.j.fid) bc.fid = r.j.fid; st("Тест отправлен вам в Telegram. Если всё хорошо — «Отправить всем»."); }
+            else st((r.j && r.j.error) || "Не получилось отправить тест", true);
+        } catch (e) { st("Нет связи с сервером", true); } finally { bc.busy = false; }
+    };
+    E("pfAdmSend").onclick = async () => {
+        if (bc.busy) return;
+        const o = payload(); if (!valid(o)) return;
+        bc.busy = true;
+        try {
+            const c = await pfTgFetch("adm", { a: "count" });
+            const total = c.ok ? c.j.total : 0;
+            if (!total) { st("Нет получателей", true); return; }
+            if (!window.confirm("Отправить это сообщение всем (" + total + " чел.) в бота WOLFICH_COD_BOT? Отменить будет нельзя.")) { st(""); return; }
+            let after = "", sent = 0, failed = 0, blocked = 0;
+            for (let guard = 0; guard < 2000; guard++) {
+                const p = Object.assign({}, payload(), { after: after });
+                const r = await pfTgFetch("adm", p);
+                if (!r.ok) { st("Остановлено: " + ((r.j && r.j.error) || "ошибка") + ". Доставлено: " + sent, true); return; }
+                sent += r.j.sent; failed += r.j.failed; blocked += r.j.blocked; after = r.j.after || after;
+                if (r.j.fid) bc.fid = r.j.fid;
+                st("Отправлено: " + sent + " из " + total + (failed ? " · не доставлено: " + failed : ""));
+                if (r.j.done) { st("Готово. Доставлено: " + sent + (failed ? ", не доставлено: " + failed + " (из них заблокировали бота: " + blocked + ")" : "") + "."); return; }
+                if (r.j.wait) await new Promise(res => setTimeout(res, (r.j.wait + 1) * 1000));
+            }
+        } catch (e) { st("Связь прервалась. Проверьте, сколько ушло, и не повторяйте рассылку целиком.", true); } finally { bc.busy = false; }
+    };
+})();
 
 pfEl("pfLocalNote").addEventListener("click", e => {
     const b = e.target.closest("[data-act]");
