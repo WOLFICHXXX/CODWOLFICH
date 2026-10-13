@@ -3318,6 +3318,7 @@ function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } ca
 function load() { try { var s = JSON.parse(localStorage.getItem(STORE) || "null"); if (s) { Object.keys(state).forEach(function (k) { if (s[k] !== undefined) state[k] = s[k]; }); } } catch (e) {} }
 function toast(text) {
   try { if (document.documentElement.classList.contains("emb") && window.parent.rmToast) { window.parent.rmToast(text); return; } } catch (e) {}
+  return; /* всплывашки сверху отключены */
   var el = document.createElement("div"); el.className = "toast"; el.textContent = text; $("toasts").appendChild(el);
   setTimeout(function () { el.remove(); }, 9000); el.onclick = function () { el.remove(); };
 }
@@ -14052,6 +14053,7 @@ try { pfSaveHint(); } catch (e) { /* не критично */ }
     const el = id => document.getElementById(id);
 
     window.rmToast = function (text) {
+        return; /* всплывашки сверху отключены */
         let box = el("rmToasts");
         if (!box) {
             box = document.createElement("div");
