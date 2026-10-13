@@ -4444,22 +4444,25 @@ window.RM = {
     try { if (window.rmWinState) window.rmWinState(); } catch (e) {}
   },
   syncItems: function () {
-    var now = Date.now(), out = [], lead = state.lead;
+    var now = Date.now(), out = [], lead = state.lead, en = isEn();
+    var SEC_EN = { build: "Construction", research: "Research", train: "Training", heal: "Healing" };
+    var DONE_EN = { build: ["b", "Construction", "complete"], research: ["r", "Research", "complete"], train: ["t", "Training", "complete"] };
     state.reminders.forEach(function (r) {
       if (!r.on) return;      // сработавшие в браузере остаются в синхронизации (час), иначе сервер удаляет их раньше, чем бот успеет отправить
       var l = r.type === "merit" ? 0 : lead, text;
-      var nm = r.type === "queue" && r.label && r.label !== SECTIONS[r.sec] ? " «" + r.label + "»" : "";
-      if (r.type === "queue" && TG_DONE[r.sec]) text = "#" + TG_DONE[r.sec][0] + "|" + TG_DONE[r.sec][1] + nm + " " + TG_DONE[r.sec][2];
-      else if (r.type === "queue") text = "#g|" + SECTIONS[r.sec] + nm + " завершено";
-      else if (r.type === "cp") text = "#c|ОУ заполнено";
-      else if (r.type === "merit") text = "#m|Скоро сброс заслуг. Не забывай!";
-      else text = "#g|Тут скоро «" + r.label + "» приготовься!";
-      if (l > 0) text += "\n(это через " + l + " мин)";
+      var nm = r.type === "queue" && r.label && r.label !== SECTIONS[r.sec] && r.label !== SEC_EN[r.sec] ? " «" + r.label + "»" : "";
+      var td = en ? DONE_EN[r.sec] : TG_DONE[r.sec];
+      if (r.type === "queue" && td) text = "#" + td[0] + "|" + td[1] + nm + " " + td[2];
+      else if (r.type === "queue") text = "#g|" + (en ? SEC_EN[r.sec] : SECTIONS[r.sec]) + nm + (en ? " complete" : " завершено");
+      else if (r.type === "cp") text = en ? "#c|Command Points are full" : "#c|ОУ заполнено";
+      else if (r.type === "merit") text = en ? "#m|Merit reset is coming soon. Don't forget!" : "#m|Скоро сброс заслуг. Не забывай!";
+      else text = en ? "#g|«" + r.label + "» is coming up, get ready!" : "#g|Тут скоро «" + r.label + "» приготовься!";
+      if (l > 0) text += en ? "\n(in " + l + " min)" : "\n(это через " + l + " мин)";
       out.push({ key: r.id, at: r.endMs - l * 60000, text: text });
     });
     if (state.merOn) {
       var nr = nextMeritReset(now);
-      out.push({ key: "mer" + nr, at: nr - state.merLead * 3600000, text: "#m|Скоро сброс заслуг. Не забывай!\n(сброс заслуг через " + state.merLead + " ч)" });
+      out.push({ key: "mer" + nr, at: nr - state.merLead * 3600000, text: en ? "#m|Merit reset is coming soon. Don't forget!\n(merit reset in " + state.merLead + " h)" : "#m|Скоро сброс заслуг. Не забывай!\n(сброс заслуг через " + state.merLead + " ч)" });
     }
     return out.filter(function (x) { return x.at > now - 3600000; }).sort(function (a, b) { return a.at - b.at; });
   }
@@ -14554,6 +14557,7 @@ try { pfSaveHint(); } catch (e) { /* не критично */ }
     async function tgFetch(name, body) {
         const data = Object.assign({}, body || {});
         if (tg && name !== "auth") data.token = tg.token;
+        try { data.lang = (window.WI18N && window.WI18N.lang) || (window.parent && window.parent.WI18N && window.parent.WI18N.lang) || "ru"; } catch (e) { data.lang = "ru"; }
         const r = await fetch(String(cfg().api).replace(/\/+$/, "") + "?r=" + name, {
             method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify(data)
         });
