@@ -16347,12 +16347,19 @@ if (typeof module !== "undefined") module.exports = ALC;
       return hp("click", { x: nx(r, x), y: ny(r, y) }).then(function () { return sleep(700); }).then(function () { return stableFrame(); })
         .then(function (cv) {
           if (tdiff(thumb(cv, cv.width, cv.height), tList) < 3 && k < 2) { pipMsg("Повторяю клик…"); return tap(k + 1); }
-          var ib = findInfoBtn(cv, x, y);
-          if (ib) {
-            pipMsg("ИНФО → профиль");
-            return hp("click", { x: ib.x / cv.width, y: ib.y / cv.height }).then(function () { return waitFor(["profile", "details"]); });
-          }
-          return waitFor(["profile", "details"]);
+          // меню всплывает с анимацией: кликаем, только когда кнопка ИНФО стоит на месте в двух кадрах подряд
+          var settle = function (prev, n) {
+            return sleep(350).then(function () { return stableFrame(); }).then(function (cv2) {
+              var ib = findInfoBtn(cv2, x, y);
+              if (ib && prev && Math.abs(ib.x - prev.x) < cv2.height * 0.006 && Math.abs(ib.y - prev.y) < cv2.height * 0.006) {
+                pipMsg("ИНФО → профиль");
+                return hp("click", { x: ib.x / cv2.width, y: ib.y / cv2.height }).then(function () { return waitFor(["profile", "details"]); });
+              }
+              if (n >= 6) return waitFor(["profile", "details"]);
+              return settle(ib, n + 1);
+            });
+          };
+          return settle(findInfoBtn(cv, x, y), 0);
         });
     };
     return tap(0)
