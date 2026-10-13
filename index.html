@@ -16269,26 +16269,25 @@ if (typeof module !== "undefined") module.exports = ALC;
   function clickLine(r, l) { return hp("click", { x: nx(r, (l.x0 + l.x1) / 2), y: ny(r, (l.y0 + l.y1) / 2) }); }
 
   /* вернуться к списку участников: Esc, пока не появится список */
-  /* вернуться к списку: Esc / стрелка «назад». Экраны сверяем по миниатюре — без лишнего распознавания */
-  function backToList(listR, tProf) {
-    var tList = thumb(listR.cv, listR.W, listR.H), k = 0, onProf = false;
+  /* вернуться к списку: из «Подробнее» — два Esc (Подробнее → Профиль → Список).
+     После каждого Esc сверяем экран со списком по миниатюре, чтобы лишний Esc не закрыл альянс. */
+  function backToList(listR) {
+    var tList = thumb(listR.cv, listR.W, listR.H), k = 0;
     var step = function () {
       if (auto.stop) return Promise.reject(Object.assign(new Error("stopped"), { stopped: true }));
-      var act = onProf && k >= 1 ? hp("click", { x: 0.012, y: 0.032 }) : hp("esc");
-      return act.then(function () { return sleep(450); }).then(function () { return stableFrame(); }).then(function (cv) {
-        var th = thumb(cv, cv.width, cv.height);
-        if (tdiff(th, tList) < 4) return listR;                 // тот же экран списка
+      return hp("esc").then(function () { return sleep(500 + k * 300); }).then(function () { return stableFrame(); }).then(function (cv) {
+        if (tdiff(thumb(cv, cv.width, cv.height), tList) < 4) return listR;
         k++;
-        if (tProf && tdiff(th, tProf) < 4) { onProf = true; return k >= 6 ? fail() : step(); }
+        if (k < 3) return step();
+        // экран не узнали — распознаём, что открыто, и ждём дольше
         return processFrame(cv).then(function (r) {
           r.cv = cv;
           if (r.type === "list") return r;
-          onProf = r.type === "profile";
-          return k >= 6 ? fail() : sleep(600 * k).then(step);    // не узнали экран — ждём дольше
+          if (k >= 5) throw new Error("Не удалось вернуться к списку участников.");
+          return sleep(800 * k).then(step);
         });
       });
     };
-    var fail = function () { throw new Error("Не удалось вернуться к списку участников."); };
     return step();
   }
 
@@ -16355,7 +16354,7 @@ if (typeof module !== "undefined") module.exports = ALC;
         var mh = more.y1 - more.y0;
         return hp("click", { x: nx(p, (more.x0 + more.x1) / 2), y: ny(p, more.y0 - Math.max(mh * 1.6, p.H * 0.035)) }).then(function () { return waitFor(["details"]); });
       })
-      .then(function (p) { return p.type === "list" ? p : backToList(r, tProf); });
+      .then(function (p) { return p.type === "list" ? p : backToList(r); });
   }
 
   /* свёрнутые группы рангов: заголовок, под которым нет участников */
