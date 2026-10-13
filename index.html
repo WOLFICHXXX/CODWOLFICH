@@ -14723,5 +14723,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},60)}).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+<script>(function(){var RU="https://youtube.com/shorts/Z8dVTVWIZ_E",EN="https://youtube.com/shorts/JkacM6FL7zs";
+function f(){try{var en=window.WI18N&&WI18N.lang==="en",c=document.getElementById("news-v20");if(!c)return;
+c.querySelectorAll("[data-href]").forEach(function(e){e.setAttribute("data-href",en?EN:RU)});
+c.querySelectorAll("a[href]").forEach(function(e){if(/shorts\//.test(e.getAttribute("href")))e.setAttribute("href",en?EN:RU)})}catch(e){}}
+window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",f);f()})();</script>
 </body>
 </html>
