@@ -15746,11 +15746,13 @@ if (typeof module !== "undefined") module.exports = ALC;
     var W = cv.width, H = cv.height, img = cv.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H);
     var x0 = Math.round(W * 0.45), half = crop(cv, { x: x0, y: 0, w: W - x0, h: H });
     return wText.recognize(half, {}, { text: true, blocks: true }).then(function (r) {
-      var lines = linesOf(r.data, x0, 0), type = ALC.screenType(r.data.text || "");
+      var vis = function (ls) { return ls.filter(function (l) { return !inPip({ W: W, H: H }, l); }); };   // без текста окна поверх игры
+      var txt = function (ls) { return ls.map(function (l) { return l.t; }).join("\n"); };
+      var lines = vis(linesOf(r.data, x0, 0)), type = ALC.screenType(txt(lines));
       var tag = function (ls) { return function (o) { o = o || {}; o.lines = ls; o.W = W; o.H = H; return o; }; };
       if (type === "list") return doList(cv, img, lines).then(tag(lines));
       return wText.recognize(cv, {}, { text: true, blocks: true }).then(function (r2) {
-        var all = linesOf(r2.data, 0, 0), t2 = ALC.screenType(r2.data.text || "");
+        var all = vis(linesOf(r2.data, 0, 0)), t2 = ALC.screenType(txt(all));
         if (t2 === "list") return doList(cv, img, all).then(tag(all));
         if (t2 === "profile") return doProfile(cv, all).then(tag(all));
         if (t2 === "details") return doDetails(cv, all).then(tag(all));
@@ -16215,7 +16217,7 @@ if (typeof module !== "undefined") module.exports = ALC;
         "</style>";
       d.body.innerHTML = '<div class="top"><span>Сбор альянса</span><span>в сборе: <b id="c">0</b></span></div>' +
         '<button id="go">Автосбор</button><button id="st" class="stop" disabled>Стоп</button>' +
-        '<label><input type="checkbox" id="pf" checked> открывать профили и «Подробнее»</label>' +
+        '<label><input type="checkbox" id="pf" checked> собирать статистику из профилей</label>' +
         '<div class="msg" id="m">Откройте в игре Альянс → Участники и нажмите «Автосбор».</div>' +
         '<video id="v" muted playsinline></video>' +
         '<button id="dl" class="alt">Скачать помощник WOLFICH Clicker</button>' +
@@ -16265,7 +16267,24 @@ if (typeof module !== "undefined") module.exports = ALC;
 
   function nx(r, x) { return Math.max(0, Math.min(1, x / r.W)); }
   function ny(r, y) { return Math.max(0, Math.min(1, y / r.H)); }
-  function lineAt(r, re) { return (r.lines || []).filter(function (l) { return re.test(l.t); })[0]; }
+  /* прямоугольник окна поверх игры в координатах кадра — его текст не считаем игрой */
+  function pipRect(r) {
+    try {
+      if (!pip || pip.closed) return null;
+      var k = r.W / (screen.width * (window.devicePixelRatio || 1)) * (window.devicePixelRatio || 1);
+      var R = { x0: (pip.screenX - 8) * k, y0: (pip.screenY - 40) * k, x1: (pip.screenX + pip.outerWidth + 8) * k, y1: (pip.screenY + pip.outerHeight + 8) * k };
+      if (!(R.x1 > R.x0) || (R.x1 - R.x0) * (R.y1 - R.y0) > r.W * r.H * 0.35) return null;   // размеры окна неизвестны
+      return R;
+    } catch (e) { return null; }
+  }
+  function inPip(r, l) { var p = pipRect(r); if (!p) return false; var cx = (l.x0 + l.x1) / 2, cy = (l.y0 + l.y1) / 2; return cx >= p.x0 && cx <= p.x1 && cy >= p.y0 && cy <= p.y1; }
+  function lineAt(r, re, area) {
+    return (r.lines || []).filter(function (l) {
+      if (!re.test(l.t) || inPip(r, l)) return false;
+      if (area) { var cx = (l.x0 + l.x1) / 2 / r.W, cy = (l.y0 + l.y1) / 2 / r.H; if (cx < area.x0 || cx > area.x1 || cy < area.y0 || cy > area.y1) return false; }
+      return true;
+    }).sort(function (a, b) { return b.y0 - a.y0; })[0];
+  }
   function clickLine(r, l) { return hp("click", { x: nx(r, (l.x0 + l.x1) / 2), y: ny(r, (l.y0 + l.y1) / 2) }); }
 
   /* вернуться к списку участников: Esc, пока не появится список */
@@ -16348,7 +16367,7 @@ if (typeof module !== "undefined") module.exports = ALC;
       .then(function (p) {
         if (p.type !== "profile") return p;
         tProf = thumb(p.cv, p.W, p.H);
-        var more = lineAt(p, /подробн|details|more info/i);
+        var more = lineAt(p, /^\W*(подробн|details|more info)/i, { x0: 0.3, x1: 0.75, y0: 0.6, y1: 0.95 });
         if (!more) return p;
         // жмём по большой красной кнопке над подписью «Подробнее»
         var mh = more.y1 - more.y0;
