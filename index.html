@@ -3943,11 +3943,21 @@ function stitch(list) {          // list: [{ms, entries:[{y,sec,hdrKnown,remSec,
     if (dup) {
       (dup.links = dup.links || []).push({ shot: e.shot, y: e.y });
       if (!dup.sec && e.sec) dup.sec = e.sec;
+      if (e.hdrKnown) dup.hdrKnown = true;   // заголовок виден на другом кадре — запись считается «с известным разделом»
       if (e.conf > dup.conf) { dup.endMs = e.endMs; dup.conf = e.conf; dup.remSec = e.remSec; dup.ms = list[e.shot].ms; }
       if (e.name && (!dup.name || e.name.length > dup.name.length)) dup.name = e.name;
       return;
     }
     res.push(e);
+  });
+  // строки без заголовка выше: раздел тот же, что у ближайшей записи выше на этом же кадре
+  // (между ними заголовка нет, иначе он был бы виден и раздел был бы известен)
+  list.forEach(function (_, si) {
+    var inShot = res.filter(function (r) { return r.shot === si; }).sort(function (p, q) { return p.y - q.y; }), prev = null;
+    inShot.forEach(function (e) {
+      if (!e.hdrKnown && !e.sec && prev && prev.sec) e.sec = prev.sec;
+      if (e.hdrKnown || e.sec) prev = e;
+    });
   });
   // секция для строк без заголовка выше (начало второго кадра)
   res.forEach(function (e) {
