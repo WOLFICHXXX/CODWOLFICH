@@ -4443,7 +4443,7 @@ window.RM = {
   syncItems: function () {
     var now = Date.now(), out = [], lead = state.lead;
     state.reminders.forEach(function (r) {
-      if (!r.on || r.fired) return;
+      if (!r.on) return;      // сработавшие в браузере остаются в синхронизации (час), иначе сервер удаляет их раньше, чем бот успеет отправить
       var l = r.type === "merit" ? 0 : lead, text;
       var nm = r.type === "queue" && r.label && r.label !== SECTIONS[r.sec] ? " «" + r.label + "»" : "";
       if (r.type === "queue" && TG_DONE[r.sec]) text = "#" + TG_DONE[r.sec][0] + "|" + TG_DONE[r.sec][1] + nm + " " + TG_DONE[r.sec][2];
@@ -4456,7 +4456,7 @@ window.RM = {
     });
     if (state.merOn) {
       var nr = nextMeritReset(now);
-      if (state.merFired !== nr) out.push({ key: "mer" + nr, at: nr - state.merLead * 3600000, text: "#m|Скоро сброс заслуг. Не забывай!\n(сброс заслуг через " + state.merLead + " ч)" });
+      out.push({ key: "mer" + nr, at: nr - state.merLead * 3600000, text: "#m|Скоро сброс заслуг. Не забывай!\n(сброс заслуг через " + state.merLead + " ч)" });
     }
     return out.filter(function (x) { return x.at > now - 3600000; }).sort(function (a, b) { return a.at - b.at; });
   }
