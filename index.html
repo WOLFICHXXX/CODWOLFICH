@@ -4785,6 +4785,7 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
                 <input type="file" id="pfAdmFile" accept="image/jpeg,image/png,image/webp" class="visually-hidden-input" tabindex="-1">
             </div>
         </details>
+        <div id="pfOwnMod"></div>
 
         <div class="pf-tabs">
             <button class="pf-tab active" data-pftab="heroes">Мои герои</button>
@@ -12856,6 +12857,42 @@ function pfMoveToTg() {
 }
 
 
+// ---------- личный модуль владельца: зашифрованный файл, открывается ключом владельца ----------
+let pfOwnLoaded = false;
+async function pfOwnerModule() {
+    if (pfOwnLoaded) return;
+    pfOwnLoaded = true;
+    const mount = document.getElementById("pfOwnMod");
+    const KEY = "wolfich_own_key";
+    let key = ""; try { key = localStorage.getItem(KEY) || ""; } catch (e) {}
+    const ask = (err) => {
+        mount.innerHTML = '<div class="card"><h2 class="card-title"><span>Личный модуль</span></h2>' +
+            (err ? '<p style="color:#ffb0b0;margin:0 0 8px">' + err + '</p>' : '') +
+            '<div class="actions"><input type="password" id="pfOwnKey" placeholder="Ключ модуля" style="flex:1;min-width:0">' +
+            '<button class="btn small" id="pfOwnGo" type="button">Открыть</button></div></div>';
+        document.getElementById("pfOwnGo").onclick = () => {
+            const v = document.getElementById("pfOwnKey").value.trim();
+            if (!v) return;
+            try { localStorage.setItem(KEY, v); } catch (e) {}
+            pfOwnLoaded = false; pfOwnerModule();
+        };
+    };
+    if (!key) return ask("");
+    try {
+        const buf = new Uint8Array(await (await fetch("owner.bin", { cache: "no-store" })).arrayBuffer());
+        const salt = buf.slice(4, 20), iv = buf.slice(20, 32), ct = buf.slice(32);
+        const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(key), "PBKDF2", false, ["deriveKey"]);
+        const k = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" }, km, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+        const gz = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, k, ct);
+        const code = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+        mount.innerHTML = "";
+        new Function("WOLF", code)({ mount: mount, loadTesseract: loadTesseract });
+    } catch (e) {
+        try { localStorage.removeItem(KEY); } catch (e2) {}
+        ask("Ключ не подошёл");
+    }
+}
+
 // ---------- рассылка владельца ----------
 (function pfAdmin() {
     const E = id => document.getElementById(id);
@@ -12869,6 +12906,7 @@ function pfMoveToTg() {
         try {
             const r = await pfTgFetch("adm", { a: "check" });
             box.style.display = (r.ok && r.j.admin) ? "" : "none";
+            if (r.ok && r.j.admin) pfOwnerModule();
         } catch (e) { box.style.display = "none"; bc.checked = ""; }
     };
     E("pfAdmPick").onclick = () => E("pfAdmFile").click();
