@@ -4731,6 +4731,7 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
         <div class="subtitle" id="pfSub">Введите ник</div>
     </header>
 
+    <div id="pfOwnMod"></div>
     <div id="pfAuth" class="pf-auth">
         <div class="card">
             <div class="pf-fields">
@@ -4785,7 +4786,6 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
                 <input type="file" id="pfAdmFile" accept="image/jpeg,image/png,image/webp" class="visually-hidden-input" tabindex="-1">
             </div>
         </details>
-        <div id="pfOwnMod"></div>
 
         <div class="pf-tabs">
             <button class="pf-tab active" data-pftab="heroes">Мои герои</button>
@@ -12858,10 +12858,11 @@ function pfMoveToTg() {
 
 
 // ---------- личный модуль владельца: зашифрованный файл, открывается ключом владельца ----------
-let pfOwnLoaded = false;
+let pfOwnLoaded = false, pfOwnSeq = 0;
 async function pfOwnerModule() {
     if (pfOwnLoaded) return;
     pfOwnLoaded = true;
+    const seq = ++pfOwnSeq;
     const mount = document.getElementById("pfOwnMod");
     const KEY = "wolfich_own_key";
     let key = ""; try { key = localStorage.getItem(KEY) || ""; } catch (e) {}
@@ -12885,13 +12886,27 @@ async function pfOwnerModule() {
         const k = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" }, km, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
         const gz = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, k, ct);
         const code = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+        if (seq !== pfOwnSeq) return;
         mount.innerHTML = "";
         new Function("WOLF", code)({ mount: mount, loadTesseract: loadTesseract });
     } catch (e) {
-        try { localStorage.removeItem(KEY); } catch (e2) {}
+        if (seq !== pfOwnSeq) return;
+        try { if (localStorage.getItem(KEY) === key) localStorage.removeItem(KEY); } catch (e2) {}
+        pfOwnLoaded = false;
         ask("Ключ не подошёл");
     }
 }
+
+// модуль открывается и без входа через Telegram: по ссылке …/#wolf или если ключ уже сохранён на этом устройстве
+(function () {
+    const go = () => {
+        let has = false; try { has = !!localStorage.getItem("wolfich_own_key"); } catch (e) {}
+        if (location.hash === "#wolf") { const b = document.querySelector('.nav-item[data-page="profile"]'); if (b) b.click(); }
+        if (has || location.hash === "#wolf") pfOwnerModule();
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else setTimeout(go, 0);
+    window.addEventListener("hashchange", go);
+})();
 
 // ---------- рассылка владельца ----------
 (function pfAdmin() {
