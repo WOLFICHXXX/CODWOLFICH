@@ -22,30 +22,27 @@ jobs:
       - name: Секреты не заданы — пропускаем
         if: env.BUCKET == ''
         run: echo "Секреты YC_KEY_ID / YC_SECRET / YC_BUCKET не заданы — зеркало не обновляется"
-      - name: Доступ к файлам из программы (CORS)
+      - name: Зеркало
         if: env.BUCKET != ''
-        continue-on-error: true
+        shell: bash
         run: |
+          # ошибки показываем в «Annotations», чтобы их было видно без полного журнала
+          fail() { echo "::error::$1: $(tail -c 700 /tmp/out.txt | tr '\n' ' ')"; exit 1; }
+          run() { "$@" > /tmp/out.txt 2>&1; }
           echo '{"CORSRules":[{"AllowedOrigins":["*"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]}' > cors.json
-          aws --version
-          aws --endpoint-url=$E s3api put-bucket-cors --bucket "$BUCKET" --cors-configuration file://cors.json
-          aws --endpoint-url=$E s3api get-bucket-cors --bucket "$BUCKET"
-      - name: Распознавание текста (только если его ещё нет)
-        if: env.BUCKET != ''
-        run: |
-          if aws --endpoint-url=$E s3 ls "s3://$BUCKET/tess/lang/rus.traineddata.gz" >/dev/null 2>&1; then echo "уже есть"; exit 0; fi
+          run aws --endpoint-url=$E s3api put-bucket-cors --bucket "$BUCKET" --cors-configuration file://cors.json || echo "::warning::CORS: $(tail -c 500 /tmp/out.txt | tr '\n' ' ')"
+          run aws --endpoint-url=$E s3 cp owner.bin "s3://$BUCKET/owner.bin" --acl public-read --cache-control no-store --content-type application/octet-stream || fail "owner.bin"
+          echo "::notice::owner.bin загружен"
+          if aws --endpoint-url=$E s3 ls "s3://$BUCKET/tess/lang/rus.traineddata.gz" >/dev/null 2>&1; then echo "::notice::распознавание текста уже есть"; exit 0; fi
           mkdir t && cd t
-          npm pack tesseract.js@5.1.1 tesseract.js-core@5.1.1 @tesseract.js-data/rus @tesseract.js-data/eng
+          run npm pack tesseract.js@5.1.1 tesseract.js-core@5.1.1 @tesseract.js-data/rus @tesseract.js-data/eng || fail "npm pack"
           for f in *.tgz; do d="${f%.tgz}"; mkdir -p "$d"; tar xzf "$f" -C "$d"; done
           mkdir -p up/core up/lang
-          cp tesseract.js-5.1.1/package/dist/tesseract.min.js tesseract.js-5.1.1/package/dist/worker.min.js up/
+          cp tesseract.js-5.1.1/package/dist/tesseract.min.js tesseract.js-5.1.1/package/dist/worker.min.js up/ || { ls > /tmp/out.txt; fail "dist"; }
           cp tesseract.js-core-5.1.1/package/*.js up/core/
           cp tesseract.js-core-5.1.1/package/*.wasm up/core/ 2>/dev/null || true
           find . -path '*4.0.0_best_int*' -name 'rus.traineddata.gz' -exec cp {} up/lang/ \;
           find . -path '*4.0.0_best_int*' -name 'eng.traineddata.gz' -exec cp {} up/lang/ \;
-          ls -laR up
-          test -f up/lang/rus.traineddata.gz && test -f up/lang/eng.traineddata.gz
-          aws --endpoint-url=$E s3 sync up "s3://$BUCKET/tess/" --acl public-read
-      - name: Модуль бота
-        if: env.BUCKET != ''
-        run: aws --endpoint-url=$E s3 cp owner.bin "s3://$BUCKET/owner.bin" --acl public-read --cache-control "no-store" --content-type application/octet-stream
+          if ! test -f up/lang/rus.traineddata.gz || ! test -f up/lang/eng.traineddata.gz; then find . -name '*.traineddata*' > /tmp/out.txt; fail "языки"; fi
+          run aws --endpoint-url=$E s3 sync up "s3://$BUCKET/tess/" --acl public-read || fail "загрузка tess"
+          echo "::notice::распознавание текста загружено: $(find up -type f | wc -l) файлов"
