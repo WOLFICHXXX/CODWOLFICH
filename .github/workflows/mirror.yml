@@ -14,6 +14,9 @@ jobs:
       AWS_DEFAULT_REGION: ru-central1
       BUCKET: ${{ secrets.YC_BUCKET }}
       E: https://storage.yandexcloud.net
+      # новые версии AWS CLI шлют свои контрольные суммы, Yandex Object Storage их не понимает
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
     steps:
       - uses: actions/checkout@v4
       - name: Секреты не заданы — пропускаем
@@ -21,9 +24,12 @@ jobs:
         run: echo "Секреты YC_KEY_ID / YC_SECRET / YC_BUCKET не заданы — зеркало не обновляется"
       - name: Доступ к файлам из программы (CORS)
         if: env.BUCKET != ''
+        continue-on-error: true
         run: |
           echo '{"CORSRules":[{"AllowedOrigins":["*"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]}' > cors.json
+          aws --version
           aws --endpoint-url=$E s3api put-bucket-cors --bucket "$BUCKET" --cors-configuration file://cors.json
+          aws --endpoint-url=$E s3api get-bucket-cors --bucket "$BUCKET"
       - name: Распознавание текста (только если его ещё нет)
         if: env.BUCKET != ''
         run: |
