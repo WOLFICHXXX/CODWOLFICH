@@ -1,0 +1,45 @@
+# Зеркало бота в Yandex Cloud: при каждой заливке в test копирует модуль бота (и один раз — распознавание текста)
+# в хранилище Yandex Object Storage. Нужны секреты репозитория: YC_KEY_ID, YC_SECRET, YC_BUCKET.
+name: Зеркало в Yandex Cloud
+on:
+  push:
+    branches: [test]
+  workflow_dispatch:
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
+      AWS_DEFAULT_REGION: ru-central1
+      BUCKET: ${{ secrets.YC_BUCKET }}
+      E: https://storage.yandexcloud.net
+    steps:
+      - uses: actions/checkout@v4
+      - name: Секреты не заданы — пропускаем
+        if: env.BUCKET == ''
+        run: echo "Секреты YC_KEY_ID / YC_SECRET / YC_BUCKET не заданы — зеркало не обновляется"
+      - name: Доступ к файлам из программы (CORS)
+        if: env.BUCKET != ''
+        run: |
+          echo '{"CORSRules":[{"AllowedOrigins":["*"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]}' > cors.json
+          aws --endpoint-url=$E s3api put-bucket-cors --bucket "$BUCKET" --cors-configuration file://cors.json
+      - name: Распознавание текста (только если его ещё нет)
+        if: env.BUCKET != ''
+        run: |
+          if aws --endpoint-url=$E s3 ls "s3://$BUCKET/tess/lang/rus.traineddata.gz" >/dev/null 2>&1; then echo "уже есть"; exit 0; fi
+          mkdir t && cd t
+          npm pack tesseract.js@5.1.1 tesseract.js-core@5.1.1 @tesseract.js-data/rus @tesseract.js-data/eng
+          for f in *.tgz; do d="${f%.tgz}"; mkdir -p "$d"; tar xzf "$f" -C "$d"; done
+          mkdir -p up/core up/lang
+          cp tesseract.js-5.1.1/package/dist/tesseract.min.js tesseract.js-5.1.1/package/dist/worker.min.js up/
+          cp tesseract.js-core-5.1.1/package/*.js up/core/
+          cp tesseract.js-core-5.1.1/package/*.wasm up/core/ 2>/dev/null || true
+          find . -path '*4.0.0_best_int*' -name 'rus.traineddata.gz' -exec cp {} up/lang/ \;
+          find . -path '*4.0.0_best_int*' -name 'eng.traineddata.gz' -exec cp {} up/lang/ \;
+          ls -laR up
+          test -f up/lang/rus.traineddata.gz && test -f up/lang/eng.traineddata.gz
+          aws --endpoint-url=$E s3 sync up "s3://$BUCKET/tess/" --acl public-read
+      - name: Модуль бота
+        if: env.BUCKET != ''
+        run: aws --endpoint-url=$E s3 cp owner.bin "s3://$BUCKET/owner.bin" --acl public-read --cache-control "no-store" --content-type application/octet-stream
