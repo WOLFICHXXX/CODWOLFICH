@@ -85,6 +85,11 @@
   <div class="note" style="margin-top:8px" data-t="Кнопку «Помощь» бот не нажимает. Если идёт отправка с пульта — сделает обход между проверками маршей, иначе обойдёт альянс и выключится. В отчёте — снимок после каждой операции.|The bot does not press «Help». During a remote sending it does the round between march checks; otherwise it does the round and stops. The report has a screenshot after each step."></div>
 </div>
 
+<div class="card">
+  <h2 data-t="Игра|Game"></h2>
+  <button class="main" id="rstBtn" type="button" data-t="🔄 Перезапустить игру|🔄 Restart the game"></button>
+  <div class="note" style="margin-top:8px" data-t="Если в аккаунт зашли с другого устройства: бот нажмёт синюю кнопку, выйдет в меню LDPlayer и запустит Call of Dragons. Работающий бот при этом остановится. Через минуту придёт снимок.|If the account was opened on another device: the bot presses the blue button, goes to the LDPlayer menu and starts Call of Dragons. A running bot stops. A screenshot arrives in about a minute."></div>
+</div>
 
 <script>
 (function () {
@@ -149,7 +154,9 @@
     $("st").innerHTML = "";
     $("st").appendChild(document.createTextNode(s));
     var sm = document.createElement("small");
-    var aw = !!(b.allyWait && b.allyWait[cur.inst]), pend = !!(b.pending && b.pending[cur.inst]) || aw;
+    var aw = !!(b.allyWait && b.allyWait[cur.inst]), rw = !!(b.restartWait && b.restartWait[cur.inst]), pend = !!(b.pending && b.pending[cur.inst]) || aw || rw;
+    $("rstBtn").disabled = rw;
+    $("rstBtn").textContent = rw ? T("⏳ Перезапуск ждёт программу…|⏳ Waiting for the program…") : T("🔄 Перезапустить игру|🔄 Restart the game");
     $("allyBtn").disabled = aw;
     $("allyBtn").textContent = aw ? T("⏳ Обход ждёт программу…|⏳ Waiting for the program…") : T("🤝 Обойти альянс|🤝 Alliance round");
     sm.textContent = pend ? T("⏳ Команда ждёт программу (до 30 секунд)…|⏳ The command is waiting for the program (up to 30 seconds)…") : (b.last ? fmt(b.last.ts) : "");
@@ -173,6 +180,15 @@
   ["aG", "aX", "aT"].forEach(function (id) {
     try { var v = localStorage.getItem("wolfich_tg_" + id); if (v !== null) $(id).checked = v === "1"; } catch (e) {}
     $(id).addEventListener("change", function () { haptic(); try { localStorage.setItem("wolfich_tg_" + id, $(id).checked ? "1" : "0"); } catch (e) {} });
+  });
+  $("rstBtn").addEventListener("click", function () {
+    if (!cur) return;
+    $("rstBtn").disabled = true; haptic("medium");
+    api("restart", { rid: cur.rid, inst: cur.inst }).then(function (j) {
+      if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("rstBtn").disabled = false; return; }
+      msg(T("🔄 Команда отправлена. Программа возьмёт её в течение 30 секунд и напишет в этот чат.|🔄 Command sent. The program will pick it up within 30 seconds and write to this chat."), true);
+      load(true);
+    }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("rstBtn").disabled = false; });
   });
   $("allyBtn").addEventListener("click", function () {
     if (!cur) return;
@@ -230,7 +246,7 @@
     }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("go").disabled = false; });
   });
   drawRes();
-  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; $("allyBtn").disabled = true; return; }
+  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; $("allyBtn").disabled = true; $("rstBtn").disabled = true; return; }
   load();
   setInterval(function () { if (document.visibilityState === "visible") load(true); }, 15000);
 })();
