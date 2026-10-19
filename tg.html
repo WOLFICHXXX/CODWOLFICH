@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>WOLFICH · Пульт</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root { --bg: #120d1f; --card: #1d1530; --line: rgba(240,200,110,.28); --gold: #f2c86e; --text: #ece6f6; --muted: #a79cbd; --ok: #57b77a; --bad: #e06464; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { padding: 14px 14px 90px; }
+  h1 { margin: 0 0 4px; font-size: 1.25rem; color: var(--gold); letter-spacing: .02em; }
+  .sub { color: var(--muted); font-size: .85rem; margin-bottom: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+  .card h2 { margin: 0 0 8px; font-size: .95rem; color: var(--gold); font-weight: 700; }
+  select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #0d0918; color: var(--text); font: inherit; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .row:last-child { border-bottom: 0; }
+  .row .ico { width: 30px; text-align: center; font-size: 1.3rem; }
+  .row .nm { flex: 1; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: #2a2140; color: var(--text); font-size: 1.2rem; line-height: 1; }
+  .step button:active { background: #3a2d58; }
+  .step b { width: 26px; text-align: center; font-size: 1.1rem; }
+  .sum { color: var(--muted); font-size: .85rem; margin-top: 8px; }
+  .main { position: fixed; left: 14px; right: 14px; bottom: 14px; padding: 14px; border: 0; border-radius: 14px; background: linear-gradient(180deg, #f2c86e, #c99a3c); color: #1a1208; font: 700 1.05rem inherit; box-shadow: 0 6px 20px rgba(0,0,0,.45); }
+  .main:disabled { opacity: .45; }
+  .st { font-size: .9rem; white-space: pre-line; }
+  .st small { display: block; color: var(--muted); margin-top: 4px; }
+  .msg { padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; font-size: .9rem; display: none; }
+  .msg.ok { display: block; background: rgba(87,183,122,.15); border: 1px solid rgba(87,183,122,.4); }
+  .msg.bad { display: block; background: rgba(224,100,100,.15); border: 1px solid rgba(224,100,100,.4); }
+  .link { background: none; border: 0; color: var(--gold); font: inherit; text-decoration: underline; padding: 0; margin-top: 8px; }
+  .note { color: var(--muted); font-size: .8rem; }
+</style>
+</head>
+<body>
+<h1>🐺 WOLFICH · <span data-t="Пульт|Remote"></span></h1>
+<div class="sub" data-t="Разовая отправка маршей. Программа WOLFICH на компьютере должна быть запущена.|One-off march sending. The WOLFICH program must be running on your computer."></div>
+<div class="msg" id="msg"></div>
+
+<div class="card" id="botCard" style="display:none">
+  <h2 data-t="Бот|Bot"></h2>
+  <select id="bot"></select>
+</div>
+
+<div class="card">
+  <h2 data-t="Последнее событие|Last event"></h2>
+  <div class="st" id="st">…</div>
+  <button class="link" id="refresh" type="button" data-t="Обновить|Refresh"></button>
+  <button class="link" id="cancel" type="button" style="display:none;margin-left:14px" data-t="Отменить команду|Cancel command"></button>
+</div>
+
+<div class="card">
+  <h2 data-t="Куда отправить марши|Where to send marches"></h2>
+  <div id="res"></div>
+  <div class="sum" id="sum"></div>
+</div>
+<div class="note" data-t="Для этой отправки график работы, перерывы и интервалы из настроек бота не действуют. Когда все марши вернутся домой, придёт сообщение.|Work schedule, breaks and bot intervals do not apply to this sending. You'll get a message when all marches are back home."></div>
+
+<button class="main" id="go" type="button" data-t="Отправить марши|Send marches"></button>
+
+<script>
+(function () {
+  var TG = window.Telegram && Telegram.WebApp;
+  if (TG) { try { TG.ready(); TG.expand(); TG.setHeaderColor("#120d1f"); TG.setBackgroundColor("#120d1f"); } catch (e) {} }
+  var user = TG && TG.initDataUnsafe && TG.initDataUnsafe.user;
+  var EN = !!(user && user.language_code && !/^(ru|uk|be|kk)/.test(user.language_code));
+  var T = function (s) { var p = s.split("|"); return EN ? (p[1] || p[0]) : p[0]; };
+  document.querySelectorAll("[data-t]").forEach(function (el) { el.textContent = T(el.dataset.t); });
+  document.documentElement.lang = EN ? "en" : "ru";
+
+  var WORKER = "https://wolfich-license.wolfichplay.workers.dev/app", MIRROR = "https://functions.yandexcloud.net/d4efk5gct1uv86m11gui?p=app";
+  var tfetch = function (u, o, ms) { var c = new AbortController(), t = setTimeout(function () { c.abort(); }, ms); o.signal = c.signal; return fetch(u, o).finally(function () { clearTimeout(t); }); };
+  var useMirror = false;
+  function api(op, extra) {
+    var body = JSON.stringify(Object.assign({ initData: TG ? TG.initData : "", op: op }, extra || {}));
+    var o = function () { return { method: "POST", headers: { "content-type": "application/json" }, body: body }; };
+    var viaW = function () { return tfetch(WORKER, o(), 8000).then(function (r) { return r.json(); }); };
+    var viaM = function () { return tfetch(MIRROR, o(), 15000).then(function (r) { return r.json(); }); };
+    if (useMirror) return viaM().catch(viaW);
+    return viaW().catch(function () { useMirror = true; return viaM(); });
+  }
+  var $ = function (id) { return document.getElementById(id); };
+  var msg = function (t, ok) { var m = $("msg"); m.textContent = t || ""; m.className = "msg" + (t ? (ok ? " ok" : " bad") : ""); };
+  var haptic = function (k) { try { TG.HapticFeedback.impactOccurred(k || "light"); } catch (e) {} };
+
+  var RES = [["mana", "🧪", "Мана|Mana"], ["ore", "⛏️", "Руда|Ore"], ["wood", "🪵", "Дерево|Wood"], ["gold", "🪙", "Золото|Gold"], ["gems", "💎", "Самоцветы|Gems"]];
+  var plan = {}; try { plan = JSON.parse(localStorage.getItem("wolfich_tg_plan") || "{}") || {}; } catch (e) {}
+  var MAXT = 5;
+  var total = function () { return RES.reduce(function (a, r) { return a + (plan[r[0]] || 0); }, 0); };
+  function drawRes() {
+    $("res").innerHTML = RES.map(function (r) {
+      return '<div class="row"><span class="ico">' + r[1] + '</span><span class="nm">' + T(r[2]) + '</span><span class="step"><button type="button" data-k="' + r[0] + '" data-d="-1">−</button><b>' + (plan[r[0]] || 0) + '</b><button type="button" data-k="' + r[0] + '" data-d="1">+</button></span></div>';
+    }).join("");
+    $("sum").textContent = T("Всего маршей: |Total marches: ") + total() + T(" (не больше 5)| (max 5)");
+    $("go").disabled = !total() || !cur;
+    try { localStorage.setItem("wolfich_tg_plan", JSON.stringify(plan)); } catch (e) {}
+  }
+  $("res").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-k]"); if (!b) return;
+    var k = b.dataset.k, d = +b.dataset.d, v = (plan[k] || 0) + d;
+    if (v < 0 || (d > 0 && total() >= MAXT)) return;
+    plan[k] = v; haptic(); drawRes();
+  });
+
+  var bots = [], cur = null;
+  function opts() {   // бот + вкладка (у каждой вкладки — свой LDPlayer)
+    var o = [];
+    bots.forEach(function (b) {
+      var tabs = Object.keys(b.tabs || {});
+      if (!tabs.length) o.push({ rid: b.rid, inst: "", label: b.name });
+      tabs.forEach(function (t) { o.push({ rid: b.rid, inst: t, label: b.name + " · " + b.tabs[t] }); });
+    });
+    return o;
+  }
+  function fmt(ts) { try { return new Date(ts).toLocaleString(EN ? "en-GB" : "ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } }
+  function drawState() {
+    var b = cur && bots.filter(function (x) { return x.rid === cur.rid; })[0];
+    if (!b) { $("st").textContent = "—"; return; }
+    var s = b.last ? b.last.msg + "\n" : T("Пока ничего не было.|Nothing yet.") + "\n";
+    $("st").innerHTML = "";
+    $("st").appendChild(document.createTextNode(s));
+    var sm = document.createElement("small");
+    sm.textContent = b.pending ? T("⏳ Команда ждёт программу (до 30 секунд)…|⏳ The command is waiting for the program (up to 30 seconds)…") : (b.last ? fmt(b.last.ts) : "");
+    $("st").appendChild(sm);
+    $("cancel").style.display = b.pending ? "" : "none";
+  }
+  function load(quiet) {
+    if (!quiet) $("st").textContent = "…";
+    return api("list").then(function (j) {
+      if (!j || !j.ok) { msg(j && j.err || T("Сервер не ответил|Server did not respond")); $("go").disabled = true; return; }
+      bots = j.bots || [];
+      var o = opts(), sel = $("bot");
+      sel.innerHTML = o.map(function (x, i) { return '<option value="' + i + '">' + x.label.replace(/</g, "&lt;") + '</option>'; }).join("");
+      var keep = cur && o.findIndex(function (x) { return x.rid === cur.rid && x.inst === cur.inst; });
+      sel.value = String(keep >= 0 ? keep : 0); cur = o[+sel.value] || null;
+      $("botCard").style.display = o.length > 1 ? "" : "none";
+      drawState(); drawRes();
+    }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); });
+  }
+  $("bot").addEventListener("change", function () { cur = opts()[+$("bot").value] || null; drawState(); drawRes(); });
+  $("refresh").addEventListener("click", function () { load(); });
+  $("cancel").addEventListener("click", function () { if (!cur) return; api("cancel", { rid: cur.rid }).then(function () { msg(T("Команда отменена|Command cancelled"), true); load(true); }); });
+  $("go").addEventListener("click", function () {
+    if (!cur || !total()) return;
+    $("go").disabled = true; haptic("medium");
+    api("send", { rid: cur.rid, inst: cur.inst, plan: plan }).then(function (j) {
+      if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("go").disabled = false; return; }
+      msg(T("✅ Команда отправлена. Программа возьмёт её в течение 30 секунд и напишет в этот чат.|✅ Command sent. The program will pick it up within 30 seconds and write to this chat."), true);
+      try { TG.HapticFeedback.notificationOccurred("success"); } catch (e) {}
+      load(true);
+    }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("go").disabled = false; });
+  });
+  drawRes();
+  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; return; }
+  load();
+  setInterval(function () { if (document.visibilityState === "visible") load(true); }, 15000);
+})();
+</script>
+</body>
+</html>
