@@ -238,10 +238,9 @@
         $("shotImg").src = sh.img; $("shotTs").textContent = T("Снимок от |Screenshot at ") + fmt(sh.ts); $("shot").style.display = "block";
       }).catch(function () {});
     } else if (!sts) $("shot").style.display = "none";
-    if (sw && !fast) { fast = setInterval(function () { load(true); }, 5000); }
-    if (!sw && fast) { clearInterval(fast); fast = null; }
+    fast = pend || sw;   // пока команда ждёт программу или идёт снимок — обновляем чаще
   }
-  var shotSeen = {}, fast = null;
+  var shotSeen = {}, fast = false;
   ["aG", "aX", "aT"].forEach(function (id) {
     try { var v = localStorage.getItem("wolfich_tg_" + id); if (v !== null) $(id).checked = v === "1"; } catch (e) {}
     $(id).addEventListener("change", function () { haptic(); try { localStorage.setItem("wolfich_tg_" + id, $(id).checked ? "1" : "0"); } catch (e) {} });
@@ -407,7 +406,9 @@
   drawRes();
   if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; $("allyBtn").disabled = true; $("rstBtn").disabled = true; $("clsBtn").disabled = true; $("multiBtn").disabled = true; return; }
   load();
-  setInterval(function () { if (document.visibilityState === "visible") load(true); }, 15000);
+  (function tick() {   // 3 с, пока что-то ждёт ответа программы; иначе 10 с
+    setTimeout(function () { (document.visibilityState === "visible" ? load(true) : Promise.resolve()).catch(function () {}).then(tick); }, fast ? 3000 : 10000);
+  })();
 })();
 </script>
 </body>
