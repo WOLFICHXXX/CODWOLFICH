@@ -24,6 +24,14 @@
   .shot small { color: var(--muted); font-size: .8rem; }
   .btn2 { width: 100%; margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #2a2140; color: var(--text); font: 600 .95rem inherit; }
   .btn2:disabled { opacity: .5; }
+  .tg { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .tg:last-of-type { border-bottom: 0; }
+  .tg .nm { flex: 1; }
+  .tg input { display: none; }
+  .tg i { width: 44px; height: 26px; border-radius: 13px; background: #3a3150; position: relative; transition: background .15s; }
+  .tg i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #cfc6e0; transition: left .15s; }
+  .tg input:checked + i { background: #c99a3c; }
+  .tg input:checked + i::after { left: 21px; background: #fff; }
   .row .nm { flex: 1; }
   .step { display: flex; align-items: center; gap: 6px; }
   .step button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: #2a2140; color: var(--text); font-size: 1.2rem; line-height: 1; }
@@ -64,6 +72,14 @@
   <h2 data-t="Куда отправить марши|Where to send marches"></h2>
   <div id="res"></div>
   <div class="sum" id="sum"></div>
+</div>
+<div class="card">
+  <h2 data-t="Обход альянса|Alliance round"></h2>
+  <label class="tg"><span class="ico">🎁</span><span class="nm" data-t="Подарки|Gifts"></span><input type="checkbox" id="aG" checked><i></i></label>
+  <label class="tg"><span class="ico">🔬</span><span class="nm" data-t="Технологии|Technology"></span><input type="checkbox" id="aX" checked><i></i></label>
+  <label class="tg"><span class="ico">🏰</span><span class="nm" data-t="Сбор с территории|Territory income"></span><input type="checkbox" id="aT" checked><i></i></label>
+  <button class="btn2" id="allyBtn" type="button" data-t="🤝 Обойти альянс|🤝 Alliance round"></button>
+  <div class="note" style="margin-top:8px" data-t="Кнопку «Помощь» бот не нажимает. Если идёт отправка с пульта — сделает обход между проверками маршей, иначе обойдёт альянс, пришлёт снимок и выключится.|The bot does not press «Help». During a remote sending it does the round between march checks; otherwise it does the round, sends a screenshot and stops."></div>
 </div>
 <div class="note" data-t="Для этой отправки график работы, перерывы и интервалы из настроек бота не действуют. Когда все марши вернутся домой, придёт сообщение.|Work schedule, breaks and bot intervals do not apply to this sending. You'll get a message when all marches are back home."></div>
 
@@ -132,7 +148,9 @@
     $("st").innerHTML = "";
     $("st").appendChild(document.createTextNode(s));
     var sm = document.createElement("small");
-    var pend = !!(b.pending && b.pending[cur.inst]);
+    var aw = !!(b.allyWait && b.allyWait[cur.inst]), pend = !!(b.pending && b.pending[cur.inst]) || aw;
+    $("allyBtn").disabled = aw;
+    $("allyBtn").textContent = aw ? T("⏳ Обход ждёт программу…|⏳ Waiting for the program…") : T("🤝 Обойти альянс|🤝 Alliance round");
     sm.textContent = pend ? T("⏳ Команда ждёт программу (до 30 секунд)…|⏳ The command is waiting for the program (up to 30 seconds)…") : (b.last ? fmt(b.last.ts) : "");
     $("st").appendChild(sm);
     $("cancel").style.display = pend ? "" : "none";
@@ -151,6 +169,21 @@
     if (!sw && fast) { clearInterval(fast); fast = null; }
   }
   var shotSeen = {}, fast = null;
+  ["aG", "aX", "aT"].forEach(function (id) {
+    try { var v = localStorage.getItem("wolfich_tg_" + id); if (v !== null) $(id).checked = v === "1"; } catch (e) {}
+    $(id).addEventListener("change", function () { haptic(); try { localStorage.setItem("wolfich_tg_" + id, $(id).checked ? "1" : "0"); } catch (e) {} });
+  });
+  $("allyBtn").addEventListener("click", function () {
+    if (!cur) return;
+    var a = { gifts: $("aG").checked, tech: $("aX").checked, terr: $("aT").checked };
+    if (!a.gifts && !a.tech && !a.terr) { msg(T("Выберите хотя бы одно действие|Pick at least one action")); return; }
+    $("allyBtn").disabled = true; haptic("medium");
+    api("ally", Object.assign({ rid: cur.rid, inst: cur.inst }, a)).then(function (j) {
+      if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("allyBtn").disabled = false; return; }
+      msg(T("🤝 Команда отправлена. Программа возьмёт её в течение 30 секунд и напишет в этот чат.|🤝 Command sent. The program will pick it up within 30 seconds and write to this chat."), true);
+      load(true);
+    }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("allyBtn").disabled = false; });
+  });
   $("shotBtn").addEventListener("click", function () {
     if (!cur) return; $("shotBtn").disabled = true; haptic();
     api("shot", { rid: cur.rid, inst: cur.inst }).then(function (j) {
@@ -186,7 +219,7 @@
     }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("go").disabled = false; });
   });
   drawRes();
-  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; return; }
+  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; $("allyBtn").disabled = true; return; }
   load();
   setInterval(function () { if (document.visibilityState === "visible") load(true); }, 15000);
 })();
