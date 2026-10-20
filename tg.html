@@ -56,6 +56,7 @@
   .chip { text-align: left; padding: 9px 11px; border-radius: 12px; border: 1px solid var(--line); background: #2a2140; color: var(--text); font: inherit; }
   .chip b { display: block; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chip.dis { opacity: .55; }
+  .stopb { border-color: rgba(224,100,100,.55) !important; color: #ffc9c9 !important; background: rgba(224,100,100,.12) !important; }
   .chip small u { color: var(--bad); text-decoration: underline; }
   .chip small { display: block; color: var(--muted); font-size: .78rem; margin-top: 2px; }
   .chip.sel { border-color: var(--gold); background: linear-gradient(180deg, rgba(242,200,110,.22), rgba(242,200,110,.08)); box-shadow: 0 0 0 1px var(--gold) inset; }
@@ -83,7 +84,8 @@
 <div class="card" id="botCard">
   <h2 data-t="Эмуляторы|Emulators"></h2>
   <div class="chips" id="tabs"></div>
-  <div class="note" style="margin-top:8px" data-t="Выберите эмулятор — все кнопки ниже управляют только им.|Pick an emulator — all buttons below control only it."></div>
+  <button class="btn2 stopb" id="stopBtn" type="button"><span data-t="⏹ Остановить бота|⏹ Stop the bot"></span></button>
+  <div class="note" style="margin-top:8px" data-t="Выберите эмулятор — все кнопки ниже управляют только им. «Остановить» прерывает и автопоход, и команду пульта — удобно перед ручным управлением.|Pick an emulator — all buttons below control only it. «Stop» ends both auto-march and a remote job — handy before manual control."></div>
 </div>
 
 <div class="card">
@@ -245,6 +247,10 @@
     lbl("rstBtn", rw ? T("⏳ Ждёт программу…|⏳ Waiting…") : T("Перезапустить игру|Restart the game"));
     var xw = !!(b.closeWait && b.closeWait[cur.inst]); pend = pend || xw || !!(b.ldWait && b.ldWait[cur.inst]);
     drawLd(b);
+    var sv = (b.state || {})[cur.inst], stw = !!(b.stopWait && b.stopWait[cur.inst]), idle = sv && sv.st === "idle" && Date.now() - sv.ts < 35 * 60000;
+    pend = pend || stw;
+    $("stopBtn").disabled = stw;
+    lbl("stopBtn", stw ? T("⏳ Останавливаю…|⏳ Stopping…") : idle ? T("⏹ Бот уже остановлен|⏹ Bot is stopped") : T("⏹ Остановить бота|⏹ Stop the bot"));
     $("clsBtn").disabled = xw; lbl("clsBtn", xw ? T("⏳ Ждёт программу…|⏳ Waiting…") : T("Закрыть игру|Close the game"));
     $("allyBtn").disabled = aw;
     lbl("allyBtn", aw ? T("⏳ Обход ждёт программу…|⏳ Waiting for the program…") : T("Обойти альянс|Alliance round"));
@@ -315,6 +321,15 @@
     }).join("");
     $("ldNote").textContent = T("Список обновлён |List updated ") + fmt(b.ld.ts) + (wait ? T(" · ⏳ команда ждёт программу| · ⏳ command waiting") : "");
   }
+  $("stopBtn").addEventListener("click", function () {
+    if (!cur) return;
+    $("stopBtn").disabled = true; haptic("heavy");
+    api("stop", { rid: cur.rid, inst: cur.inst }).then(function (j) {
+      if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("stopBtn").disabled = false; return; }
+      msg(T("⏹ Команда отправлена — бот остановится в течение нескольких секунд.|⏹ Command sent — the bot will stop within seconds."), true);
+      load(true);
+    }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("stopBtn").disabled = false; });
+  });
   $("clsBtn").addEventListener("click", function () {
     if (!cur) return;
     $("clsBtn").disabled = true; haptic("medium");
@@ -425,7 +440,7 @@
     }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("go").disabled = false; });
   });
   drawRes();
-  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; $("allyBtn").disabled = true; $("rstBtn").disabled = true; $("clsBtn").disabled = true; $("multiBtn").disabled = true; return; }
+  if (!TG || !TG.initData) { msg(T("Откройте пульт из Telegram-бота WOLFICH.|Open the remote from the WOLFICH Telegram bot.")); $("go").disabled = true; $("shotBtn").disabled = true; $("allyBtn").disabled = true; $("rstBtn").disabled = true; $("clsBtn").disabled = true; $("multiBtn").disabled = true; $("stopBtn").disabled = true; return; }
   load();
   (function tick() {   // 3 с, пока что-то ждёт ответа программы; иначе 10 с
     setTimeout(function () { (document.visibilityState === "visible" ? load(true) : Promise.resolve()).catch(function () {}).then(tick); }, fast ? 3000 : 10000);
