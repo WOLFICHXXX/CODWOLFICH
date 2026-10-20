@@ -17,6 +17,10 @@
   select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #0d0918; color: var(--text); font: inherit; }
   .row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
   .row:last-child { border-bottom: 0; }
+  .trs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; margin-bottom: 8px; }
+  .trs label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted, #b9a9d6); }
+  .trs label.wide { grid-column: 1 / -1; }
+  .trs select { padding: 8px 10px; }
   .row .ico { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
   .row .ico img { width: 32px; height: 32px; object-fit: contain; }
   .shot { margin-top: 10px; display: none; }
@@ -138,8 +142,10 @@
 
 <div class="card">
   <h2 data-t="Обучение войск|Troop training"></h2>
+  <div class="trs" id="trs"></div>
+  <div class="note" style="margin:2px 0 10px" data-t="Тир узнаётся по цвету значка: серый Т1, зелёный Т2, синий Т3, фиолетовый Т4, золотой Т5. «Как в боте» — взять тир из настроек программы (⚙ Настройки → Обучение войск). Количество — сколько предлагает игра, «Мгновенно» за самоцветы бот не нажимает.|Tier is recognised by the badge colour: grey T1, green T2, blue T3, purple T4, gold T5. «As in the bot» uses the tier from the program settings (⚙ Settings → Troop training). Amount is what the game offers; the bot never taps «Instant»."></div>
   <button class="main" id="trainBtn" type="button"><span data-t="🪖 Обучить войска|🪖 Train troops"></span></button>
-  <div class="note" style="margin-top:8px" data-t="Бот заберёт готовые войска и поставит обучение во все свободные очереди. Тиры для каждого вида — в настройках бота на компьютере (⚙ Настройки → Обучение войск). Пришлёт снимок и выключится; если идёт отправка с пульта — обучит между проверками маршей.|The bot collects ready troops and starts training in every free queue. Tiers per type are set in the bot on the PC (⚙ Settings → Troop training). Sends a screenshot and stops; during a remote job it trains between march checks."></div>
+  <div class="note" style="margin-top:8px" data-t="Бот заберёт готовые войска и поставит обучение во все свободные очереди по выбранным тирам. Пришлёт снимок, поставит напоминание об окончании и выключится; если идёт отправка с пульта — обучит между проверками маршей.|The bot collects ready troops and starts training in every free queue with the chosen tiers. Sends a screenshot, sets a reminder for the end and stops; during a remote job it trains between march checks."></div>
 </div>
 
 <div class="card">
@@ -192,11 +198,24 @@
   var lsGet = function (id) { try { var v = localStorage.getItem(tk(id)); return v !== null ? v : localStorage.getItem("wolfich_tg_" + id); } catch (e) { return null; } };
   var lsSet = function (id, v) { try { localStorage.setItem(tk(id), v); } catch (e) {} };
   var plan = {}; try { plan = JSON.parse(lsGet("plan") || "{}") || {}; } catch (e) {}
+  /* обучение войск: тир для каждого вида, отдельно для каждого эмулятора (-1 — как в боте, 0 — не обучать) */
+  var TRK = [["inf", "Пехота|Infantry"], ["mag", "Маги|Mages"], ["mrk", "Стрелки|Marksmen"], ["cav", "Кавалерия|Cavalry"], ["fly", "Летающие|Flyers"]];
+  (function () {
+    var box = document.getElementById("trs"); if (!box) return;
+    box.innerHTML = TRK.map(function (t, n) {
+      var o = '<label' + (n === TRK.length - 1 ? ' class="wide"' : '') + '><span>' + T(t[1]) + '</span><select id="tr_' + t[0] + '">';
+      o += '<option value="-1">' + T("как в боте|as in the bot") + '</option><option value="0">' + T("не обучать|don't train") + '</option>';
+      for (var i = 1; i <= 5; i++) o += '<option value="' + i + '"' + '>' + (t[0] === "cav" && i === 1 ? T("Т1 · сборщики|T1 · gatherers") : T("Т|T") + i) + '</option>';
+      return o + '</select></label>';
+    }).join("");
+    TRK.forEach(function (t) { var el = document.getElementById("tr_" + t[0]); el.value = "-1"; el.addEventListener("change", function () { lsSet("tr_" + t[0], el.value); }); });
+  })();
   function loadTabCfg() {   // при выборе другого эмулятора — подставить его план, время фарма и переключатели альянса
     var key = cur ? cur.rid + "|" + cur.inst : ""; if (key === cfgFor) return; cfgFor = key;
     try { plan = JSON.parse(lsGet("plan") || "{}") || {}; } catch (e) { plan = {}; }
     TMK.forEach(function (id) { var v = lsGet(id); $(id).value = v !== null ? v : ""; });
     ["aG", "aX", "aT"].forEach(function (id) { var v = lsGet(id); $(id).checked = v === null ? true : v === "1"; });
+    TRK.forEach(function (t) { var v = lsGet("tr_" + t[0]); $("tr_" + t[0]).value = v !== null && /^-?[0-5]$/.test(v) ? v : "-1"; });
   }
   var MAXT = 5;
   var total = function () { return RES.reduce(function (a, r) { return a + (plan[r[0]] || 0); }, 0); };
@@ -354,7 +373,7 @@
   $("trainBtn").addEventListener("click", function () {
     if (!cur) return;
     $("trainBtn").disabled = true; haptic("medium");
-    api("train", { rid: cur.rid, inst: cur.inst }).then(function (j) {
+    api("train", { rid: cur.rid, inst: cur.inst, tr: (function () { var o = {}; TRK.forEach(function (t) { var v = +$("tr_" + t[0]).value; if (v >= 0) o[t[0]] = v; }); return o; })() }).then(function (j) {
       if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("trainBtn").disabled = false; return; }
       msg(T("🪖 Команда отправлена. Программа возьмёт её через несколько секунд и напишет в этот чат.|🪖 Command sent. The program will pick it up within seconds and write to this chat."), true);
       load(true);
