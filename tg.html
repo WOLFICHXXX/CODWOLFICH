@@ -283,11 +283,14 @@
       var t = ins[k], dev = t || ((b.state || {})[t] || {}).dev || "";
       if (ldIdx(dev) === i) return t;
     }
+    // основная вкладка, эмулятор которой ещё не известен, — это окно 0 LDPlayer (если у окна 0 нет другой вкладки)
+    if (i === 0 && (b.tabs || {}).hasOwnProperty("") && ldIdx(((b.state || {})[""] || {}).dev || "") < 0) return "";
     return null;
   }
   function ldName(b, inst) {   // имя эмулятора из LDMultiPlayer для вкладки
     var L = b && b.ld && b.ld.list; if (!L) return "";
     var dev = inst || ((b.state || {})[inst] || {}).dev || "", i = ldIdx(dev);
+    if (i < 0 && inst === "") i = 0;   // основная вкладка — окно 0
     var x = L.filter(function (y) { return y.i === i; })[0];
     return x ? x.n : "";
   }
