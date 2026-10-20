@@ -249,10 +249,13 @@
     drawLd(b);
     var sv = (b.state || {})[cur.inst], stw = !!(b.stopWait && b.stopWait[cur.inst]), idle = sv && sv.st === "idle" && Date.now() - sv.ts < 35 * 60000;
     pend = pend || stw;
-    $("stopBtn").disabled = stw;
-    var me = emus().filter(function (x) { return x.rid === cur.rid && x.inst === cur.inst; })[0];
-    $("stopBtn").style.display = me && me.known && !me.on && !stw ? "none" : "";   // окно эмулятора закрыто — останавливать некого
-    lbl("stopBtn", stw ? T("⏳ Останавливаю…|⏳ Stopping…") : idle ? T("⏹ Бот уже остановлен|⏹ Bot is stopped") : T("⏹ Остановить бота|⏹ Stop the bot"));
+    var me = emus().filter(function (x) { return x.rid === cur.rid && x.inst === cur.inst; })[0], closed = !!(me && me.known && !me.on);
+    if (stw && closed && !stopDrop[cur.rid + "|" + cur.inst]) {   // окно закрыто — бот команду не возьмёт: снимаем её сами
+      stopDrop[cur.rid + "|" + cur.inst] = 1; api("cancel", { rid: cur.rid, inst: cur.inst, what: "stop" }).then(function () { load(true); });
+    }
+    $("stopBtn").style.display = closed ? "none" : "";   // окно эмулятора закрыто — останавливать некого
+    $("stopBtn").disabled = false; stopPending = stw;
+    lbl("stopBtn", stw ? T("⏳ Останавливаю… · нажмите, чтобы отменить|⏳ Stopping… · tap to cancel") : idle ? T("⏹ Бот уже остановлен|⏹ Bot is stopped") : T("⏹ Остановить бота|⏹ Stop the bot"));
     $("clsBtn").disabled = xw; lbl("clsBtn", xw ? T("⏳ Ждёт программу…|⏳ Waiting…") : T("Закрыть игру|Close the game"));
     $("allyBtn").disabled = aw;
     lbl("allyBtn", aw ? T("⏳ Обход ждёт программу…|⏳ Waiting for the program…") : T("Обойти альянс|Alliance round"));
@@ -323,8 +326,14 @@
     }).join("");
     $("ldNote").textContent = T("Список обновлён |List updated ") + fmt(b.ld.ts) + (wait ? T(" · ⏳ команда ждёт программу| · ⏳ command waiting") : "");
   }
+  var stopDrop = {}, stopPending = false;
   $("stopBtn").addEventListener("click", function () {
     if (!cur) return;
+    if (stopPending) {   // команда «стоп» ещё не взята программой — отменяем её
+      $("stopBtn").disabled = true;
+      api("cancel", { rid: cur.rid, inst: cur.inst, what: "stop" }).then(function () { msg(T("Остановка отменена|Stop cancelled"), true); load(true); }, function () { $("stopBtn").disabled = false; });
+      return;
+    }
     $("stopBtn").disabled = true; haptic("heavy");
     api("stop", { rid: cur.rid, inst: cur.inst }).then(function (j) {
       if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("stopBtn").disabled = false; return; }
