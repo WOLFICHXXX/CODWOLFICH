@@ -2528,6 +2528,21 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .al-tc b{background:var(--tc);color:#fff;border-radius:999px;padding:0 7px;font-size:.72rem}
 .al-tc em{font-style:normal;font-weight:700;color:var(--gold-light)}
 .al-mc .al-act{margin-top:10px}
+.al-mtabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 2px}
+.al-mt{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);border-radius:999px;padding:5px 12px;font:inherit;font-size:.82rem;cursor:pointer}
+.al-mt.on{background:var(--gold);color:#1b1206;font-weight:700}
+.al-mt.add{border-style:dashed;color:var(--gold-light)}
+.al-mt.del{border-color:rgba(224,82,82,.6);color:#ffb3b3}
+.al-ms{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.al-mini{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);background:rgba(0,0,0,.2);color:var(--text);border-radius:12px;padding:4px 8px 4px 6px;cursor:pointer;font:inherit;font-size:.74rem}
+.al-mini.on{box-shadow:0 0 0 1px var(--gold) inset;background:rgba(217,164,65,.12)}
+.al-mini img{width:26px;height:26px;border-radius:7px;border:1px solid var(--gold);object-fit:cover}
+.al-mini .al-mq{width:26px;height:26px;border-radius:7px;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.al-mini i{font-style:normal;font-size:.66rem;border-radius:6px;padding:1px 5px;background:color-mix(in srgb,var(--tc) 35%,transparent);border:1px solid var(--tc)}
+.al-mnum{color:var(--gold-light);font-weight:700;margin-right:2px}
+.al-mar{color:var(--muted);margin-left:2px}
+.al-mini.on .al-mar{transform:rotate(180deg)}
+.al-md:empty{display:none}
 .al-row.al-hr{grid-template-columns:2fr 1fr 2.4fr}
 .al-sk{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .al-sk .al-in{text-align:center;padding:10px 4px}
@@ -15039,36 +15054,59 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         table();
     }
 
+    /* марши участника: до 5; старые записи (один марш в heroes/troops) читаются как первый марш */
+    const marchesOf = (m) => Array.isArray(m.marches) && m.marches.length ? m.marches : ((m.heroes || []).length || (m.troops || []).length ? [{ heroes: m.heroes || [], troops: m.troops || [] }] : []);
+    const numv = (v) => +String(v || "").replace(/[^\d]/g, "") || 0;
     function form(m) {
         m = m || {};
         const other = st.data && st.edit !== st.data.me;
         $("alMine").querySelector(".al-h").textContent = other ? "Данные участника: " + (m.nick || "") : "Мои данные";
-        const tr = (m.troops || []).concat([{}, {}, {}, {}]).slice(0, 4), hr = (m.heroes || []).concat([{}, {}]).slice(0, 2);
+        st.fm = { marches: JSON.parse(JSON.stringify(marchesOf(m))), mi: 0 };
+        if (!st.fm.marches.length) st.fm.marches.push({ heroes: [], troops: [] });
         const names = (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).map(h => h.n).sort((a, b) => a.localeCompare(b, "ru"));
         $("alForm").innerHTML =
             '<datalist id="alHeroList">' + names.map(n => '<option value="' + esc(n) + '">').join("") + "</datalist>" +
             '<div class="al-f"><label>Ник<input class="al-in" data-f="nick" maxlength="32" value="' + esc(m.nick) + '"></label>' +
             '<label>Мощь<input class="al-in" data-f="power" inputmode="numeric" value="' + esc(m.power || "") + '"></label>' +
             '<label>Заслуги<input class="al-in" data-f="merit" inputmode="numeric" value="' + esc(m.merit != null ? m.merit : "") + '"></label></div>' +
-            '<div class="al-sub">Герои основного марша — командир и заместитель</div><div class="al-rows">' + hr.map((h, i) => {
+            '<div class="al-mtabs" id="alMTabs"></div><div id="alMarch"></div>';
+        drawMarch();
+    }
+    function drawMarch() {
+        const fm = st.fm, x = fm.marches[fm.mi] || {}, tr = (x.troops || []).concat([{}, {}, {}, {}]).slice(0, 4), hr = (x.heroes || []).concat([{}, {}]).slice(0, 2);
+        $("alMTabs").innerHTML = fm.marches.map((_, i) => '<button type="button" class="al-mt' + (i === fm.mi ? " on" : "") + '" data-mt="' + i + '">Марш ' + (i + 1) + "</button>").join("") +
+            (fm.marches.length < 5 ? '<button type="button" class="al-mt add" data-madd="1">+ Добавить марш</button>' : "") +
+            (fm.marches.length > 1 ? '<button type="button" class="al-mt del" data-mdel="1">Удалить марш ' + (fm.mi + 1) + "</button>" : "");
+        $("alMarch").innerHTML =
+            '<div class="al-sub">Марш ' + (fm.mi + 1) + ': герои — командир и заместитель</div><div class="al-rows">' + hr.map((h, i) => {
                 const sk = String(h.skills || "").split("/");
                 return '<div class="al-row al-hr" data-hr="' + i + '"><input class="al-in" data-h="name" list="alHeroList" maxlength="32" placeholder="' + (i ? "Заместитель" : "Командир") + '" value="' + esc(h.name) + '">' +
                     '<input class="al-in" data-h="lvl" inputmode="numeric" placeholder="уровень" value="' + esc(h.lvl || "") + '">' +
                     '<span class="al-sk">' + [0, 1, 2, 3, 4].map(k => '<input class="al-in" data-s="' + k + '" inputmode="numeric" maxlength="1" title="Навык ' + (k + 1) + '" value="' + esc(sk[k] || "") + '">').join("") + "</span></div>";
-            }).join("") + '</div><div class="al-note">Навыки — уровни 1–5 по порядку, как на экране марша; 0 — навык не изучен.</div>' +
-            '<div class="al-sub">Войска основного марша</div><div class="al-rows">' + tr.map((t, i) =>
-                '<div class="al-row al-r3" data-tr="' + i + '"><select class="al-in" data-t="type"><option value="">—</option>' + TYPES.map(x => '<option value="' + x[0] + '"' + (t.type === x[0] ? " selected" : "") + ">" + x[1] + "</option>").join("") + "</select>" +
+            }).join("") + '</div><div class="al-note">Навыки — уровни 1–5 по порядку, как на экране марша; 0 — навык не изучен. Скриншот марша попадает в выбранный марш.</div>' +
+            '<div class="al-sub">Марш ' + (fm.mi + 1) + ': войска</div><div class="al-rows">' + tr.map((t, i) =>
+                '<div class="al-row al-r3" data-tr="' + i + '"><select class="al-in" data-t="type"><option value="">—</option>' + TYPES.map(y => '<option value="' + y[0] + '"' + (t.type === y[0] ? " selected" : "") + ">" + y[1] + "</option>").join("") + "</select>" +
                 '<select class="al-in" data-t="tier"><option value="0">тир</option>' + [1, 2, 3, 4, 5].map(n => '<option value="' + n + '"' + (+t.tier === n ? " selected" : "") + ">Т" + n + "</option>").join("") + "</select>" +
                 '<input class="al-in" data-t="n" inputmode="numeric" placeholder="кол-во" value="' + esc(t.n || "") + '">' +
                 '<label class="al-fly"><input type="checkbox" data-t="fly"' + (t.fly ? " checked" : "") + '> летающие</label></div>').join("") + "</div>";
+        $("alMTabs").querySelectorAll("[data-mt]").forEach(b => b.addEventListener("click", () => { saveMarch(); fm.mi = +b.dataset.mt; drawMarch(); }));
+        const add = $("alMTabs").querySelector("[data-madd]"); if (add) add.addEventListener("click", () => { saveMarch(); fm.marches.push({ heroes: [], troops: [] }); fm.mi = fm.marches.length - 1; drawMarch(); });
+        const del = $("alMTabs").querySelector("[data-mdel]"); if (del) del.addEventListener("click", () => { if (!confirm("Удалить марш " + (fm.mi + 1) + "?")) return; fm.marches.splice(fm.mi, 1); fm.mi = Math.max(0, fm.mi - 1); drawMarch(); });
     }
-
+    function saveMarch() {   // поля открытого марша → в список маршей
+        const f = $("alMarch"); if (!f || !st.fm) return;
+        st.fm.marches[st.fm.mi] = {
+            troops: [...f.querySelectorAll("[data-tr]")].map((r) => ({ type: r.querySelector('[data-t="type"]').value, tier: +r.querySelector('[data-t="tier"]').value, n: numv(r.querySelector('[data-t="n"]').value), fly: r.querySelector('[data-t="fly"]').checked })).filter((t) => t.type),
+            heroes: [...f.querySelectorAll("[data-hr]")].map((r) => ({ name: r.querySelector('[data-h="name"]').value.trim(), lvl: numv(r.querySelector('[data-h="lvl"]').value),
+                skills: [...r.querySelectorAll("[data-s]")].map(x => String(Math.min(5, numv(x.value)))).join("/") })).filter((h) => h.name || /[1-5]/.test(h.skills))
+        };
+    }
     function readForm() {
-        const f = $("alForm"), num = (v) => +String(v || "").replace(/[^\d]/g, "") || 0, d = {};
-        f.querySelectorAll("[data-f]").forEach((el) => { d[el.dataset.f] = el.dataset.f === "nick" ? el.value.trim() : num(el.value); });
-        d.troops = [...f.querySelectorAll("[data-tr]")].map((r) => ({ type: r.querySelector('[data-t="type"]').value, tier: +r.querySelector('[data-t="tier"]').value, n: num(r.querySelector('[data-t="n"]').value), fly: r.querySelector('[data-t="fly"]').checked })).filter((t) => t.type);
-        d.heroes = [...f.querySelectorAll("[data-hr]")].map((r) => ({ name: r.querySelector('[data-h="name"]').value.trim(), lvl: num(r.querySelector('[data-h="lvl"]').value),
-            skills: [...r.querySelectorAll("[data-s]")].map(x => String(Math.min(5, num(x.value)))).join("/") })).filter((h) => h.name);
+        const f = $("alForm"), d = {};
+        f.querySelectorAll("[data-f]").forEach((el) => { d[el.dataset.f] = el.dataset.f === "nick" ? el.value.trim() : numv(el.value); });
+        saveMarch();
+        d.marches = st.fm.marches.map(x => ({ heroes: (x.heroes || []).filter(h => h.name), troops: x.troops || [] })).filter(x => x.heroes.length || x.troops.length);
+        d.heroes = d.marches[0] ? d.marches[0].heroes : []; d.troops = d.marches[0] ? d.marches[0].troops : [];
         return d;
     }
 
@@ -15092,11 +15130,29 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         $("alTbl").innerHTML = ms.map((m) => '<div class="al-mc' + (m.mid === j.me ? " al-me" : "") + '">' +
             '<div class="al-mh"><div><span class="al-mn">' + esc(m.nick) + "</span>" + (m.role === "own" ? '<span class="al-tag">создатель</span>' : m.role === "off" ? '<span class="al-tag">офицер</span>' : "") + '<div class="al-upd">' + (m.ts ? "обновлено " + ago(m.ts) : "") + "</div></div>" +
             '<div class="al-st"><span><small>Мощь</small>' + fmt(m.power) + '</span><span><small>Заслуги</small>' + fmt(m.merit) + "</span></div></div>" +
-            ((m.heroes || []).length ? '<div class="al-heroes">' + (m.heroes || []).map((h, k) => heroCard(h, k ? "заместитель" : "командир")).join("") + "</div>" : '<div class="al-note">Марш не загружен</div>') +
-            ((m.troops || []).length ? '<div class="al-tcs">' + m.troops.map(troopChip).join("") + "</div>" : "") +
-            (boss ? '<div class="al-act"><button data-ed="' + m.mid + '" type="button">Изменить</button>' + (m.role === "own" ? "" : '<button class="del" data-kick="' + m.mid + '" type="button">Исключить</button>') + "</div>" : "") +
+            (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">Марш ' + (i + 1) + "</span>" +
+                (x.heroes || []).map(h => { const H = HERO(h.name); return H && H.i ? '<img alt="" title="' + esc(h.name) + '" src="' + H.i + '">' : '<span class="al-mq">?</span>'; }).join("") +
+                (x.troops || []).slice(0, 3).map(t => '<i style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "Т" + t.tier : "") + " " + esc((TN[t.type] || "").slice(0, 3)) + (t.fly ? "✈" : "") + "</i>").join("") +
+                '<span class="al-mar">▾</span></button>').join("") + '</div><div class="al-md"></div>' : '<div class="al-note">Марши не загружены</div>') +
+            (boss || m.mid === j.me ? '<div class="al-act">' + (boss ? '<button data-ed="' + m.mid + '" type="button">Изменить</button>' : "") +
+                '<button class="del" data-clr="' + m.mid + '" type="button">Удалить карточку</button>' +
+                (boss && m.role !== "own" ? '<button class="del" data-kick="' + m.mid + '" type="button">Исключить из альянса</button>' : "") + "</div>" : "") +
             "</div>").join("");
+        $("alTbl").querySelectorAll("[data-mx]").forEach(b => b.addEventListener("click", () => {   // миниатюра марша → подробности под ней
+            const [mid, i] = b.dataset.mx.split(":"), card = b.closest(".al-mc"), box = card.querySelector(".al-md"), on = b.classList.contains("on");
+            card.querySelectorAll(".al-mini").forEach(x => x.classList.remove("on"));
+            if (on) { box.innerHTML = ""; return; }
+            b.classList.add("on");
+            const m = j.members.find(x => x.mid === mid), x = marchesOf(m)[+i] || {};
+            box.innerHTML = '<div class="al-heroes">' + (x.heroes || []).map((h, k) => heroCard(h, k ? "заместитель" : "командир")).join("") + "</div>" +
+                ((x.troops || []).length ? '<div class="al-tcs">' + x.troops.map(troopChip).join("") + "</div>" : "");
+        }));
         $("alTbl").querySelectorAll("[data-ed]").forEach((b) => b.addEventListener("click", () => { st.edit = b.dataset.ed; $("alMine").style.display = ""; form(j.members.find((m) => m.mid === st.edit)); $("alMine").scrollIntoView({ behavior: "smooth" }); }));
+        $("alTbl").querySelectorAll("[data-clr]").forEach((b) => b.addEventListener("click", async () => {   // данные карточки удаляются, участник остаётся в альянсе
+            const m = j.members.find((x) => x.mid === b.dataset.clr); if (!m || !confirm("Удалить данные карточки «" + m.nick + "» (мощь, заслуги, марши)? Участник останется в альянсе и сможет загрузить данные заново.")) return;
+            const e = load()[j.id], r = await call({ op: "clear", id: j.id, tok: e.tok, mid: m.mid, k: e.k });
+            if (r.ok) render(r); else alert(r.err || "Ошибка");
+        }));
         $("alTbl").querySelectorAll("[data-kick]").forEach((b) => b.addEventListener("click", async () => {
             const m = j.members.find((x) => x.mid === b.dataset.kick); if (!m || !confirm("Исключить «" + m.nick + "» из альянса?")) return;
             const e = load()[j.id], r = await call({ op: "kick", id: j.id, tok: e.tok, mid: m.mid });
@@ -15166,19 +15222,24 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     $("alCsv").addEventListener("click", () => {
         const j = st.data, q = (s) => '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"';
         const rows = [["Ник", "Роль", "Мощь", "Заслуги", "Войска", "Герои", "Обновлено"]].concat(j.members.map((m) => [m.nick, ROLE[m.role] || "", m.power || "", m.merit || "",
-            (m.troops || []).map((t) => (TN[t.type] || t.type) + (t.fly ? " летающие" : "") + " Т" + t.tier + " " + (t.n || "")).join("; "), (m.heroes || []).map((h) => h.name + " ур." + h.lvl + " навыки " + h.skills).join("; "), m.ts ? new Date(m.ts).toLocaleString("ru-RU") : ""]));
+            marchesOf(m).map((x, i) => "Марш " + (i + 1) + ": " + (x.troops || []).map((t) => (TN[t.type] || t.type) + (t.fly ? " летающие" : "") + " Т" + t.tier + " " + (t.n || "")).join(", ")).join("; "),
+            marchesOf(m).map((x, i) => "Марш " + (i + 1) + ": " + (x.heroes || []).map((h) => h.name + " ур." + h.lvl + " навыки " + h.skills).join(", ")).join("; "), m.ts ? new Date(m.ts).toLocaleString("ru-RU") : ""]));
         const blob = new Blob(["﻿" + rows.map((r) => r.map(q).join(";")).join("\n")], { type: "text/csv;charset=utf-8" });
         const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "alliance-" + j.name.replace(/[^\wа-яё-]+/gi, "_") + ".csv"; a.click();
     });
 
     /* скриншоты: выбрать файл, перетащить или вставить из буфера (Ctrl+V) — тип окна при вставке определяется сам */
     const merge = (kind, d, stateId) => {
-        const cur = readForm();
-        if (kind === "prof") { ["nick", "power", "merit"].forEach(k => { if (d[k] != null && d[k] !== "") cur[k] = d[k]; }); }
-        else { if (d.heroes && d.heroes.length) cur.heroes = d.heroes; if (d.troops && d.troops.length) cur.troops = d.troops; }
-        form(cur);
-        const got = kind === "prof" ? [d.nick && "ник", d.power && "мощь", d.merit != null && "заслуги"].filter(Boolean) : [(d.heroes || []).length && "герои: " + d.heroes.map(h => h.name).join(", "), (d.troops || []).length && "войска"].filter(Boolean);
-        $(stateId).textContent = got.length ? "Распознано: " + got.join(", ") + " — проверьте и нажмите «Сохранить»" : "Ничего не распознал — заполните поля вручную";
+        if (kind === "prof") {
+            ["nick", "power", "merit"].forEach(k => { const el = $("alForm").querySelector('[data-f="' + k + '"]'); if (el && d[k] != null && d[k] !== "") el.value = d[k]; });
+        } else {
+            saveMarch();
+            const cur = st.fm.marches[st.fm.mi] || {};
+            st.fm.marches[st.fm.mi] = { heroes: d.heroes && d.heroes.length ? d.heroes : cur.heroes || [], troops: d.troops && d.troops.length ? d.troops : cur.troops || [] };
+            drawMarch();
+        }
+        const got = kind === "prof" ? [d.nick && "ник", d.power && "мощь", d.merit != null && "заслуги"].filter(Boolean) : [(d.heroes || []).length && "герои: " + d.heroes.map(h => h.name || "?").join(", "), (d.troops || []).length && "войска"].filter(Boolean);
+        $(stateId).textContent = got.length ? (kind === "prof" ? "" : "Марш " + (st.fm.mi + 1) + ": ") + "распознано " + got.join(", ") + " — проверьте и нажмите «Сохранить»" : "Ничего не распознал — заполните поля вручную";
     };
     const SID = { prof: "alProfState", march: "alMarchState" };
     let busy = false, pasteTo = null;
