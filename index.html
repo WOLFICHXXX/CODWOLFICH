@@ -2543,6 +2543,9 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .al-mar{color:var(--muted);margin-left:2px}
 .al-mini.on .al-mar{transform:rotate(180deg)}
 .al-md:empty{display:none}
+.al-skn{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);border-radius:6px;background:rgba(255,255,255,.06);font-weight:700;font-size:.8rem;color:var(--gold-light)}
+.al-skn.off{color:var(--muted)}
+.al-warn{color:#f3c983}
 .al-row.al-hr{grid-template-columns:2fr 1fr 2.4fr}
 .al-sk{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .al-sk .al-in{text-align:center;padding:10px 4px}
@@ -15136,7 +15139,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 return '<div class="al-row al-hr" data-hr="' + i + '"><input class="al-in" data-h="name" list="alHeroList" maxlength="32" placeholder="' + (i ? "Заместитель" : "Командир") + '" value="' + esc(h.name) + '">' +
                     '<input class="al-in" data-h="lvl" inputmode="numeric" placeholder="уровень" value="' + esc(h.lvl || "") + '">' +
                     '<span class="al-sk">' + [0, 1, 2, 3, 4].map(k => '<input class="al-in" data-s="' + k + '" inputmode="numeric" maxlength="1" title="Навык ' + (k + 1) + '" value="' + esc(sk[k] || "") + '">').join("") + "</span></div>";
-            }).join("") + '</div><div class="al-note">Навыки — уровни 1–5 по порядку, как на экране марша; 0 — навык не изучен. Скриншот марша попадает в выбранный марш.</div>' +
+            }).join("") + '</div><div class="al-note">Навыки — уровни 1–5 по порядку, как на экране марша; 0 — навык не изучен. Скриншот марша попадает в выбранный марш.</div><div class="al-note al-warn">⚠️ Эпические герои не распознаются — впишите имя героя и прокачку навыков вручную. В карточке они сохранятся без портрета и иконок навыков.</div>' +
             '<div class="al-sub">Марш ' + (fm.mi + 1) + ': войска</div><div class="al-rows">' + tr.map((t, i) =>
                 '<div class="al-row al-r3" data-tr="' + i + '"><select class="al-in" data-t="type"><option value="">—</option>' + TYPES.map(y => '<option value="' + y[0] + '"' + (t.type === y[0] ? " selected" : "") + ">" + y[1] + "</option>").join("") + "</select>" +
                 '<select class="al-in" data-t="tier"><option value="0">тир</option>' + [1, 2, 3, 4, 5].map(n => '<option value="' + n + '"' + (+t.tier === n ? " selected" : "") + ">Т" + n + "</option>").join("") + "</select>" +
@@ -15166,10 +15169,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     function heroCard(h, role) {   // карточка героя: портрет, имя, вид войск, специализация, навыки с уровнями
         const H = HERO(h.name), sk = String(h.skills || "").split("/");
         const port = H && H.i ? '<img class="al-hp" alt="" src="' + H.i + '">' : '<div class="al-hp al-hp0">?</div>';
-        const skills = H ? H.s.map((s, k) => { const lv = +sk[k] || 0; return '<span class="al-ski' + (lv ? "" : " off") + '" title="' + esc(s.n) + (lv ? " — ур. " + lv : " — не изучен") + '"><img alt="" src="' + (s.r || s.i) + '">' + (lv ? "<b>" + lv + "</b>" : "") + "</span>"; }).join("") : "";
+        const skills = H ? H.s.map((s, k) => { const lv = +sk[k] || 0; return '<span class="al-ski' + (lv ? "" : " off") + '" title="' + esc(s.n) + (lv ? " — ур. " + lv : " — не изучен") + '"><img alt="" src="' + (s.r || s.i) + '">' + (lv ? "<b>" + lv + "</b>" : "") + "</span>"; }).join("")
+            : sk.filter(x => x !== "").map((x, k) => '<span class="al-ski al-skn' + (+x ? "" : " off") + '" title="Навык ' + (k + 1) + '">' + (+x || "–") + "</span>").join("");   // героя нет в базе (эпический) — уровни цифрами
         return '<div class="al-hero"><div class="al-hpw">' + port + (h.lvl ? '<span class="al-lv">' + h.lvl + "</span>" : "") + '</div><div class="al-hi">' +
             '<div class="al-hn">' + esc(h.name) + ' <small>' + role + "</small></div>" +
-            (H ? '<div class="al-ht">' + esc(H.t) + '</div><div class="al-hc"><span>' + esc(HTR[H.tr] || H.tr) + "</span><span>" + esc(H.sp) + "</span></div>" : "") +
+            (H ? '<div class="al-ht">' + esc(H.t) + '</div><div class="al-hc">' + (typeof tkSpecHtml === "function" ? tkSpecHtml(H) : "<span>" + esc(HTR[H.tr] || H.tr) + "</span><span>" + esc(H.sp) + "</span>") + "</div>" : "") +
             '<div class="al-sks">' + skills + "</div></div></div>";
     }
     function troopChip(t) {
@@ -15509,7 +15513,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (xStart < 0 || xStart + 4 * p0 + s0 > img.W || y0 < 0 || y0 + s0 > img.H) return;
             for (const pk of [0.92, 1, 1.08]) for (let dx = -0.4; dx <= 0.41; dx += 0.1) for (let dy = -0.5; dy <= 0.51; dy += 0.1) {
                 const p = p0 * pk, s = p * 0.92, x = xStart + dx * p0, y = y0 + dy * s0;
-                cands.push({ p, s, y, icons: [0, 1, 2, 3, 4].map(i => ({ x: x + i * p, y, s })), dep });
+                const c = { p, s, y, icons: [0, 1, 2, 3, 4].map(i => ({ x: x + i * p, y, s })), dep };
+                c.geo = { p: p0, s: s0, y: y0, icons: [0, 1, 2, 3, 4].map(i => ({ x: xStart + i * p0, y: y0, s: s0 })), avg: 0 };   // ряд строго по пропорциям игры
+                cands.push(c);
             }
         });
         let best = null; const perHero = {};
@@ -15520,13 +15526,13 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 let t = 0, n = 0; hsd.forEach((v, i) => { if (v && ds[i]) { t += tkCorr(ds[i], v); n++; } });
                 const avg = n ? t / n : 0;
                 if (!(perHero[hi] >= avg)) perHero[hi] = avg;
-                if (!best || avg > best.avg) best = { hero: hi, avg, fs: { p: c.p, s: c.s, y: c.y, icons: c.icons.slice(0, hsd.length), avg } };
+                if (!best || avg > best.avg) best = { hero: hi, avg, fs: { p: c.p, s: c.s, y: c.y, icons: c.icons.slice(0, hsd.length), avg }, geo: c.geo };
             });
         });
         if (!best) return null;
         const others = Object.keys(perHero).filter(k => +k !== best.hero).map(k => perHero[k]).sort((x, y) => y - x);
         best.margin = best.avg - (others[0] || 0);
-        return best.avg > 0.5 ? best : null;
+        return best;
     };
     const captionAbove = async (img, fs) => {   // подпись «Уровень 60 Имя» прямо над рядом навыков: уровень и имя героя
         const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
@@ -15537,7 +15543,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             t = t.replace(/[^a-zа-я]/g, ""); if (t.length < 3) return;
             COD_HEROES.forEach((h, hi) => { const k = nz(h.n).replace(/[^a-zа-я]/g, ""), d = lev(t, k); if (d <= (k.length >= 6 ? 2 : 1) && d < bd) { bd = d; hero = hi; } });
         }));
-        return { lvl: lvlM ? Math.min(99, +lvlM[1]) : 0, hero };
+        const rawM = /(?:ровен\S*|level)\s*\d{1,2}\s+([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\- ]{2,20})/i.exec(ws.map(w => w.t).join(" "));
+        return { lvl: lvlM ? Math.min(99, +lvlM[1]) : 0, hero, raw: rawM ? rawM[1].trim() : "" };
     };
     const levelAbove = async (img, fs) => {
         const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
@@ -15616,7 +15623,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; return [h, mx ? d / mx : 0, mx]; };
     const ringTier = (img, cx, cy0, hb) => {   // кольцо портрета отряда: фиолетовое Т4, синее Т3, зелёное Т2, серое Т1, только золото — Т5
         const v = { p: 0, b: 0, g: 0, grey: 0, gold: 0 };
-        for (let a = 0; a < 360; a += 8) for (const rr of [0.9, 1.05, 1.2]) {
+        for (let a = 0; a < 360; a += 6) for (const rr of [1.2, 1.3, 1.4]) {   // только цветное кольцо у края портрета (внутри — сам воин, у «Послушниц» он синий)
             const x = Math.round(cx + Math.cos(a * Math.PI / 180) * rr * hb), y = Math.round(cy0 - Math.sin(a * Math.PI / 180) * rr * hb);
             if (x < 0 || y < 0 || x >= img.W || y >= img.H) continue;
             const i = (y * img.W + x) * 4, h = hue(img.data[i], img.data[i + 1], img.data[i + 2]);
@@ -15624,7 +15631,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (h[1] < 0.18) v.grey++; else if (h[0] >= 255 && h[0] <= 325) v.p++; else if (h[0] >= 185 && h[0] < 255) v.b++; else if (h[0] >= 75 && h[0] < 170) v.g++; else if (h[0] >= 25 && h[0] < 65) v.gold++;
         }
         const top = [["p", 4], ["b", 3], ["g", 2]].sort((x, y) => v[y[0]] - v[x[0]])[0];
-        if (v[top[0]] >= 6) return top[1];
+        if (v[top[0]] >= 8) return top[1];
         if (v.grey >= 10 && v.grey > v.gold) return 1;
         return v.gold >= 8 ? 5 : 0;
     };
@@ -15665,18 +15672,22 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         // второй герой не прочитался по имени — ищем его ряд навыков рядом с первым (по размерам рядов в игре) и узнаём по иконкам
         if (found.length === 1 && found[0].fs) {
             let g = neighbourHero(img, found[0], sd);
+            if (g && g.avg < 0.5) g.unsure = true;   // по иконкам почти не похоже — решит подпись над рядом
             if (g) {
                 const cap = await captionAbove(img, g.fs);   // имя над найденным рядом важнее догадки по иконкам
                 if (cap.hero >= 0 && cap.hero !== g.hero && cap.hero !== found[0].hero) { const g2 = neighbourHero(img, found[0], sd, [cap.hero]); if (g2) g = g2; }
+                else if (cap.hero < 0 && cap.raw) { g.raw = cap.raw; g.unsure = true; g.fs = g.geo; }   // героя нет в базе сайта — имя как написано, ряд — по размерам из игры
                 else if (cap.hero < 0 && !(g.avg >= 0.65 && g.margin >= 0.04)) g.unsure = true;   // по иконкам не уверены — имя оставим пустым
-                g.lvl = cap.lvl; found.push(g); found.sort((a, b) => a.fs.icons[0].x - b.fs.icons[0].x);
+                if (cap.hero >= 0 && cap.hero !== found[0].hero) g.unsure = false;
+                g.lvl = cap.lvl;
+                if (!(g.unsure && !g.raw && g.avg < 0.5)) { found.push(g); found.sort((a, b) => a.fs.icons[0].x - b.fs.icons[0].x); }
             }
         }
         const heroes = [];
         for (const f of found) {
             const h = COD_HEROES[f.hero], lv = [];
-            if (f.fs) for (const ic of f.fs.icons) lv.push(await skillLevel(img, ic));
-            heroes.push({ name: f.unsure ? "" : h.n, lvl: f.lvl || 0, skills: lv.join("/"), tr: f.unsure ? "" : HERO_TR[h.tr] || "" });
+            if (f.fs && !f.raw) for (const ic of f.fs.icons) lv.push(await skillLevel(img, ic));   // эпический герой (нет в базе) — навыки вписываются вручную
+            heroes.push({ name: f.unsure ? (f.raw || "") : h.n, lvl: f.lvl || 0, skills: lv.join("/"), tr: f.unsure ? "" : HERO_TR[h.tr] || "" });
         }
         // войска: зелёные полоски отрядов с ненулевым количеством
         const d = img.data, bars = [], seen = new Uint8Array(W * H);
@@ -15688,8 +15699,12 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             while (y0 > 0) { const j = ((y0 - 1) * W + mx) * 4; if (!(d[j + 1] > 120 && d[j] < 160 && d[j + 1] - d[j] > 35)) break; y0--; }
             while (y1 < H - 1) { const j = ((y1 + 1) * W + mx) * 4; if (!(d[j + 1] > 120 && d[j] < 160 && d[j + 1] - d[j] > 35)) break; y1++; }
             for (let yy = y0; yy <= y1; yy++) for (let xx = x; xx <= x1; xx++) seen[yy * W + xx] = 1;
-            const hb = y1 - y0 + 1, w = x1 - x + 1;
-            if (hb >= H * 0.012 && hb <= H * 0.05 && w >= hb * 1.2 && !bars.some(o => Math.abs((o.y0 + o.y1) / 2 - (y0 + y1) / 2) < o.hb && x <= o.x1 && x1 >= o.x0)) bars.push({ x0: x, x1, y0, y1, hb });
+            const hb = y1 - y0 + 1, ym = Math.round((y0 + y1) / 2); let bx = x;
+            // строка, где нашли полоску, могла быть её краем (там зелёное начинается правее) — начало берём по средней строке
+            while (bx > 0) { const j = (ym * W + bx - 1) * 4; if (!(d[j + 1] > 100 && d[j] < 170 && d[j + 1] - d[j] > 30)) break; bx--; }
+            const w = x1 - bx + 1;
+            // ромб ползунка (узкий и высокий) не берём — полоска находится сама на следующих строках
+            if (hb >= H * 0.012 && hb <= H * 0.05 && w >= hb * 2.5 && !bars.some(o => Math.abs((o.y0 + o.y1) / 2 - (y0 + y1) / 2) < o.hb && bx <= o.x1 && x1 >= o.x0)) bars.push({ x0: bx, x1, y0, y1, hb });
         }
         const troops = [];
         if (bars.length) {
@@ -15710,8 +15725,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 let type = /пехот|infantr/.test(ht) ? "inf" : /кавал|cavalr/.test(ht) ? "cav" : /стрел|marksm|archer/.test(ht) ? "mrk" : /маг|magic|mage/.test(ht) ? "mag" : "";
                 const fly = /воздушн|летающ|flying|air/.test(ht);
                 if (!type) type = glyphType(img, b);
+                const strict = /(?:^|\s)(V|IV|III|II|I)\s*$/.exec(name);   // чёткая римская цифра в названии — главнее цвета
                 const rom = /\b(IV|V|III|II|I|Ill|Il|lV|1V|M|М|И)\s*$/i.exec(name);
-                let tier = ringTier(img, b.x0 - 1.55 * b.hb, (b.y0 + b.y1) / 2, b.hb);
+                let tier = strict ? ({ I: 1, II: 2, III: 3, IV: 4, V: 5 })[strict[1]] : ringTier(img, b.x0 - 1.55 * b.hb, (b.y0 + b.y1) / 2, b.hb);
                 if (!tier && rom) tier = ({ i: 1, ii: 2, il: 2, "и": 2, iii: 3, ill: 3, iv: 4, lv: 4, "1v": 4, m: 4, "м": 4, v: 5 })[rom[1].toLowerCase()] || 0;
                 troops.push({ type, fly, tier, n: cnt, name: name.replace(/^[^\wа-яё]+/i, "") });
             }
