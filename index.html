@@ -15068,7 +15068,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const LS = "wolfich_ally";
     const $ = (id) => document.getElementById(id);
     const EN = () => !!(window.WI18N && window.WI18N.lang === "en");
-    const T = (x) => (window.WI18N && window.WI18N.tr ? window.WI18N.tr(String(x == null ? "" : x)) : x);   // перевод для alert/confirm/prompt (текст на странице переводится сам)
+    const T = (x) => (EN() && window.WI18N.tr ? window.WI18N.tr(String(x == null ? "" : x)) : x);   // перевод для alert/confirm/prompt (текст на странице переводится сам)
     const L = (ru, en) => (EN() ? en : ru);   // составные сообщения: по-английски своей фразой
     if (!$("page-ally")) return;
     const TYPES = [["inf", "Пехота"], ["mag", "Маги"], ["mrk", "Стрелки"], ["cav", "Кавалерия"]];
@@ -15076,7 +15076,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const TIERC = ["#6b6f7a", "#9aa0a6", "#4caf50", "#3d8bfd", "#9b59d0", "#e6b34f"];
     const HERO = (n) => (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).find(h => h.n === n) || null;
     const heroIn = (n) => (n && EN() && HERO(n) ? T(n) : n || "");   // имя героя в поле формы — на языке страницы
-    const heroOut = (v) => { v = String(v || "").trim(); if (!v || HERO(v)) return v; const lv = v.toLowerCase(); const h = (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).find(x => String(T(x.n)).toLowerCase() === lv || x.n.toLowerCase() === lv); return h ? h.n : v; };   // хранится по-русски, как в базе
+    const heroOut = (v) => { v = String(v || "").trim(); if (!v || HERO(v)) return v; const lv = v.toLowerCase(); const h = (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).find(x => String(window.WI18N && window.WI18N.tr ? window.WI18N.tr(x.n) : x.n).toLowerCase() === lv || x.n.toLowerCase() === lv); return h ? h.n : v; };   // хранится по-русски, как в базе
     const HTR = { "Пехота": "Пехота", "Магия": "Маги", "Стрелок": "Стрелки", "Кавалерия": "Кавалерия", "Полководец": "Полководец" };
     let st = { cur: null, data: null, edit: null };
     const load = () => { try { return JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch (e) { return {}; } };
@@ -15226,7 +15226,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             '<div class="al-st"><span><small>Мощь</small>' + fmt(m.power) + '</span><span><small>Заслуги</small>' + fmt(m.merit) + "</span></div></div>" +
             (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">Марш ' + (i + 1) + "</span>" +
                 (x.heroes || []).map(h => { const H = HERO(h.name); return H && H.i ? '<img alt="" title="' + esc(h.name) + '" src="' + H.i + '">' : '<span class="al-mq">?</span>'; }).join("") +
-                (x.troops || []).slice(0, 3).map(t => '<i style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "Т" + t.tier : "") + " " + esc(T(TN[t.type] || "").slice(0, 3)) + (t.fly ? "✈" : "") + "</i>").join("") +
+                (x.troops || []).slice(0, 3).map(t => '<i style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "Т" + t.tier : "") + " " + esc(TN[t.type] || "") + (t.fly ? " ✈" : "") + "</i>").join("") +
                 '<span class="al-mar">▾</span></button>').join("") + '</div><div class="al-md"></div>' : '<div class="al-note">Марши не загружены</div>') +
             (boss || m.mid === j.me ? '<div class="al-act">' + (boss ? '<button data-ed="' + m.mid + '" type="button">Изменить</button>' : "") +
                 '<button class="del" data-clr="' + m.mid + '" type="button">Удалить карточку</button>' +
