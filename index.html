@@ -2515,6 +2515,8 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .al-sort{color:var(--muted);font-size:.85rem;display:flex;align-items:center;gap:6px}
 .al-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;margin-top:10px}
 @media (max-width:720px){.al-cards{grid-template-columns:1fr}}
+@media (max-width:720px){#page-ally input,#page-ally select,#page-ally textarea{font-size:16px}}
+#page-ally,#page-ally .al-card{max-width:100%;overflow-wrap:anywhere}
 .al-mc{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,rgba(217,164,65,.07),rgba(255,255,255,.02))}
 .al-mc.al-me{box-shadow:0 0 0 1px var(--gold) inset}
 .al-mh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
@@ -15097,7 +15099,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         }
         $("alBoss").style.display = boss ? "" : "none";
         $("alDelete").style.display = j.role === "own" ? "" : "none";
-        if (!st.edit || !j.members.some((m) => m.mid === st.edit)) st.edit = j.me || null;
+        // создатель на новом устройстве (старая ссылка без карточки): его карточку он правит правами создателя
+        const ownMid = !j.me && j.role === "own" ? (j.members.find((m) => m.role === "own") || {}).mid : null;
+        if (!st.edit || !j.members.some((m) => m.mid === st.edit)) st.edit = j.me || ownMid || null;
         $("alMine").style.display = st.edit ? "" : "none";
         const my = $("alMyLink");   // личная ссылка: своя карточка на другом устройстве (у создателя она — в блоке ссылок)
         if (my) {
@@ -15121,7 +15125,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     }
     function form(m) {
         m = m || {};
-        const other = st.data && st.edit !== st.data.me;
+        const other = st.data && st.edit !== st.data.me && !(st.data.role === "own" && m.role === "own");
         $("alMine").querySelector(".al-h").textContent = other ? "Данные участника: " + (m.nick || "") : "Мои данные";
         const nb = $("alMineNote"); if (nb) { nb.style.display = m.note && !other ? "" : "none"; nb.querySelector(".al-nt").textContent = m.note || ""; }
         st.fm = { marches: JSON.parse(JSON.stringify(marchesOf(m))), mi: 0 };
