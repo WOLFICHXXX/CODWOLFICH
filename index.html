@@ -15715,10 +15715,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             // ромб ползунка (узкий и высокий) не берём — полоска находится сама на следующих строках
             if (hb >= H * 0.012 && hb <= H * 0.05 && w >= hb * 2.5 && !bars.some(o => Math.abs((o.y0 + o.y1) / 2 - (y0 + y1) / 2) < o.hb && bx <= o.x1 && x1 >= o.x0)) bars.push({ x0: bx, x1, y0, y1, hb });
         }
+        if (window.__alDbg) console.log("ALB " + JSON.stringify(bars));
         const troops = [];
         if (bars.length) {
             const hb = bars[0].hb, px0 = Math.max(0, Math.min(...bars.map(b => b.x0)) - 3 * hb);
-            const pan = await words(img, { x0: Math.round(px0), y0: Math.round(H * 0.15), x1: Math.min(W, Math.round(px0 + 30 * hb)), y1: Math.round(H * 0.85) }, { prep: "light" });
+            const pan = await words(img, { x0: Math.round(px0), y0: Math.round(H * 0.15), x1: Math.min(W, Math.round(Math.max(px0 + 30 * hb, Math.max(...bars.map(b => b.x1)) + 14 * hb))), y1: Math.round(H * 0.85) }, { prep: "light" });
             const HDR = (t) => { t = nz(t); return /(отряд|пехот|кавалер|стрелк|магич|воздушн|летающ|squad|infantry|cavalry|marksm|magic|flying|air)/.test(t) ? t : null; };
             // строки текста панели: склеиваем слова по высоте
             const lines = [];
