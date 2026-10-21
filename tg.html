@@ -398,15 +398,28 @@
       load(true);
     }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("ttlBtn").disabled = false; });
   });
+  /* перед обучением — вопрос про титул «Старший надзиратель» (+10% к скорости обучения): «Да» — сначала титул, обучение после его получения */
+  var askTitle = function (cb) {
+    var q = T("Желаете получить титул «Старший надзиратель»? Обучение войск начнётся после получения титула.|Get the «Chief Overseer» title first? Training starts after the title is granted.");
+    try {
+      if (TG && TG.showPopup) return TG.showPopup({ title: T("Титул перед обучением|Title before training"), message: q,
+        buttons: [{ id: "yes", type: "default", text: T("Да|Yes") }, { id: "no", type: "default", text: T("Нет, обучить сразу|No, train now") }, { type: "cancel" }] },
+        function (id) { if (id === "yes") cb(true); else if (id === "no") cb(false); });
+    } catch (e) {}
+    var r = window.confirm(q); cb(!!r);
+  };
   $("trainBtn").addEventListener("click", function () {
     if (!cur) return;
+    askTitle(function (wantTitle) { sendTrain(wantTitle); });
+  });
+  var sendTrain = function (wantTitle) {
     $("trainBtn").disabled = true; haptic("medium");
-    api("train", { rid: cur.rid, inst: cur.inst, tr: (function () { var o = {}; TRK.forEach(function (t) { var v = +$("tr_" + t[0]).value; if (v >= 0) o[t[0]] = v; }); return o; })() }).then(function (j) {
+    api("train", { rid: cur.rid, inst: cur.inst, title: wantTitle ? 1 : 0, tr: (function () { var o = {}; TRK.forEach(function (t) { var v = +$("tr_" + t[0]).value; if (v >= 0) o[t[0]] = v; }); return o; })() }).then(function (j) {
       if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("trainBtn").disabled = false; return; }
       msg(T("🪖 Команда отправлена. Программа возьмёт её через несколько секунд и напишет в этот чат.|🪖 Command sent. The program will pick it up within seconds and write to this chat."), true);
       load(true);
     }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("trainBtn").disabled = false; });
-  });
+  };
   $("stopBtn").addEventListener("click", function () {
     if (!cur) return;
     if (stopPending) {   // команда «стоп» ещё не взята программой — отменяем её
