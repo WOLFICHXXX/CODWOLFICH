@@ -15603,7 +15603,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 const nameL = lines.filter(l => l.cy > b.y0 - 2 * b.hb && l.cy < b.y0 - 0.05 * b.hb).sort((x, y) => y.cy - x.cy)[0];
                 const name = nameL ? nameL.ws.filter(w => w.x0 > b.x0 - b.hb && w.x1 < b.x0 + 12 * b.hb).map(w => w.t).join(" ") : "";
                 const cnt = num(pan.filter(w => /\d/.test(w.t) && cy(w) > b.y0 - 0.9 * b.hb && cy(w) < b.y1 + 0.9 * b.hb && w.x0 > b.x0 + 8 * b.hb).sort((x, y) => x.x0 - y.x0).map(w => w.t).join(""));
-                if (!nameL && !cnt) continue;   // зелёный переключатель «Режим» и прочее
+                if (!cnt) continue;   // без числа — не отряд (зелёный переключатель «Режим» и прочее)
                 const hdr = lines.filter(l => l.cy < b.y0 - 1.6 * b.hb && HDR(l.t)).sort((x, y) => y.cy - x.cy)[0];
                 const ht = hdr ? nz(hdr.t) : "";
                 let type = /пехот|infantr/.test(ht) ? "inf" : /кавал|cavalr/.test(ht) ? "cav" : /стрел|marksm|archer/.test(ht) ? "mrk" : /маг|magic|mage/.test(ht) ? "mag" : "";
