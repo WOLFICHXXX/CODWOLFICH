@@ -15132,10 +15132,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const numv = (v) => +String(v || "").replace(/[^\d]/g, "") || 0;
     const dia = (r) => r === 5 ? '<i class="al-dia r5" title="R5 — глава альянса">R5</i>' : r === 4 ? '<i class="al-dia r4" title="R4 — офицер">R4</i>' : "";
     const isBoss = () => st.data && (st.data.role === "own" || st.data.role === "off");
-    function rankRow(r) {   // ранг в форме: ставится скриншотом альянса; офицер/создатель может поправить вручную
+    function rankRow(r) {   // ранг в форме: только по скриншоту альянса, вручную не выбирается
         r = +r || 0;
-        return '<div class="al-rk" id="alRk">Ранг: ' + (isBoss() ? '<select class="al-in al-in-s" data-f="rank"><option value="0"' + (r ? "" : " selected") + '>не подтверждён</option><option value="4"' + (r === 4 ? " selected" : "") + '>R4 — офицер</option><option value="5"' + (r === 5 ? " selected" : "") + ">R5 — глава</option></select>"
-            : '<input type="hidden" data-f="rank" value="' + r + '">' + (r ? dia(r) + (r === 5 ? " глава" : " офицер") : "не подтверждён — загрузите скриншот альянса")) + "</div>";
+        return '<div class="al-rk" id="alRk">Ранг: <input type="hidden" data-f="rank" value="' + r + '">' + (r ? dia(r) + (r === 5 ? " глава" : " офицер") : "не подтверждён — загрузите скриншот альянса") + "</div>";
     }
     function form(m) {
         m = m || {};
