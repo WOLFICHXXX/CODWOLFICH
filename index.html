@@ -4871,7 +4871,7 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
                 <label class="al-drop" id="alDropMarch"><input type="file" accept="image/*" id="alFileMarch" hidden>
                     <b>Скриншот основного марша</b><span>войска, герои и их прокачка</span><em id="alMarchState"></em></label>
             </div>
-            <div class="al-note">Данные со скриншотов подставляются в поля ниже — проверьте и при необходимости поправьте перед сохранением. Сами скриншоты на сервер не отправляются.</div>
+            <div class="al-note">Нажмите на нужное окно и выберите скриншот, перетащите его сюда или просто <b>вставьте из буфера — Ctrl+V</b> (профиль это или марш, сайт поймёт сам). Данные подставляются в поля ниже — проверьте и при необходимости поправьте перед сохранением. Сами скриншоты на сервер не отправляются.</div>
             <div id="alForm"></div>
             <button class="btn" id="alSave" type="button">Сохранить мои данные</button>
             <div class="tk-msg" id="alSaveMsg" style="display:none"></div>
@@ -15028,7 +15028,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const load = () => { try { return JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch (e) { return {}; } };
     const store = (o) => { try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) { /* хранилище недоступно */ } };
     const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-    const fmt = (n) => n == null || n === "" ? "—" : Number(n).toLocaleString("ru-RU");
+    const fmt = (n) => n ? Number(n).toLocaleString("ru-RU") : "—";
     const ago = (t) => { if (!t) return ""; const m = Math.round((Date.now() - t) / 60000); return m < 60 ? m + " мин назад" : m < 1440 ? Math.round(m / 60) + " ч назад" : Math.round(m / 1440) + " дн назад"; };
     const say = (id, t, bad) => { const el = $(id); el.textContent = t || ""; el.className = "tk-msg" + (t ? (bad ? " err" : " ok") : ""); el.style.display = t ? "block" : "none"; };
     const call = async (body) => {
@@ -15125,7 +15125,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         const skills = H ? H.s.map((s, k) => { const lv = +sk[k] || 0; return '<span class="al-ski' + (lv ? "" : " off") + '" title="' + esc(s.n) + (lv ? " — ур. " + lv : " — не изучен") + '"><img alt="" src="' + (s.r || s.i) + '">' + (lv ? "<b>" + lv + "</b>" : "") + "</span>"; }).join("") : "";
         return '<div class="al-hero"><div class="al-hpw">' + port + (h.lvl ? '<span class="al-lv">' + h.lvl + "</span>" : "") + '</div><div class="al-hi">' +
             '<div class="al-hn">' + esc(h.name) + ' <small>' + role + "</small></div>" +
-            (H ? '<div class="al-ht">' + esc(H.t) + '</div><div class="al-hc">' + (typeof tkSpecHtml === "function" ? tkSpecHtml(H) : "<span>" + esc(HTR[H.tr] || H.tr) + "</span><span>" + esc(H.sp) + "</span>") + "</div>" : "") +
+            (H ? '<div class="al-ht">' + esc(H.t) + '</div><div class="al-hc"><span>' + esc(HTR[H.tr] || H.tr) + "</span><span>" + esc(H.sp) + "</span></div>" : "") +
             '<div class="al-sks">' + skills + "</div></div></div>";
     }
     function troopChip(t) {
@@ -15218,29 +15218,43 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "alliance-" + j.name.replace(/[^\wа-яё-]+/gi, "_") + ".csv"; a.click();
     });
 
-    /* скриншоты: распознавание подключается по образцам окон игры (window.alOcrProfile / window.alOcrMarch) */
-    const shot = (inp, drop, stateId, kind) => {
-        const run = async (file) => {
-            if (!file) return;
-            $(stateId).textContent = "Распознаю… (первый раз дольше — загружается распознавание текста)";
-            try {
-                const fn = kind === "prof" ? window.alOcrProfile : window.alOcrMarch;
-                if (!fn) { $(stateId).textContent = "Распознавание этого окна скоро появится — пока заполните поля вручную"; return; }
-                const d = await fn(file), cur = readForm();
-                if (kind === "prof") { ["nick", "power", "merit"].forEach(k => { if (d[k] != null && d[k] !== "") cur[k] = d[k]; }); }
-                else { if (d.heroes && d.heroes.length) cur.heroes = d.heroes; if (d.troops && d.troops.length) cur.troops = d.troops; }
-                form(cur);
-                const got = kind === "prof" ? [d.nick && "ник", d.power && "мощь", d.merit != null && "заслуги"].filter(Boolean) : [(d.heroes || []).length && "герои: " + d.heroes.map(h => h.name).join(", "), (d.troops || []).length && "войска"].filter(Boolean);
-                $(stateId).textContent = got.length ? "Распознано: " + got.join(", ") + " — проверьте и нажмите «Сохранить»" : "Ничего не распознал — заполните поля вручную";
-            } catch (e) { $(stateId).textContent = (e && e.message ? "Не удалось: " + e.message : "Не удалось распознать") + " — заполните поля вручную"; }
-        };
-        inp.addEventListener("change", () => { run(inp.files[0]); inp.value = ""; });
+    /* скриншоты: выбрать файл, перетащить или вставить из буфера (Ctrl+V) — тип окна при вставке определяется сам */
+    const merge = (kind, d, stateId) => {
+        const cur = readForm();
+        if (kind === "prof") { ["nick", "power", "merit"].forEach(k => { if (d[k] != null && d[k] !== "") cur[k] = d[k]; }); }
+        else { if (d.heroes && d.heroes.length) cur.heroes = d.heroes; if (d.troops && d.troops.length) cur.troops = d.troops; }
+        form(cur);
+        const got = kind === "prof" ? [d.nick && "ник", d.power && "мощь", d.merit != null && "заслуги"].filter(Boolean) : [(d.heroes || []).length && "герои: " + d.heroes.map(h => h.name).join(", "), (d.troops || []).length && "войска"].filter(Boolean);
+        $(stateId).textContent = got.length ? "Распознано: " + got.join(", ") + " — проверьте и нажмите «Сохранить»" : "Ничего не распознал — заполните поля вручную";
+    };
+    const SID = { prof: "alProfState", march: "alMarchState" };
+    let busy = false;
+    const runShot = async (file, kind) => {
+        if (!file || busy) return;
+        if (!/^image\//.test(file.type || "image/")) return;
+        busy = true;
+        const ids = kind ? [SID[kind]] : [SID.prof, SID.march];
+        ids.forEach(id => { $(id).textContent = "Распознаю… (первый раз дольше — загружается распознавание текста)"; });
+        try {
+            if (kind) { const fn = kind === "prof" ? window.alOcrProfile : window.alOcrMarch; merge(kind, await fn(file), SID[kind]); }
+            else { const r = await window.alOcrAuto(file); merge(r.kind, r.data, SID[r.kind]); ids.filter(id => id !== SID[r.kind]).forEach(id => { $(id).textContent = ""; }); }
+        } catch (e) { ids.forEach(id => { $(id).textContent = (e && e.message ? "Не удалось: " + e.message : "Не удалось распознать") + " — заполните поля вручную"; }); }
+        finally { busy = false; }
+    };
+    const shot = (inp, drop, kind) => {
+        inp.addEventListener("change", () => { runShot(inp.files[0], kind); inp.value = ""; });
         drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
         drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
-        drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("drag"); run(e.dataTransfer.files[0]); });
+        drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("drag"); runShot(e.dataTransfer.files[0], kind); });
     };
-    shot($("alFileProf"), $("alDropProf"), "alProfState", "prof");
-    shot($("alFileMarch"), $("alDropMarch"), "alMarchState", "march");
+    shot($("alFileProf"), $("alDropProf"), "prof");
+    shot($("alFileMarch"), $("alDropMarch"), "march");
+    document.addEventListener("paste", (e) => {   // Ctrl+V на вкладке «Альянс»: профиль или марш — определяем сами
+        if (!$("page-ally").classList.contains("active") || $("alMine").style.display === "none" || $("alView").style.display === "none") return;
+        const it = [...((e.clipboardData && e.clipboardData.items) || [])].find(x => x.kind === "file" && /^image\//.test(x.type));
+        if (!it) return;
+        e.preventDefault(); runShot(it.getAsFile(), null);
+    });
 
     const fromHash = () => { if (/ally=/.test(location.hash)) { const b = document.querySelector('.nav-item[data-page="ally"]'); if (b) b.click(); joinFlow(location.hash); return true; } return false; };
     window.addEventListener("hashchange", fromHash);
@@ -15310,9 +15324,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; };
 
     /* ---------- профиль ---------- */
-    window.alOcrProfile = async (file) => {
-        const img = await loadImg(file), W = img.W, H = img.H;
-        const ws = await words(img, { x0: 0, y0: 0, x1: Math.round(W * 0.55), y1: H });
+    const parseProfile = async (img, ws) => {
+        const W = img.W, H = img.H;
         const find = (re) => ws.filter(w => re.test(nz(w.t)));
         const lord = find(/^(лорд|lord)/)[0], mer = find(/^(заслуг|merit)/)[0];
         let pow = find(/^(сила|сипа|cuna|cила|power|cила)/)[0];
@@ -15345,6 +15358,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (!out.nick && !out.power && !out.merit) throw new Error("не похоже на окно профиля");
         return out;
     };
+    window.alOcrProfile = async (file) => { const img = await loadImg(file); return parseProfile(img, await words(img, { x0: 0, y0: 0, x1: Math.round(img.W * 0.55), y1: img.H })); };
 
     /* ---------- марш ---------- */
     const HERO_TR = { "Пехота": "inf", "Магия": "mag", "Стрелок": "mrk", "Кавалерия": "cav", "Полководец": "lead" };
@@ -15401,6 +15415,39 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         best.avg = best.tot / sd.filter(Boolean).length;
         best.icons = sd.map((_, i) => ({ x: cx0 + best.dx + (i - (n - 1) / 2) * best.p - best.s / 2, y: best.y, s: best.s }));
         return best;
+    };
+    /* соседний герой по ряду навыков. В игре ряд заместителя мельче (×0.765), выше (на 0.34 иконки) и начинается
+       через 0.6 иконки после ряда командира (и наоборот). Перебираем небольшой сдвиг и сравниваем с навыками всех героев */
+    const neighbourHero = (img, a, sd) => {
+        const f = a.fs, right = true;
+        const cands = [];
+        [true, false].forEach(dep => {   // dep — ищем заместителя справа; иначе — командира слева
+            const k = dep ? 0.765 : 1 / 0.765, p0 = f.p * k, s0 = p0 * 0.92;
+            const xStart = dep ? f.icons[4].x + f.s + 0.6 * f.s : f.icons[0].x - 0.6 * s0 - 4 * p0 - s0;
+            const y0 = dep ? f.y - 0.34 * f.s : f.y + 0.34 * s0;
+            if (xStart < 0 || xStart + 4 * p0 + s0 > img.W || y0 < 0 || y0 + s0 > img.H) return;
+            for (const pk of [0.92, 1, 1.08]) for (let dx = -0.4; dx <= 0.41; dx += 0.1) for (let dy = -0.5; dy <= 0.51; dy += 0.1) {
+                const p = p0 * pk, s = p * 0.92, x = xStart + dx * p0, y = y0 + dy * s0;
+                cands.push({ p, s, y, icons: [0, 1, 2, 3, 4].map(i => ({ x: x + i * p, y, s })), dep });
+            }
+        });
+        let best = null;
+        cands.forEach(c => {
+            const ds = c.icons.map(ic => tkDescriptor(img.data, img.W, img.H, ic.x, ic.y, ic.s));
+            sd.forEach((hsd, hi) => {
+                if (hi === a.hero || !hsd || !hsd.length) return;
+                let t = 0, n = 0; hsd.forEach((v, i) => { if (v && ds[i]) { t += tkCorr(ds[i], v); n++; } });
+                const avg = n ? t / n : 0;
+                if (!best || avg > best.avg) best = { hero: hi, avg, fs: { p: c.p, s: c.s, y: c.y, icons: c.icons.slice(0, hsd.length), avg } };
+            });
+        });
+        return best && best.avg > 0.55 ? best : null;
+    };
+    const levelAbove = async (img, fs) => {   // «Уровень 60 …» над рядом навыков
+        const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
+        const ws = await words(img, { x0, y0: Math.max(0, Math.round(fs.y - fs.s * 1.3)), x1, y1: Math.round(fs.y - fs.s * 0.05) }, { prep: "white", sc: 3 });
+        const t = ws.map(w => w.t).join(" "), m = /(?:ровен\S*|level)\s*(\d{1,2})\b/i.exec(t) || /\b(\d{1,2})\b/.exec(t);
+        return m ? Math.min(99, +m[1]) : 0;
     };
     /* уровень навыка — белая цифра 1–5 в правом нижнем углу иконки. Распознаём сами: крупнейшее белое пятно,
        его форма по сетке 6×8 сравнивается с цифрами, нарисованными жирным шрифтом. Нет цифры — навык не изучен (0) */
@@ -15505,17 +15552,30 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         Object.keys(GLY).forEach(k => { let dd = 0; for (let q = 0; q < 100; q++) dd += Math.abs(g[q] - GLY[k][q]); if (dd < bd) { bd = dd; best = k; } });
         return bd > 18 ? "" : best === "gat" ? "cav" : best;
     };
-    window.alOcrMarch = async (file) => {
-        const img = await loadImg(file), W = img.W, H = img.H;
-        const all = await words(img, { x0: 0, y0: 0, x1: W, y1: H });
-        const hs = heroByWords(all);
+    const parseMarch = async (img, all) => {
+        const W = img.W, H = img.H;
+        let hs = heroByWords(all);
+        if (hs.length < 2) {   // подписи под портретами — белый текст с обводкой: перечитываем только светлое
+            const more = heroByWords(await words(img, { x0: 0, y0: Math.round(H * 0.3), x1: Math.round(W * 0.75), y1: Math.round(H * 0.95) }, { prep: "white" }));
+            more.forEach(m => { if (!hs.some(h => h.hero === m.hero || Math.abs(h.x0 - m.x0) < m.lh * 3)) hs.push(m); });
+            hs = hs.sort((a, b) => a.x0 - b.x0).slice(0, 2);
+        }
         const sd = await ensureSkills();
-        const heroes = [];
+        const found = [];
         for (const hf of hs) {
-            const h = COD_HEROES[hf.hero], fs = findSkills(img, hf, sd[hf.hero] || []);
-            const lv = [];
-            if (fs && fs.avg > 0.35) for (const ic of fs.icons) lv.push(await skillLevel(img, ic));
-            heroes.push({ name: h.n, lvl: hf.lvl, skills: lv.join("/"), tr: HERO_TR[h.tr] || "" });
+            const fs = findSkills(img, hf, sd[hf.hero] || []);
+            found.push({ hero: hf.hero, lvl: hf.lvl, fs: fs && fs.avg > 0.35 ? fs : null });
+        }
+        // второй герой не прочитался по имени — ищем его ряд навыков рядом с первым (по размерам рядов в игре) и узнаём по иконкам
+        if (found.length === 1 && found[0].fs) {
+            const g = neighbourHero(img, found[0], sd);
+            if (g) { g.lvl = await levelAbove(img, g.fs); found.push(g); found.sort((a, b) => a.fs.icons[0].x - b.fs.icons[0].x); }
+        }
+        const heroes = [];
+        for (const f of found) {
+            const h = COD_HEROES[f.hero], lv = [];
+            if (f.fs) for (const ic of f.fs.icons) lv.push(await skillLevel(img, ic));
+            heroes.push({ name: h.n, lvl: f.lvl || 0, skills: lv.join("/"), tr: HERO_TR[h.tr] || "" });
         }
         // войска: зелёные полоски отрядов с ненулевым количеством
         const d = img.data, bars = [], seen = new Uint8Array(W * H);
@@ -15557,6 +15617,14 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         }
         if (!heroes.length && !troops.length) throw new Error("не похоже на экран марша");
         return { heroes, troops };
+    };
+    window.alOcrMarch = async (file) => { const img = await loadImg(file); return parseMarch(img, await words(img, { x0: 0, y0: 0, x1: img.W, y1: img.H })); };
+    // вставка из буфера: сами понимаем, что за окно (профиль — есть «Лорд»/«Заслуги»)
+    window.alOcrAuto = async (file) => {
+        const img = await loadImg(file), all = await words(img, { x0: 0, y0: 0, x1: img.W, y1: img.H });
+        const prof = all.some(w => /^(лорд|lord|заслуг|merit)/i.test(nz(w.t))) && !all.some(w => /ровен|level/i.test(w.t) && /\d/.test(w.t + ""));
+        if (prof) return { kind: "prof", data: await parseProfile(img, all.filter(w => w.x1 < img.W * 0.6)) };
+        return { kind: "march", data: await parseMarch(img, all) };
     };
 })();
 
