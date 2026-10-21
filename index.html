@@ -2468,6 +2468,8 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .al-drop span{color:var(--muted);font-size:.85rem}
 .al-drop em{font-style:normal;font-size:.82rem;color:var(--success)}
 .al-drop.drag{background:rgba(217,164,65,.16)}
+.al-drop.sel{border-style:solid;background:rgba(217,164,65,.12);box-shadow:0 0 0 1px var(--gold) inset}
+.al-db{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .al-f{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 @media (max-width:720px){.al-f{grid-template-columns:1fr}}
 .al-f label,.al-rows label{display:flex;flex-direction:column;gap:3px;font-size:.8rem;color:var(--muted)}
@@ -4866,12 +4868,16 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
         <div class="card al-card" id="alMine">
             <h2 class="al-h">Мои данные</h2>
             <div class="al-shots">
-                <label class="al-drop" id="alDropProf"><input type="file" accept="image/*" id="alFileProf" hidden>
-                    <b>Скриншот профиля</b><span>ник, мощь, заслуги</span><em id="alProfState"></em></label>
-                <label class="al-drop" id="alDropMarch"><input type="file" accept="image/*" id="alFileMarch" hidden>
-                    <b>Скриншот основного марша</b><span>войска, герои и их прокачка</span><em id="alMarchState"></em></label>
+                <div class="al-drop" id="alDropProf"><input type="file" accept="image/*" id="alFileProf" hidden>
+                    <b>Скриншот профиля</b><span>ник, мощь, заслуги</span>
+                    <div class="al-db"><button class="btn small" type="button" data-pick="1">Выбрать файл</button><button class="btn secondary small" type="button" data-paste="1">Вставить из буфера</button></div>
+                    <em id="alProfState"></em></div>
+                <div class="al-drop" id="alDropMarch"><input type="file" accept="image/*" id="alFileMarch" hidden>
+                    <b>Скриншот основного марша</b><span>войска, герои и их прокачка</span>
+                    <div class="al-db"><button class="btn small" type="button" data-pick="1">Выбрать файл</button><button class="btn secondary small" type="button" data-paste="1">Вставить из буфера</button></div>
+                    <em id="alMarchState"></em></div>
             </div>
-            <div class="al-note">Нажмите на нужное окно и выберите скриншот, перетащите его сюда или просто <b>вставьте из буфера — Ctrl+V</b> (профиль это или марш, сайт поймёт сам). Данные подставляются в поля ниже — проверьте и при необходимости поправьте перед сохранением. Сами скриншоты на сервер не отправляются.</div>
+            <div class="al-note">Скриншот можно выбрать файлом, перетащить на нужный блок или вставить из буфера: кнопкой «Вставить из буфера» или <b>Ctrl+V</b> — картинка попадёт в блок, на который наведена мышь (подсвечен). Данные подставляются в поля ниже — проверьте и при необходимости поправьте перед сохранением. Сами скриншоты на сервер не отправляются.</div>
             <div id="alForm"></div>
             <button class="btn" id="alSave" type="button">Сохранить мои данные</button>
             <div class="tk-msg" id="alSaveMsg" style="display:none"></div>
@@ -15175,7 +15181,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         $(stateId).textContent = got.length ? "Распознано: " + got.join(", ") + " — проверьте и нажмите «Сохранить»" : "Ничего не распознал — заполните поля вручную";
     };
     const SID = { prof: "alProfState", march: "alMarchState" };
-    let busy = false;
+    let busy = false, pasteTo = null;
     const runShot = async (file, kind) => {
         if (!file || busy) return;
         if (!/^image\//.test(file.type || "image/")) return;
@@ -15185,22 +15191,36 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         try {
             if (kind) { const fn = kind === "prof" ? window.alOcrProfile : window.alOcrMarch; merge(kind, await fn(file), SID[kind]); }
             else { const r = await window.alOcrAuto(file); merge(r.kind, r.data, SID[r.kind]); ids.filter(id => id !== SID[r.kind]).forEach(id => { $(id).textContent = ""; }); }
-        } catch (e) { ids.forEach(id => { $(id).textContent = (e && e.message ? "Не удалось: " + e.message : "Не удалось распознать") + " — заполните поля вручную"; }); }
-        finally { busy = false; }
+        } catch (e) {
+            if (!kind && e && e.unknown) { ids.forEach(id => { $(id).textContent = ""; }); $(SID.prof).textContent = "Не понял, какое это окно — нажмите «Вставить из буфера» в нужном блоке"; }
+            else ids.forEach(id => { $(id).textContent = (e && e.message ? "Не удалось: " + e.message : "Не удалось распознать") + " — заполните поля вручную"; });
+        } finally { busy = false; }
     };
+    const fromClipboard = async (kind) => {   // кнопка «Вставить из буфера»
+        try {
+            const items = await navigator.clipboard.read();
+            for (const it of items) { const t = it.types.find(x => /^image\//.test(x)); if (t) { const bl = await it.getType(t); return runShot(new File([bl], "clip.png", { type: t }), kind); } }
+            $(SID[kind]).textContent = "В буфере нет картинки — скопируйте скриншот (Win+Shift+S) и нажмите ещё раз";
+        } catch (e) { $(SID[kind]).textContent = "Браузер не дал доступ к буферу — нажмите на этот блок и Ctrl+V"; pick(kind); }
+    };
+    const pick = (kind) => { pasteTo = kind; $("alDropProf").classList.toggle("sel", kind === "prof"); $("alDropMarch").classList.toggle("sel", kind === "march"); };
     const shot = (inp, drop, kind) => {
         inp.addEventListener("change", () => { runShot(inp.files[0], kind); inp.value = ""; });
+        drop.querySelector("[data-pick]").addEventListener("click", (e) => { e.stopPropagation(); pick(kind); inp.click(); });
+        drop.querySelector("[data-paste]").addEventListener("click", (e) => { e.stopPropagation(); pick(kind); fromClipboard(kind); });
+        drop.addEventListener("click", () => pick(kind));
+        drop.addEventListener("mouseenter", () => pick(kind));
         drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
         drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
         drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("drag"); runShot(e.dataTransfer.files[0], kind); });
     };
     shot($("alFileProf"), $("alDropProf"), "prof");
     shot($("alFileMarch"), $("alDropMarch"), "march");
-    document.addEventListener("paste", (e) => {   // Ctrl+V на вкладке «Альянс»: профиль или марш — определяем сами
+    document.addEventListener("paste", (e) => {   // Ctrl+V: в выбранный блок (последний, на который навели или нажали); если не выбран — определяем сами
         if (!$("page-ally").classList.contains("active") || $("alMine").style.display === "none" || $("alView").style.display === "none") return;
         const it = [...((e.clipboardData && e.clipboardData.items) || [])].find(x => x.kind === "file" && /^image\//.test(x.type));
         if (!it) return;
-        e.preventDefault(); runShot(it.getAsFile(), null);
+        e.preventDefault(); runShot(it.getAsFile(), pasteTo);
     });
 
     const fromHash = () => { if (/ally=/.test(location.hash)) { const b = document.querySelector('.nav-item[data-page="ally"]'); if (b) b.click(); joinFlow(location.hash); return true; } return false; };
@@ -15365,7 +15385,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     };
     /* соседний герой по ряду навыков. В игре ряд заместителя мельче (×0.765), выше (на 0.34 иконки) и начинается
        через 0.6 иконки после ряда командира (и наоборот). Перебираем небольшой сдвиг и сравниваем с навыками всех героев */
-    const neighbourHero = (img, a, sd) => {
+    const neighbourHero = (img, a, sd, only) => {
         const f = a.fs, right = true;
         const cands = [];
         [true, false].forEach(dep => {   // dep — ищем заместителя справа; иначе — командира слева
@@ -15378,19 +15398,34 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 cands.push({ p, s, y, icons: [0, 1, 2, 3, 4].map(i => ({ x: x + i * p, y, s })), dep });
             }
         });
-        let best = null;
+        let best = null; const perHero = {};
         cands.forEach(c => {
             const ds = c.icons.map(ic => tkDescriptor(img.data, img.W, img.H, ic.x, ic.y, ic.s));
             sd.forEach((hsd, hi) => {
-                if (hi === a.hero || !hsd || !hsd.length) return;
+                if (hi === a.hero || !hsd || !hsd.length || (only && only.indexOf(hi) < 0)) return;
                 let t = 0, n = 0; hsd.forEach((v, i) => { if (v && ds[i]) { t += tkCorr(ds[i], v); n++; } });
                 const avg = n ? t / n : 0;
+                if (!(perHero[hi] >= avg)) perHero[hi] = avg;
                 if (!best || avg > best.avg) best = { hero: hi, avg, fs: { p: c.p, s: c.s, y: c.y, icons: c.icons.slice(0, hsd.length), avg } };
             });
         });
-        return best && best.avg > 0.55 ? best : null;
+        if (!best) return null;
+        const others = Object.keys(perHero).filter(k => +k !== best.hero).map(k => perHero[k]).sort((x, y) => y - x);
+        best.margin = best.avg - (others[0] || 0);
+        return best.avg > 0.5 ? best : null;
     };
-    const levelAbove = async (img, fs) => {   // «Уровень 60 …» над рядом навыков
+    const captionAbove = async (img, fs) => {   // подпись «Уровень 60 Имя» прямо над рядом навыков: уровень и имя героя
+        const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
+        const ws = await words(img, { x0, y0: Math.max(0, Math.round(fs.y - fs.s * 1.3)), x1, y1: Math.round(fs.y - fs.s * 0.05) }, { prep: "white", sc: 3 });
+        const lvlM = /(?:ровен\S*|level)\s*(\d{1,2})\b/i.exec(ws.map(w => w.t).join(" ")) || /\b(\d{1,2})\b/.exec(ws.map(w => w.t).join(" "));
+        let hero = -1, bd = 9;
+        ws.forEach((w, i) => [nz(w.t), ws[i + 1] ? nz(w.t + ws[i + 1].t) : ""].forEach(t => {
+            t = t.replace(/[^a-zа-я]/g, ""); if (t.length < 3) return;
+            COD_HEROES.forEach((h, hi) => { const k = nz(h.n).replace(/[^a-zа-я]/g, ""), d = lev(t, k); if (d <= (k.length >= 6 ? 2 : 1) && d < bd) { bd = d; hero = hi; } });
+        }));
+        return { lvl: lvlM ? Math.min(99, +lvlM[1]) : 0, hero };
+    };
+    const levelAbove = async (img, fs) => {
         const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
         const ws = await words(img, { x0, y0: Math.max(0, Math.round(fs.y - fs.s * 1.3)), x1, y1: Math.round(fs.y - fs.s * 0.05) }, { prep: "white", sc: 3 });
         const t = ws.map(w => w.t).join(" "), m = /(?:ровен\S*|level)\s*(\d{1,2})\b/i.exec(t) || /\b(\d{1,2})\b/.exec(t);
@@ -15515,14 +15550,19 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         }
         // второй герой не прочитался по имени — ищем его ряд навыков рядом с первым (по размерам рядов в игре) и узнаём по иконкам
         if (found.length === 1 && found[0].fs) {
-            const g = neighbourHero(img, found[0], sd);
-            if (g) { g.lvl = await levelAbove(img, g.fs); found.push(g); found.sort((a, b) => a.fs.icons[0].x - b.fs.icons[0].x); }
+            let g = neighbourHero(img, found[0], sd);
+            if (g) {
+                const cap = await captionAbove(img, g.fs);   // имя над найденным рядом важнее догадки по иконкам
+                if (cap.hero >= 0 && cap.hero !== g.hero && cap.hero !== found[0].hero) { const g2 = neighbourHero(img, found[0], sd, [cap.hero]); if (g2) g = g2; }
+                else if (cap.hero < 0 && !(g.avg >= 0.65 && g.margin >= 0.04)) g.unsure = true;   // по иконкам не уверены — имя оставим пустым
+                g.lvl = cap.lvl; found.push(g); found.sort((a, b) => a.fs.icons[0].x - b.fs.icons[0].x);
+            }
         }
         const heroes = [];
         for (const f of found) {
             const h = COD_HEROES[f.hero], lv = [];
             if (f.fs) for (const ic of f.fs.icons) lv.push(await skillLevel(img, ic));
-            heroes.push({ name: h.n, lvl: f.lvl || 0, skills: lv.join("/"), tr: HERO_TR[h.tr] || "" });
+            heroes.push({ name: f.unsure ? "" : h.n, lvl: f.lvl || 0, skills: lv.join("/"), tr: f.unsure ? "" : HERO_TR[h.tr] || "" });
         }
         // войска: зелёные полоски отрядов с ненулевым количеством
         const d = img.data, bars = [], seen = new Uint8Array(W * H);
@@ -15569,9 +15609,15 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     // вставка из буфера: сами понимаем, что за окно (профиль — есть «Лорд»/«Заслуги»)
     window.alOcrAuto = async (file) => {
         const img = await loadImg(file), all = await words(img, { x0: 0, y0: 0, x1: img.W, y1: img.H });
-        const prof = all.some(w => /^(лорд|lord|заслуг|merit)/i.test(nz(w.t))) && !all.some(w => /ровен|level/i.test(w.t) && /\d/.test(w.t + ""));
-        if (prof) return { kind: "prof", data: await parseProfile(img, all.filter(w => w.x1 < img.W * 0.6)) };
-        return { kind: "march", data: await parseMarch(img, all) };
+        const has = (re) => all.some(w => re.test(nz(w.t)));
+        const prof = has(/^(лорд|lord|заслуг|merit|фракци|faction|почест|honou?r)/), march = has(/(ровен|level|отряды|squads|грузоподъ|дальност|load|range)/);
+        if (prof && !march) return { kind: "prof", data: await parseProfile(img, all.filter(w => w.x1 < img.W * 0.6)) };
+        if (march && !prof) return { kind: "march", data: await parseMarch(img, all) };
+        if (prof && march) {   // оба признака: «Уровень N Имя» — точно марш, «Заслуги» + «Лорд» — точно профиль
+            if (heroByWords(all).length) return { kind: "march", data: await parseMarch(img, all) };
+            if (has(/^(лорд|lord)/) && has(/^(заслуг|merit)/)) return { kind: "prof", data: await parseProfile(img, all.filter(w => w.x1 < img.W * 0.6)) };
+        }
+        throw Object.assign(new Error("не понял, какое это окно"), { unknown: true });
     };
 })();
 
