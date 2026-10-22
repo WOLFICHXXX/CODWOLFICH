@@ -38,6 +38,8 @@ jobs:
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i "$HOME/yc" -n > /dev/null
           echo "$HOME/yc/bin" >> "$GITHUB_PATH"; export PATH="$HOME/yc/bin:$PATH"
           printf %s "$YC_SA_JSON" > "$RUNNER_TEMP/key.json"
+          yc config profile create ci > /dev/null 2>&1 || true
+          yc config set endpoint api.cloud.yandex.net:443
           yc config set service-account-key "$RUNNER_TEMP/key.json"
           yc config set folder-id "$(printf %s "$YC_FOLDER_ID" | tr -d '[:space:]')"
           if ! yc serverless function get --id "$FN" --format json > "$RUNNER_TEMP/f.json" 2> "$RUNNER_TEMP/err.txt"; then
