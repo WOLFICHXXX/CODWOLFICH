@@ -2571,15 +2571,14 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-b.cl{border-color:rgba(232,194,122,.5);color:#e8c27a}
 #alRowT .al-link .btn{margin-top:6px}
 .rw-bl{position:absolute;inset:0;display:none;pointer-events:none}
-.row-stage.done .rw-bl{display:block;animation:rwBlIn .5s ease both}
-@keyframes rwBlIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.row-stage.done .rw-bl{display:block}
 .rw-bd{position:absolute;padding:0;margin:0;border:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
-.rw-bd img{position:absolute;left:-33.33%;top:-2.1%;width:166.67%;height:auto;max-width:none;opacity:1;transform:scale(1);transform-origin:50% 97%;transition:opacity .22s ease,transform .28s cubic-bezier(.3,1.4,.5,1),filter .28s ease;pointer-events:none;user-select:none}
-@media (hover:hover){.rw-bd:hover{z-index:200!important}.rw-bd:hover img{opacity:1;transform:translate(var(--dx,0),var(--dy,0)) scale(var(--sx,1.2),var(--sy,1.2))}}
-.rw-bd:focus-visible img{opacity:1;transform:translate(var(--dx,0),var(--dy,0)) scale(var(--sx,1.2),var(--sy,1.2))}
+.rw-bd img{position:absolute;left:-33.33%;top:-2.1%;width:166.67%;height:auto;max-width:none;opacity:0;transform:scale(1);transform-origin:50% 97%;transition:opacity .22s ease,transform .28s cubic-bezier(.3,1.4,.5,1),filter .28s ease;pointer-events:none;user-select:none}
+@media (hover:hover){.rw-bd:hover{z-index:200!important}.rw-bd:hover img{opacity:1;transform:scale(1.22)}}
+.rw-bd:focus-visible img{opacity:1;transform:scale(1.22)}
 .rw-bd.pin{z-index:150!important}
-.rw-bd.pin img{opacity:1;transform:translate(var(--dx,0),var(--dy,0)) scale(calc(var(--sx,1.2) * 1.06),calc(var(--sy,1.2) * 1.06));filter:drop-shadow(0 0 6px rgba(255,214,110,.85)) drop-shadow(0 6px 10px rgba(0,0,0,.45))}
-@media (prefers-reduced-motion:reduce){.rw-bd img{transition:opacity .15s ease}.row-stage.done .rw-bl{animation:none}}
+.rw-bd.pin img{opacity:1;transform:scale(1.3);filter:drop-shadow(0 0 6px rgba(255,214,110,.85)) drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+@media (prefers-reduced-motion:reduce){.rw-bd img{transition:opacity .15s ease}}
 @media (max-width:720px){#page-ally input,#page-ally select,#page-ally textarea{font-size:16px}}
 #page-ally,#page-ally .al-card{max-width:100%;overflow-wrap:anywhere}
 .al-mc{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,rgba(217,164,65,.07),rgba(255,255,255,.02))}
@@ -16160,14 +16159,15 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     hero.addEventListener("click", () => { openMap(false); draw(); });
 
     /* ---- здания на карте: при наведении — увеличенная копия, по нажатию — закрепляется ----
-       [вид 1–4, центр x %, верх шпиля y %, высота здания % от высоты карты, масштаб x, масштаб y, сдвиг x, сдвиг y (доли кадра)] — подобрано так, чтобы увеличенная копия закрывала здание на карте; копии img/row-b<вид>.webp, здание занимает ~95.5 % кадра */
-    const BLD = [[1, 22.26, 10.14, 10.55, 1.18, 1.18, -0.0, -0.0], [1, 31.57, 8.42, 10.55, 1.18, 1.18, -0.0, -0.0], [3, 56.3, 4.56, 9.43, 1.18, 1.18, -0.01, 0.09], [2, 71.72, 7.2, 10.45, 1.18, 1.18, -0.0, -0.0], [2, 52.7, 14.91, 10.45, 1.18, 1.18, -0.0, -0.0], [4, 49.28, 29.31, 11.87, 1.18, 1.18, -0.0, -0.0], [3, 22.13, 35.09, 9.43, 1.389, 1.107, -0.04, 0.08], [3, 79.03, 34.48, 9.43, 1.296, 1.111, -0.03, 0.09], [2, 45.02, 47.57, 10.45, 1.18, 1.18, -0.0, -0.0], [2, 18.81, 57.51, 10.45, 1.18, 1.18, -0.01, -0.0], [3, 40.6, 66.43, 9.43, 1.411, 1.125, -0.04, 0.12], [1, 72.35, 58.62, 10.55, 1.18, 1.18, -0.02, -0.03], [1, 83.07, 53.55, 10.55, 1.18, 1.18, -0.02, 0.03]];
+       [вид 1–4, центр x %, верх шпиля y %, высота здания % от высоты карты]; копии img/row-b<вид>.webp, здание занимает ~95.5 % кадра */
+    const BLD = [[1, 22.26, 10.14, 10.55], [1, 31.57, 8.42, 10.55], [3, 56.3, 4.56, 9.43], [2, 71.72, 7.2, 10.45], [2, 52.7, 14.91, 10.45], [4, 49.28, 29.31, 11.87], [3, 22.13, 35.09, 9.43],
+        [3, 79.03, 34.48, 9.43], [2, 45.02, 47.57, 10.45], [2, 18.81, 57.51, 10.45], [3, 40.6, 66.43, 9.43], [1, 72.35, 58.62, 10.55], [1, 83.07, 53.55, 10.55]];
     const AR = 986 / 1595, pins = new Set();
     (function buildings() {
         const lay = document.createElement("div"); lay.className = "rw-bl"; lay.id = "rwBld";
-        lay.innerHTML = BLD.map(([t, cx, top, h, sx, sy, dx, dy], i) => {
+        lay.innerHTML = BLD.map(([t, cx, top, h], i) => {
             const hc = h / 0.955, w = 0.6 * hc * AR;   // кадр копии (высота, % карты) и зона наведения (ширина, % карты)
-            return '<button type="button" class="rw-bd" data-b="' + i + '" data-t="' + t + '" style="left:' + (cx - w / 2).toFixed(2) + "%;top:" + top + "%;width:" + w.toFixed(2) + "%;height:" + (0.955 * hc).toFixed(2) + "%;z-index:" + Math.round(top + h) + ";--sx:" + sx + ";--sy:" + sy + ";--dx:" + (dx * 100).toFixed(1) + "%;--dy:" + (dy * 100).toFixed(1) + "%" + '" aria-label="' + L("Здание ", "Building ") + (i + 1) + '">' +
+            return '<button type="button" class="rw-bd" data-b="' + i + '" style="left:' + (cx - w / 2).toFixed(2) + "%;top:" + top + "%;width:" + w.toFixed(2) + "%;height:" + (0.955 * hc).toFixed(2) + "%;z-index:" + Math.round(top + h) + '" aria-label="' + L("Здание ", "Building ") + (i + 1) + '">' +
                 '<img src="img/row-b' + t + '.webp" alt="" draggable="false" loading="lazy" decoding="async"></button>';
         }).join("");
         stage.appendChild(lay);
