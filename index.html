@@ -2518,9 +2518,11 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .ln-ru,.ln-en{font-style:normal}
 .ln-en,html[data-lang="en"] .ln-ru{display:none}
 html[data-lang="en"] .ln-en{display:inline}
-#page-row h1.ln-en{display:none!important}
-html[data-lang="en"] #page-row h1.ln-ru{display:none!important}
-html[data-lang="en"] #page-row h1.ln-en{display:block!important}
+.row-logo{margin:6px auto 0;max-width:min(760px,94%);line-height:0}
+.row-logo img{width:100%;height:auto;filter:drop-shadow(0 8px 22px rgba(0,0,0,.55))}
+#page-row .row-logo img.ln-en{display:none}
+html[data-lang="en"] #page-row .row-logo img.ln-ru{display:none}
+html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .row-head{padding-bottom:4px}
 .row-title{font-size:clamp(2.2rem,7vw,4.4rem)!important;letter-spacing:.04em}
 .row-hero{position:relative;display:flex;justify-content:center;margin:0 auto;max-width:1100px;padding:0 8px 24px}
@@ -4879,8 +4881,7 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
 
 <div class="app page" id="page-row">
     <header class="header row-head">
-        <h1 class="title row-title ln-ru">Планер RoW</h1>
-        <h1 class="title row-title ln-en">RoW Planner</h1>
+        <h1 class="row-logo"><img class="ln-ru" alt="Планер RoW" width="1200" height="400" decoding="async" src="img/row-title-ru.webp"><img class="ln-en" alt="RoW Planner" width="1200" height="400" decoding="async" src="img/row-title-en.webp"></h1>
     </header>
     <div class="row-hero">
         <img class="row-hero-img" alt="Волк-король держит карту RoW" width="1374" height="1145" loading="lazy" decoding="async"
