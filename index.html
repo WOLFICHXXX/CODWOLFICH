@@ -2656,7 +2656,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .pf-acc-msg:empty{display:none}
 .pf-acc-msg.bad{color:#ffb3b3}
 .pf-acc-n{font-size:.76rem;color:var(--muted);margin-top:6px}
-.rw-eye{position:absolute;right:8px;top:8px;z-index:7}
+.rw-eye{position:absolute;right:8px;top:8px;z-index:9}
 .rw-eye[hidden]{display:none}
 .rw-eyeb{border:1px solid rgba(217,164,65,.6);background:rgba(14,10,24,.82);color:var(--gold-light);border-radius:999px;padding:5px 12px;font:inherit;font-size:.86rem;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.45)}
 .rw-eyel{position:absolute;right:0;top:calc(100% + 6px);min-width:180px;max-height:260px;overflow:auto;padding:8px 10px;border-radius:12px;background:rgba(20,15,32,.97);border:1px solid var(--gold);box-shadow:0 12px 28px rgba(0,0,0,.55);font-size:.86rem;line-height:1.6}
@@ -2670,6 +2670,38 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-redi input{accent-color:#d9a441;width:16px;height:16px}
 .rw-redi small{margin-left:auto;color:#bfe8cc;font-size:.74rem}
 @media (max-width:720px){.rw-eye{top:auto;bottom:calc(100% + 6px);right:4px}}
+.rw-chat{position:absolute;right:8px;bottom:8px;z-index:8}
+.rw-chat[hidden]{display:none}
+.rw-chb{position:relative;width:46px;height:46px;border-radius:50%;border:1px solid rgba(217,164,65,.6);background:rgba(14,10,24,.86);font-size:1.25rem;line-height:1;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.rw-chb:hover,.rw-chb.on{border-color:var(--gold-light);background:rgba(65,42,18,.92)}
+.rw-chn{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#e5383b;color:#fff;font-size:.72rem;font-weight:800;line-height:20px;text-align:center;box-shadow:0 0 0 2px rgba(14,10,24,.95);font-family:Inter,sans-serif}
+.rw-chn[hidden]{display:none}
+.rw-chp{position:absolute;right:0;bottom:calc(100% + 8px);width:min(340px,80vw);height:min(440px,70vh);display:flex;flex-direction:column;border-radius:14px;background:rgba(20,15,32,.97);border:1px solid var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.6);overflow:hidden;cursor:auto}
+.rw-chp[hidden]{display:none}
+.rw-chh{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(217,164,65,.25);color:var(--gold-light)}
+.rw-chx{background:none;border:0;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 4px}
+.rw-chx:hover{color:#fff}
+.rw-chl{flex:1;overflow:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.rw-chm{align-self:flex-start;max-width:88%;padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:.88rem;line-height:1.4}
+.rw-chm.me{align-self:flex-end;background:rgba(151,101,38,.28);border-color:rgba(217,164,65,.35)}
+.rw-chm-h{display:flex;gap:10px;justify-content:space-between;font-size:.74rem;color:var(--gold-light)}
+.rw-chm-h small{color:var(--muted)}
+.rw-chm-t{white-space:pre-wrap;word-break:break-word;color:#eee}
+.rw-tr{margin-top:5px;padding-top:4px;border-top:1px dashed rgba(200,205,225,.38);color:#b9c6da;white-space:pre-wrap;word-break:break-word;font-size:.95em}
+.rw-tr[hidden]{display:none}
+.rw-trl{display:block;font-size:.72em;color:var(--muted)}
+.rw-chf{display:flex;gap:6px;padding:8px;border-top:1px solid rgba(217,164,65,.25)}
+.rw-chf textarea{flex:1;resize:none;min-height:38px;max-height:110px;margin:0;padding:8px 10px;font-size:.9rem}
+.rw-chf .btn{flex:none}
+@media (max-width:720px){.rw-chp{position:fixed;left:8px;right:8px;bottom:58px;width:auto;height:60vh;z-index:60}.rw-chat.open{z-index:70}}
+.rw-navt{display:none}
+@media (min-width:821px){
+ .side{transition:width .25s ease,padding .25s ease}
+ html.rw-navoff .side{width:0;padding-left:0;padding-right:0;border-right:0;overflow:hidden}
+ html.rw-inrow .rw-navt{display:flex;position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:30;width:22px;height:64px;align-items:center;justify-content:center;border:1px solid rgba(217,164,65,.55);border-left:0;border-radius:0 10px 10px 0;background:rgba(14,10,24,.92);color:var(--gold-light);font-weight:800;font-size:1rem;cursor:pointer;transition:left .25s ease;box-shadow:4px 0 14px rgba(0,0,0,.4)}
+ html.rw-inrow .rw-navt:hover{background:rgba(65,42,18,.95)}
+ html.rw-inrow:not(.rw-navoff) .rw-navt{left:224px}
+}
 .rw-bl{z-index:1}
 .rw-ar{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:visible}
 .row-stage:not(.done) .rw-ar,.row-stage:not(.done) .rw-mks,.row-stage:not(.done) .rw-tools{display:none}
@@ -16596,6 +16628,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         });
         sideDraw(); tacDraw(); plansDraw();
         if (typeof hereTick === "function" && roomOf() !== here.room) setTimeout(() => hereTick(true), 0); else if (typeof eyeDraw === "function") eyeDraw();
+        if (typeof chatTick === "function" && roomOf() !== chat.room) setTimeout(() => chatTick(true), 0);
     }
     /* ---- столбец справа: список зданий, раскрытое — назначенные марши и заметка ---- */
     const side = $("rwSide"), heroBox = stage.parentElement; let sOpen = new Set();
@@ -16610,7 +16643,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 '<span class="rw-si-b">' + (n ? "<i>" + n + "</i>" : '<i class="z">0</i>') + (e.note ? '<i class="nt">✎</i>' : "") + '</span><span class="rw-si-a">▾</span></button>';
             if (op) {
                 r += '<div class="rw-sd">' + ((e.a || []).length ? '<div class="rw-asl">' + e.a.map((x, k) => aLine(x, k, false)).join("") + "</div>" : '<div class="al-note">' + L("Никто не назначен", "Nobody assigned") + "</div>") +
-                    (e.note ? '<div class="rw-nt"><span>✎</span><div>' + esc(e.note) + "</div></div>" : "") +
+                    (e.note ? noteHtml(e.note) : "") +
                     (ed ? '<button type="button" class="btn secondary small rw-se" data-se="' + i + '">' + L("Изменить", "Edit") + "</button>" : "") + "</div>";
             }
             return r + "</div>";
@@ -16664,7 +16697,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         } else if (pv.view === "menu") {
             const a = e.a || [];
             h += a.length ? '<div class="rw-asl">' + a.map((x, k) => aLine(x, k, ed)).join("") + "</div>" : (ed ? "" : '<div class="al-note">' + L("Участники не назначены", "No members assigned") + "</div>");
-            if (e.note) h += '<div class="rw-nt"><span>✎</span><div>' + esc(e.note) + "</div></div>";
+            if (e.note) h += noteHtml(e.note);
             if (ed && mk) h += '<label class="rw-sz"><span>' + L("Размер", "Size") + '</span><input type="range" id="rwSz" min="50" max="300" step="10" value="' + Math.round((mkOf(i).s || 1) * 100) + '"><b>' + Math.round((mkOf(i).s || 1) * 100) + "%</b></label>" +
                 '<div class="al-note">' + L("Метку можно перетащить мышью или пальцем.", "Drag the mark to move it.") + "</div>";
             if (ed) h += '<div class="rw-pb rw-foot"><button type="button" class="btn small" data-v="' + (ally ? "pick" : "manual") + '">' + L("Выбрать участника", "Select a member") + '</button><button type="button" class="btn secondary small" data-v="note">' + L("Заметка", "Note") + "</button>" +
@@ -16805,7 +16838,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             else j = await call("/row", { op: "get", id: pl.id, tok: pl.tok, pl: want });
             if (!j.ok || st.plan !== pl) { if (j && !j.ok) alert(j.err || "Ошибка"); return; }
             pl.pl = want; plMem[(pl.kind === "a" ? "a" + pl.id + pl.t : "p" + pl.id)] = want;
-            pl.data.data = j.data || {}; if (j.plans) pl.data.plans = j.plans; if (j.members) pl.data.members = j.members;
+            pl.data.data = j.data || {}; if (j.plans) pl.data.plans = j.plans; if (j.members) pl.data.members = j.members; if (j.rt) pl.rt = j.rt;
             if (!pop.hidden) popClose(); if (typeof mpClose === "function") mpClose(); sOpen.clear(); paint();
         } catch (e) { alert(L("Нет связи с сервером.", "No connection to the server.")); }
         finally { plans.classList.remove("busy"); }
@@ -16962,7 +16995,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             h = '<div class="rw-ph"><b><img class="rw-mpi" src="img/row-m-' + o.t + '.webp" alt=""> ' + esc(mkName(o.t)) + '</b><button type="button" class="rw-x" data-mx="1">✕</button></div>';
             if (s.edit && ed) h += '<textarea class="al-in rw-ta" id="rwMkN" maxlength="300" placeholder="' + esc(L("Заметка к метке (необязательно)", "Note for the mark (optional)")) + '">' + esc(o.note || "") + '</textarea><div class="rw-pb"><button type="button" class="btn small" data-ms="1">' + L("Сохранить", "Save") + '</button><button type="button" class="btn secondary small" data-mc="1">' + L("Отмена", "Cancel") + "</button></div>";
             else {
-                h += o.note ? '<div class="rw-nt"><span>✎</span><div>' + esc(o.note) + "</div></div>" : '<div class="al-note">' + L("Без заметки", "No note") + "</div>";
+                h += o.note ? noteHtml(o.note) : '<div class="al-note">' + L("Без заметки", "No note") + "</div>";
                 if (ed) h += '<div class="rw-pb"><button type="button" class="btn small" data-me="1">' + L("Заметка", "Note") + '</button><button type="button" class="btn secondary small al-danger" data-md="1">' + L("Удалить метку", "Delete mark") + "</button></div>" +
                     '<div class="al-note">' + L("Метку можно перетащить мышью или пальцем.", "Drag the mark to move it.") + "</div>";
             }
@@ -17004,7 +17037,26 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const myName = () => { const d = st.plan && st.plan.data; if (d && d.members && d.me) { const m = d.members.find((x) => x.mid === d.me); if (m) return m.nick; } const t = window.pfTg ? pfTg() : null; return (t && t.name) || ""; };
     async function hereSend(room, leave) {
         const api = (window.WOLFICH_TG || {}).api, tok = window.wolfichAcc ? window.wolfichAcc() : ""; if (!api || !tok || !room) return null;
-        try { const r = await fetch(String(api).replace(/\/+$/, "") + "?r=here", { method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ token: tok, room, name: myName(), leave: leave ? 1 : 0 }) }); return await r.json(); } catch (e) { return null; }
+        return ntCall("here", { room, rt: st.plan && roomOf() === room ? st.plan.rt : here.rt, name: myName(), leave: leave ? 1 : 0 });
+    }
+    /* запрос к серверу входа (wolfich-notify): присутствие, чат, перевод. Билет комнаты rt выдаёт сервер альянса (12 ч), истёк — берём заново */
+    async function ntCall(r, body, again) {
+        const api = (window.WOLFICH_TG || {}).api, tok = window.wolfichAcc ? window.wolfichAcc() : ""; if (!api || !tok) return null;
+        let j = null;
+        try { const x = await fetch(String(api).replace(/\/+$/, "") + "?r=" + r, { method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify(Object.assign({ token: tok }, body)) }); j = await x.json(); } catch (e) { return null; }
+        if (j && j.rt && !again && body.room && st.plan && roomOf() === body.room && await rtFresh()) return ntCall(r, Object.assign({}, body, { rt: st.plan.rt }), true);
+        return j;
+    }
+    let rtAt = 0;
+    async function rtFresh() {   // новый билет комнаты: заново открыть карту на сервере (не чаще раза в минуту)
+        if (!st.plan || Date.now() - rtAt < 60000) return false; rtAt = Date.now();
+        const pl = st.plan; let j = null;
+        try {
+            if (pl.kind === "a") { const c = allyCred(pl.id); if (c) j = await call("/al", { op: "rowget", id: pl.id, tok: c.tok, mid: c.mid, k: c.k, t: pl.t, pl: pl.pl }); }
+            else j = await call("/row", { op: "get", id: pl.id, tok: pl.tok, pl: pl.pl });
+        } catch (e) {}
+        if (j && j.ok && j.rt && st.plan === pl) { pl.rt = j.rt; return true; }
+        return false;
     }
     function eyeDraw() {
         const on = !!(st.plan && stage.classList.contains("done") && here.room === roomOf() && here.list.length); eye.hidden = !on; if (!on) return;
@@ -17019,13 +17071,110 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (here.room && here.room !== room) { const old = here.room; here.room = ""; here.list = []; hereSend(old, true); }
         if (!room || here.busy || (!force && here.room === room && Date.now() - here.at < 40000)) { eyeDraw(); return; }
         here.busy = true; const j = await hereSend(room); here.busy = false;
-        if (j && j.ok && roomOf() === room) { here.room = room; here.list = j.list || []; here.at = Date.now(); }
+        if (j && j.ok && roomOf() === room) { here.room = room; here.rt = st.plan.rt; here.list = j.list || []; here.at = Date.now(); }
         eyeDraw();
     }
     setInterval(() => hereTick(false), 15000);
     document.addEventListener("visibilitychange", () => hereTick(true));
     window.addEventListener("pagehide", () => { if (here.room) hereSend(here.room, true); });
-    document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => setTimeout(() => hereTick(true), 50)));
+    document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => setTimeout(() => { hereTick(true); if (typeof chatTick === "function") chatTick(true); }, 50)));
+
+    /* ---- автоперевод заметок и чата на язык устройства (оригинал, черта, перевод) ---- */
+    const TO = (() => { const l = String((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase(); const m = /^([a-z]{2,3})(?:-([a-z]{2,4}))?/.exec(l) || [0, "en"]; return m[1] === "zh" ? (/tw|hk|mo|hant/.test(l) ? "zh-TW" : "zh-CN") : m[1]; })();
+    const trBase = (x) => String(x || "").toLowerCase().split("-")[0];
+    const TRC = new Map(), trIds = new Map(), trWait = new Set(); let trTimer = 0, trSeq = 0;
+    try { const o = JSON.parse(sessionStorage.getItem("wolfich_trc") || "{}"); if (o.to === TO) Object.keys(o.m || {}).forEach((k) => TRC.set(k, o.m[k])); } catch (e) {}
+    const trShow = (txt, r) => !!(r && r.t && trBase(r.src) !== trBase(TO) && r.t.trim().toLowerCase() !== String(txt).trim().toLowerCase());
+    const TRW = { ru: "перевод", uk: "переклад", be: "пераклад", en: "translation", de: "Übersetzung", fr: "traduction", es: "traducción", it: "traduzione", pt: "tradução", pl: "tłumaczenie", tr: "çeviri", kk: "аударма", zh: "翻译", ja: "翻訳", ko: "번역", ar: "ترجمة", vi: "bản dịch", id: "terjemahan", th: "แปล" };
+    const trInner = (r) => '<span class="rw-trl">🌐 ' + esc(TRW[trBase(TO)] || "translation") + "</span>" + esc(r.t);   // подпись — на языке устройства
+    function trHtml(txt) {   // разметка перевода под оригиналом; пока перевода нет — пустое место, заполнится само
+        txt = String(txt || "").trim(); if (!txt || !/\p{L}/u.test(txt)) return "";
+        const r = TRC.get(txt);
+        if (r) return trShow(txt, r) ? '<div class="rw-tr" translate="no">' + trInner(r) + "</div>" : "";
+        if (!trIds.has(txt)) trIds.set(txt, ++trSeq);
+        trWait.add(txt); clearTimeout(trTimer); trTimer = setTimeout(trFlush, 120);
+        return '<div class="rw-tr" translate="no" data-trk="' + trIds.get(txt) + '" hidden></div>';
+    }
+    async function trFlush() {
+        const list = Array.from(trWait).filter((t) => !TRC.has(t)).slice(0, 30); trWait.clear(); if (!list.length) return;
+        const j = await ntCall("tr", { texts: list, to: TO });
+        if (!j || !j.ok || !Array.isArray(j.list)) return;
+        list.forEach((t, i) => {
+            const r = j.list[i]; if (!r || r.err) return;
+            TRC.set(t, { t: r.t || "", src: r.src || "" });
+            document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, TRC.get(t))) { el.innerHTML = trInner(TRC.get(t)); el.hidden = false; } });
+        });
+        try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {}
+        if (chat.open) chatScroll(false);
+    }
+    const noteHtml = (txt) => '<div class="rw-nt"><span>✎</span><div>' + esc(txt) + trHtml(txt) + "</div></div>";
+
+    /* ---- чат карты: та же комната, что у «кто на карте»; красный кружок — непрочитанные ---- */
+    const chatEl = document.createElement("div"); chatEl.className = "rw-chat"; chatEl.hidden = true; stage.appendChild(chatEl);
+    chatEl.innerHTML = '<button type="button" class="rw-chb" id="rwChB"><span class="rw-chi">💬</span><b class="rw-chn" id="rwChN" hidden></b></button>' +
+        '<div class="rw-chp" id="rwChP" hidden><div class="rw-chh"><b id="rwChT"></b><button type="button" class="rw-chx" id="rwChX" aria-label="close">✕</button></div>' +
+        '<div class="rw-chl" id="rwChL"></div><form class="rw-chf" id="rwChF"><textarea class="al-in" id="rwChI" maxlength="500" rows="1"></textarea><button type="submit" class="btn small" id="rwChS">➤</button></form></div>';
+    const chat = { room: "", list: [], last: 0, open: false, busy: false, at: 0, err: "" };
+    const LSR = "wolfich_chat_rd";
+    const rdGet = (room) => { try { return +(JSON.parse(localStorage.getItem(LSR) || "{}")[room] || 0); } catch (e) { return 0; } };
+    const rdSet = (room, id) => { try { const o = JSON.parse(localStorage.getItem(LSR) || "{}"); if ((o[room] || 0) >= id) return; o[room] = id; const ks = Object.keys(o); if (ks.length > 40) delete o[ks[0]]; localStorage.setItem(LSR, JSON.stringify(o)); } catch (e) {} };
+    const hhmm = (t) => { const d = new Date(t), n = new Date(), p = (x) => String(x).padStart(2, "0"); return (d.toDateString() === n.toDateString() ? "" : p(d.getDate()) + "." + p(d.getMonth() + 1) + " ") + p(d.getHours()) + ":" + p(d.getMinutes()); };
+    function chatScroll(force) { const l = $("rwChL"); if (!l) return; if (force || l.scrollHeight - l.scrollTop - l.clientHeight < 120) l.scrollTop = l.scrollHeight; }
+    function chatDraw(stick) {
+        const on = !!(st.plan && st.plan.rt && stage.classList.contains("done") && chat.room === roomOf() && chat.room); chatEl.hidden = !on; if (!on) return;
+        const rd = rdGet(chat.room), unread = chat.list.filter((m) => m.id > rd && !m.me).length, n = $("rwChN");
+        n.hidden = !unread || chat.open; n.textContent = unread > 99 ? "99+" : unread;
+        $("rwChB").title = L("Чат карты", "Map chat"); $("rwChB").classList.toggle("on", chat.open);
+        $("rwChP").hidden = !chat.open; chatEl.classList.toggle("open", chat.open); if (!chat.open) return;
+        $("rwChT").textContent = L("Чат карты", "Map chat"); $("rwChI").placeholder = L("Сообщение…", "Message…");
+        const l = $("rwChL"), keep = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
+        l.innerHTML = chat.list.length ? chat.list.map((m) => '<div class="rw-chm' + (m.me ? " me" : "") + '"><div class="rw-chm-h"><b>' + esc(m.name || "—") + "</b><small>" + hhmm(m.at) + '</small></div><div class="rw-chm-t">' + esc(m.text) + "</div>" + (m.me ? "" : trHtml(m.text)) + "</div>").join("")
+            : '<div class="al-note">' + L("Сообщений пока нет. Пишите — увидят все, кто открыл эту карту.", "No messages yet. Everyone who opened this map will see what you write.") + "</div>";
+        if (chat.err) l.innerHTML += '<div class="tk-msg err" style="display:block">' + esc(chat.err) + "</div>";
+        if (stick || keep) l.scrollTop = l.scrollHeight;
+        const last = chat.list.length ? chat.list[chat.list.length - 1].id : 0; if (last) rdSet(chat.room, last);
+    }
+    async function chatTick(force, text) {
+        const room = st.plan && st.plan.rt && stage.classList.contains("done") && page.classList.contains("active") && !document.hidden ? roomOf() : "";
+        if (room !== chat.room) { chat.room = room; chat.list = []; chat.last = 0; chat.err = ""; chat.at = 0; }
+        if (!room) { chatDraw(); return; }
+        if (chat.busy || (!force && !text && Date.now() - chat.at < (chat.open ? 3500 : 12000))) return;
+        chat.busy = true; const j = await ntCall("chat", { room, rt: st.plan.rt, since: chat.last, name: myName(), text: text || "" }); chat.busy = false; chat.at = Date.now();
+        if (room !== chat.room) return;
+        if (!j || !j.ok) { if (text) chat.err = (j && j.error) || L("Не отправлено — нет связи.", "Not sent — no connection."); chatDraw(); return false; }
+        chat.err = "";
+        const add = (j.list || []).filter((m) => m.id > chat.last); if (add.length) { chat.list = chat.list.concat(add).slice(-200); chat.last = add[add.length - 1].id; }
+        if (add.length || force || text) chatDraw(!!text);
+        return true;
+    }
+    $("rwChB").addEventListener("click", (e) => { e.stopPropagation(); chat.open = !chat.open; if (chat.open && matchMedia("(max-width:720px)").matches) { if (!pop.hidden) popClose(); if (!mp.hidden) mpClose(); } chatDraw(true); if (chat.open) { chatTick(true); setTimeout(() => { const i = $("rwChI"); if (i && matchMedia("(pointer:fine)").matches) i.focus(); }, 30); } });
+    $("rwChX").addEventListener("click", (e) => { e.stopPropagation(); chat.open = false; chatDraw(); });
+    $("rwChF").addEventListener("submit", async (e) => {
+        e.preventDefault(); const i = $("rwChI"), t = i.value.trim(); if (!t || chat.busy) return;
+        $("rwChS").disabled = true; const ok = await chatTick(true, t); $("rwChS").disabled = false;
+        if (ok) { i.value = ""; i.style.height = ""; } i.focus();
+    });
+    $("rwChI").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("rwChF").requestSubmit(); } e.stopPropagation(); });
+    $("rwChI").addEventListener("input", (e) => { const i = e.target; i.style.height = ""; i.style.height = Math.min(110, i.scrollHeight) + "px"; });
+    ["pointerdown", "click", "wheel"].forEach((ev) => chatEl.addEventListener(ev, (e) => e.stopPropagation()));
+    setInterval(() => chatTick(false), 2000);
+    document.addEventListener("visibilitychange", () => chatTick(true));
+    window.addEventListener("wi18n", () => chatDraw());
+
+    /* ---- левое меню сайта: в планере сворачивается (ПК), кнопка у края — развернуть/свернуть ---- */
+    const navT = document.createElement("button"); navT.type = "button"; navT.className = "rw-navt"; document.body.appendChild(navT);
+    let navWas = false;
+    function navSync() {
+        const on = page.classList.contains("active"), H = document.documentElement;
+        H.classList.toggle("rw-inrow", on);
+        if (on && !navWas) H.classList.add("rw-navoff"); if (!on) H.classList.remove("rw-navoff");
+        navWas = on;
+        const off = H.classList.contains("rw-navoff");
+        navT.textContent = off ? "»" : "«"; navT.title = off ? L("Показать меню сайта", "Show site menu") : L("Скрыть меню сайта", "Hide site menu"); navT.setAttribute("aria-label", navT.title);
+    }
+    navT.addEventListener("click", () => { document.documentElement.classList.toggle("rw-navoff"); navSync(); setTimeout(() => window.dispatchEvent(new Event("resize")), 300); });
+    new MutationObserver(navSync).observe(page, { attributes: true, attributeFilter: ["class"] }); navSync();
+    window.addEventListener("wi18n", navSync);
 
     /* ---- экраны под картой ---- */
     const panel = $("rwPanel");
@@ -17146,7 +17295,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 $("rwToAlly").addEventListener("click", () => { history.replaceState(null, "", location.pathname + location.search); openAlly(id); });
                 return;
             }
-            st.plan = { kind: "a", id, t, pl: j.pl || "A", data: j };
+            st.plan = { kind: "a", id, t, pl: j.pl || "A", data: j, rt: j.rt || "" };
             drawTeam();
         } catch (e) { panel.innerHTML = msg(L("Нет связи с сервером. Попробуйте позже.", "No connection to the server. Try again later."), true) + backBtn(); bindBack(); }
     }
@@ -17216,7 +17365,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const o = db(), cur = o.p[id];
             if (!cur || cur.role !== "edit" || j.role === "edit") o.p[id] = { tok, name: j.name, role: j.role }; else cur.name = j.name;   // офицерскую ссылку наблюдательской не затираем
             wr(LS, o);
-            st.plan = { kind: "p", id, tok, pl: j.pl || "A", data: j }; drawOwn();
+            st.plan = { kind: "p", id, tok, pl: j.pl || "A", data: j, rt: j.rt || "" }; drawOwn();
         } catch (e) { panel.innerHTML = msg(L("Нет связи с сервером. Попробуйте позже.", "No connection to the server. Try again later."), true) + backBtn(); bindBack(); }
     }
     function drawOwn() {
