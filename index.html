@@ -2579,6 +2579,34 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-bd.pin{z-index:150!important}
 .rw-bd.pin img{opacity:1;transform:scale(1.3);filter:drop-shadow(0 0 6px rgba(255,214,110,.85)) drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 @media (prefers-reduced-motion:reduce){.rw-bd img{transition:opacity .15s ease}}
+.rw-bn{position:absolute;left:50%;bottom:-4%;transform:translateX(-50%);display:flex;gap:3px;pointer-events:none;z-index:2}
+.rw-bn:empty{display:none}
+.rw-bn i{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:linear-gradient(180deg,#ffe39a,#d9a441);color:#2a1a00;font-size:.72rem;font-weight:800;line-height:18px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.55),0 0 0 1px rgba(60,35,0,.5)}
+.rw-bn i.nt{background:linear-gradient(180deg,#d8e6ff,#8fb0e6);color:#14233f}
+.rw-bd.pin .rw-bn,.rw-bd:hover .rw-bn{opacity:.25}
+.rw-pop{position:absolute;z-index:400;width:min(320px,calc(100% - 8px));max-height:min(440px,70vh);overflow:auto;padding:10px 12px 12px;border-radius:14px;background:rgba(20,15,32,.97);border:1px solid var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.6);color:var(--text);font-size:.9rem;animation:rwPop .16s ease}
+@keyframes rwPop{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+.rw-pop[hidden]{display:none}
+.rw-ph{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.rw-ph b{color:var(--gold-light);font-size:1rem}
+.rw-x{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:.8rem;flex:none}
+.rw-x:hover{color:#ffb3b3;border-color:rgba(224,82,82,.6)}
+.rw-pb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.rw-asl{display:flex;flex-direction:column;gap:6px}
+.rw-as{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.rw-as b{color:var(--gold-light)}
+.rw-as small{color:var(--muted);margin-left:4px}
+.rw-as span{display:block;color:var(--muted);font-size:.8rem;margin-top:2px}
+.rw-nt{display:flex;gap:8px;margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(120,160,220,.08);border:1px solid rgba(140,175,230,.22);border-left:3px solid rgba(140,175,230,.55);white-space:pre-wrap;word-break:break-word;color:#dde6f3}
+.rw-nt span{color:#a9c4ee}
+.rw-ml{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow:auto;margin:6px 0 8px}
+.rw-mi{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;padding:7px 9px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;font:inherit}
+.rw-mi:hover{border-color:var(--gold);background:rgba(217,164,65,.1)}
+.rw-mi small{color:var(--muted);font-size:.78rem}
+.rw-sub2{color:var(--gold-light);margin-bottom:4px}
+.rw-ta{min-height:90px;resize:vertical;box-sizing:border-box}
+.rw-chk{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.86rem;margin:0 0 4px}
+@media (max-width:720px){.rw-pop{position:fixed;z-index:10050;left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto;max-height:62vh}.rw-pop input,.rw-pop select,.rw-pop textarea{font-size:16px}}
 @media (max-width:720px){#page-ally input,#page-ally select,#page-ally textarea{font-size:16px}}
 #page-ally,#page-ally .al-card{max-width:100%;overflow-wrap:anywhere}
 .al-mc{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,rgba(217,164,65,.07),rgba(255,255,255,.02))}
@@ -16158,25 +16186,149 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     }
     hero.addEventListener("click", () => { openMap(false); draw(); });
 
-    /* ---- здания на карте: при наведении — увеличенная копия, по нажатию — закрепляется ----
+    /* ---- здания на карте: при наведении — увеличенная копия, по нажатию — меню здания (участники, заметка) ----
        [вид 1–4, центр x %, верх шпиля y %, высота здания % от высоты карты]; копии img/row-b<вид>.webp, здание занимает ~95.5 % кадра */
     const BLD = [[1, 22.26, 10.14, 10.55], [1, 31.57, 8.42, 10.55], [3, 56.3, 4.56, 9.43], [2, 71.72, 7.2, 10.45], [2, 52.7, 14.91, 10.45], [4, 49.28, 29.31, 11.87], [3, 22.13, 35.09, 9.43],
         [3, 79.03, 34.48, 9.43], [2, 45.02, 47.57, 10.45], [2, 18.81, 57.51, 10.45], [3, 40.6, 66.43, 9.43], [1, 72.35, 58.62, 10.55], [1, 83.07, 53.55, 10.55]];
-    const AR = 986 / 1595, pins = new Set();
+    const AR = 986 / 1595;
     (function buildings() {
         const lay = document.createElement("div"); lay.className = "rw-bl"; lay.id = "rwBld";
         lay.innerHTML = BLD.map(([t, cx, top, h], i) => {
             const hc = h / 0.955, w = 0.6 * hc * AR;   // кадр копии (высота, % карты) и зона наведения (ширина, % карты)
             return '<button type="button" class="rw-bd" data-b="' + i + '" style="left:' + (cx - w / 2).toFixed(2) + "%;top:" + top + "%;width:" + w.toFixed(2) + "%;height:" + (0.955 * hc).toFixed(2) + "%;z-index:" + Math.round(top + h) + '" aria-label="' + L("Здание ", "Building ") + (i + 1) + '">' +
-                '<img src="img/row-b' + t + '.webp" alt="" draggable="false" loading="lazy" decoding="async"></button>';
+                '<img src="img/row-b' + t + '.webp" alt="" draggable="false" loading="lazy" decoding="async"><span class="rw-bn"></span></button>';
         }).join("");
         stage.appendChild(lay);
-        lay.addEventListener("click", (e) => {
-            const b = e.target.closest(".rw-bd"); if (!b) return;
-            const i = +b.dataset.b; if (pins.has(i)) pins.delete(i); else pins.add(i);
-            b.classList.toggle("pin", pins.has(i)); b.blur();
-        });
+        lay.addEventListener("click", (e) => { const b = e.target.closest(".rw-bd"); if (!b) return; e.stopPropagation(); b.blur(); popOpen(+b.dataset.b); });
     })();
+
+    /* ---- здание: меню «Выбрать участника» / «Заметка» ----
+       данные плана: data.b[<здание>] = { a: [{ mid, nick, m (№ марша), h: [герои], tr: [войска] } | { nick, ty, fly }], note } */
+    const TYP = { inf: ["Пехота", "Infantry"], mag: ["Маги", "Mages"], mrk: ["Стрелки", "Marksmen"], cav: ["Кавалерия", "Cavalry"] };
+    const tyName = (k) => (TYP[k] ? (EN() ? TYP[k][1] : TYP[k][0]) : k || "");
+    const heroName = (n) => (EN() && window.WI18N && window.WI18N.tr ? window.WI18N.tr(n) : n);
+    const trTxt = (x) => (x.tier ? "T" + x.tier + " " : "") + tyName(x.type) + (x.fly ? " ✈" : "") + (x.n ? " · " + fmt(x.n) : "");
+    const pdata = () => (st.plan && st.plan.data && st.plan.data.data) || {};
+    const canEdit = () => !!(st.plan && (st.plan.kind === "a" ? st.plan.data.edit : st.plan.data.role === "edit"));
+    const entry = (i) => ((pdata().b || {})[i]) || {};
+    const pop = document.createElement("div"); pop.className = "rw-pop"; pop.hidden = true; stage.appendChild(pop);
+    let pv = { i: -1, view: "menu", who: null, q: "" };
+
+    function paint() {   // значки на зданиях: число участников и ✎ заметки
+        stage.querySelectorAll(".rw-bd").forEach((b) => {
+            const e = st.plan ? entry(+b.dataset.b) : {}, n = (e.a || []).length;
+            b.classList.toggle("has", !!(n || e.note));
+            b.querySelector(".rw-bn").innerHTML = (n ? '<i>' + n + "</i>" : "") + (e.note ? '<i class="nt">✎</i>' : "");
+            b.classList.toggle("pin", +b.dataset.b === pv.i && !pop.hidden);
+        });
+    }
+    function popClose() { pop.hidden = true; pv.i = -1; paint(); }
+    function popOpen(i) { pv = { i, view: "menu", who: null, q: "" }; pop.hidden = false; popDraw(); paint(); }
+    function place() {   // рядом со зданием: снизу, а у нижней половины карты — сверху
+        if (matchMedia("(max-width:720px)").matches) { pop.style.left = pop.style.top = ""; return; }
+        const b = stage.querySelector('.rw-bd[data-b="' + pv.i + '"]'); if (!b) return;
+        const sr = stage.getBoundingClientRect(), br = b.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+        let x = br.left - sr.left + br.width / 2 - pw / 2; x = Math.max(4, Math.min(sr.width - pw - 4, x));
+        let y = br.bottom - sr.top + 6; if (br.top - sr.top > sr.height * 0.5 && br.top - sr.top - ph - 6 > 0) y = br.top - sr.top - ph - 6;
+        pop.style.left = x + "px"; pop.style.top = y + "px";
+    }
+    function aLine(x, k, ed) {
+        let d;
+        if (x.mid != null || x.h || x.tr) d = (x.h && x.h.length ? x.h.map(heroName).join(" + ") : "") + (x.tr && x.tr.length ? (x.h && x.h.length ? " · " : "") + x.tr.map(trTxt).join(", ") : "");
+        else d = tyName(x.ty) + (x.fly ? " ✈" : "");
+        return '<div class="rw-as"><div><b>' + esc(x.nick) + "</b>" + (x.m != null && x.mid ? ' <small>' + L("Марш ", "March ") + (x.m + 1) + "</small>" : "") + (d ? "<span>" + esc(d) + "</span>" : "") + "</div>" +
+            (ed ? '<button type="button" class="rw-x" data-del="' + k + '" title="' + esc(L("Убрать", "Remove")) + '">✕</button>' : "") + "</div>";
+    }
+    function popDraw() {
+        const i = pv.i, e = entry(i), ed = canEdit(), ally = st.plan && st.plan.kind === "a";
+        let h = '<div class="rw-ph"><b>' + L("Здание ", "Building ") + (i + 1) + '</b><button type="button" class="rw-x" data-close="1" aria-label="' + esc(L("Закрыть", "Close")) + '">✕</button></div>';
+        if (!st.plan) {
+            h += '<div class="al-note">' + L("Сначала откройте планер: подключите альянс и откройте карту команды или создайте свой планер.", "Open a planner first: connect an alliance and open a team map, or create your own planner.") + "</div>";
+        } else if (pv.view === "menu") {
+            const a = e.a || [];
+            h += a.length ? '<div class="rw-asl">' + a.map((x, k) => aLine(x, k, ed)).join("") + "</div>" : (ed ? "" : '<div class="al-note">' + L("Участники не назначены", "No members assigned") + "</div>");
+            if (e.note) h += '<div class="rw-nt"><span>✎</span><div>' + esc(e.note) + "</div></div>";
+            if (ed) h += '<div class="rw-pb"><button type="button" class="btn small" data-v="' + (ally ? "pick" : "manual") + '">' + L("Выбрать участника", "Select a member") + '</button><button type="button" class="btn secondary small" data-v="note">' + L("Заметка", "Note") + "</button></div>";
+        } else if (pv.view === "pick") {
+            h += '<input class="al-in rw-q" placeholder="' + esc(L("Поиск по нику", "Search by nickname")) + '" value="' + esc(pv.q) + '">';
+            h += '<div class="rw-ml">' + memList() + "</div>";
+            h += '<button type="button" class="btn secondary small" data-v="menu">' + L("← Назад", "← Back") + "</button>";
+        } else if (pv.view === "march") {
+            const m = (st.plan.data.members || []).find((x) => x.mid === pv.who) || {}, mm = m.marches || [];
+            h += '<div class="rw-sub2">' + esc(m.nick || "") + " — " + L("какой марш?", "which march?") + "</div>";
+            h += mm.length ? '<div class="rw-ml">' + mm.map((x, k) => '<button type="button" class="rw-mi" data-m="' + k + '"><b>' + L("Марш ", "March ") + (k + 1) + "</b><small>" +
+                esc(((x.heroes || []).map((hh) => heroName(hh.name) + (hh.lvl ? " " + hh.lvl : "")).join(" + ") || L("герои не указаны", "no heroes")) + ((x.troops || []).length ? " · " + x.troops.map(trTxt).join(", ") : "")) + "</small></button>").join("") + "</div>"
+                : '<div class="al-note">' + L("У участника нет сохранённых маршей. Можно поставить его без марша.", "This member has no saved marches. You can assign them without a march.") + '</div><button type="button" class="btn small" data-m="-1">' + L("Поставить без марша", "Assign without a march") + "</button>";
+            h += ' <button type="button" class="btn secondary small" data-v="pick">' + L("← Назад", "← Back") + "</button>";
+        } else if (pv.view === "manual") {
+            h += '<input class="al-in" id="rwMN" maxlength="32" placeholder="' + esc(L("Ник участника", "Member nickname")) + '">' +
+                '<select class="al-in" id="rwMT">' + Object.keys(TYP).map((k) => '<option value="' + k + '">' + tyName(k) + "</option>").join("") + "</select>" +
+                '<label class="rw-chk"><input type="checkbox" id="rwMF"> ' + L("Летающие", "Flying") + "</label>" +
+                '<div class="rw-pb"><button type="button" class="btn small" id="rwMAdd">' + L("Добавить", "Add") + '</button><button type="button" class="btn secondary small" data-v="menu">' + L("← Назад", "← Back") + "</button></div>";
+        } else if (pv.view === "note") {
+            h += '<textarea class="al-in rw-ta" id="rwNT" maxlength="500" placeholder="' + esc(L("Текст заметки", "Note text")) + '">' + esc(e.note || "") + "</textarea>" +
+                '<div class="rw-pb"><button type="button" class="btn small" id="rwNS">' + L("Сохранить", "Save") + "</button>" + (e.note ? '<button type="button" class="btn secondary small" id="rwND">' + L("Удалить заметку", "Delete note") + "</button>" : "") +
+                '<button type="button" class="btn secondary small" data-v="menu">' + L("← Назад", "← Back") + "</button></div>";
+        }
+        h += '<div class="rw-pm"></div>';
+        pop.innerHTML = h; place();
+        const qi = pop.querySelector(".rw-q"); if (qi) { if (matchMedia("(hover:hover)").matches) { qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); } qi.addEventListener("input", () => { pv.q = qi.value; pop.querySelector(".rw-ml").innerHTML = memList(); }); }
+        const mn = $("rwMN"); if (mn && matchMedia("(hover:hover)").matches) mn.focus();
+    }
+    function memList() {
+        const q = pv.q.toLowerCase(), ms = (st.plan.data.members || []).filter((m) => !q || String(m.nick).toLowerCase().includes(q)).sort((x, y) => (y.power || 0) - (x.power || 0));
+        return ms.length ? ms.map((m) => '<button type="button" class="rw-mi" data-mid="' + esc(m.mid) + '"><b>' + esc(m.nick) + "</b><small>" + (m.power ? fmt(m.power) + " · " : "") + L("маршей: ", "marches: ") + ((m.marches || []).length) + "</small></button>").join("")
+            : '<div class="al-note">' + L("Никого не нашёл", "Nobody found") + "</div>";
+    }
+    async function saveB(i, e) {
+        const pm = pop.querySelector(".rw-pm"); if (pm) pm.innerHTML = '<div class="al-note">' + L("Сохраняю…", "Saving…") + "</div>";
+        try {
+            let r;
+            if (st.plan.kind === "a") { const c = allyCred(st.plan.id); r = await call("/al", { op: "rowsave", id: st.plan.id, tok: c.tok, mid: c.mid, k: c.k, t: st.plan.t, b: i, e }); }
+            else r = await call("/row", { op: "save", id: st.plan.id, tok: st.plan.tok, b: i, e });
+            if (!r.ok) { if (pm) pm.innerHTML = msg(EN() && window.WI18N.tr ? window.WI18N.tr(r.err || "Ошибка") : (r.err || "Ошибка"), true); return false; }
+            st.plan.data.data = r.data || {}; pv.view = "menu"; popDraw(); paint(); return true;
+        } catch (err) { if (pm) pm.innerHTML = msg(L("Нет связи с сервером.", "No connection to the server."), true); return false; }
+    }
+    const withA = (i, x) => { const e = Object.assign({}, entry(i)); e.a = (e.a || []).concat([x]); return e; };
+    pop.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const t = ev.target.closest("button"); if (!t) return;
+        const i = pv.i;
+        if (t.dataset.close) return popClose();
+        if (t.dataset.v) { pv.view = t.dataset.v; if (t.dataset.v === "pick") pv.who = null; return popDraw(); }
+        if (t.dataset.del != null) { const e = Object.assign({}, entry(i)); e.a = (e.a || []).filter((x, k) => k !== +t.dataset.del); return saveB(i, e); }
+        if (t.dataset.mid) { pv.who = t.dataset.mid; pv.view = "march"; return popDraw(); }
+        if (t.dataset.m != null) {
+            const m = (st.plan.data.members || []).find((x) => x.mid === pv.who); if (!m) return;
+            const k = +t.dataset.m, mm = (m.marches || [])[k];
+            const x = { mid: m.mid, nick: m.nick };
+            if (mm) { x.m = k; x.h = (mm.heroes || []).map((hh) => hh.name).filter(Boolean); x.tr = mm.troops || []; }
+            return saveB(i, withA(i, x));
+        }
+        if (t.id === "rwMAdd") {
+            const nick = $("rwMN").value.trim(); if (!nick) { $("rwMN").focus(); return; }
+            return saveB(i, withA(i, { nick, ty: $("rwMT").value, fly: $("rwMF").checked }));
+        }
+        if (t.id === "rwNS") { const e = Object.assign({}, entry(i)); e.note = $("rwNT").value.trim(); return saveB(i, e); }
+        if (t.id === "rwND") { const e = Object.assign({}, entry(i)); delete e.note; return saveB(i, e); }
+    });
+    pop.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && ev.target.id === "rwMN") { ev.preventDefault(); $("rwMAdd").click(); } });
+    document.addEventListener("click", (ev) => { if (!pop.hidden && !pop.contains(ev.target) && !ev.target.closest(".rw-bd")) popClose(); });
+    document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !pop.hidden) popClose(); });
+    window.addEventListener("resize", () => { if (!pop.hidden) place(); });
+    setInterval(async () => {   // наблюдатели и другие офицеры видят изменения: раз в 30 с, пока открыт планер и меню не редактируется
+        if (!st.plan || document.hidden || !page.classList.contains("active")) return;
+        if (!pop.hidden && pv.view !== "menu") return;
+        try {
+            const pl = st.plan; let j;
+            if (pl.kind === "a") { const c = allyCred(pl.id); if (!c) return; j = await call("/al", { op: "rowget", id: pl.id, tok: c.tok, mid: c.mid, k: c.k, t: pl.t }); }
+            else j = await call("/row", { op: "get", id: pl.id, tok: pl.tok });
+            if (!j.ok || st.plan !== pl) return;
+            if (pl.kind === "a") { pl.data.data = j.data; if (j.members) pl.data.members = j.members; } else pl.data.data = j.data;
+            paint(); if (!pop.hidden && pv.view === "menu") popDraw();
+        } catch (e) { /* нет связи — попробуем позже */ }
+    }, 30000);
 
     /* ---- экраны под картой ---- */
     const panel = $("rwPanel");
@@ -16232,9 +16384,10 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         } catch (e) { panel.innerHTML = msg(L("Нет связи с сервером. Попробуйте позже.", "No connection to the server. Try again later."), true) + backBtn(); bindBack(); }
     }
     const backBtn = () => '<button class="btn secondary small" id="rwBack" type="button">' + L("← Назад", "← Back") + "</button>";
-    const bindBack = () => { const b = $("rwBack"); if (b) b.addEventListener("click", () => { st.plan = null; history.replaceState(null, "", location.pathname + location.search); setView("start"); }); };
+    const bindBack = () => { const b = $("rwBack"); if (b) b.addEventListener("click", () => { st.plan = null; popClose(); history.replaceState(null, "", location.pathname + location.search); setView("start"); }); };
 
     function showAlly(j) {
+        if (!pop.hidden) popClose(); setTimeout(paint, 0);
         st.ally = j; st.view = "ally"; st.plan = null;
         const boss = BOSS(j.role), row = j.row || {};
         let h = '<div class="rw-top"><div><div class="rw-h">' + esc(j.name) + '</div><div class="al-note">' + L("Ваш доступ: ", "Your access: ") + ROLE(j.role) +
@@ -16321,6 +16474,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             catch (e) { alert(L("Нет связи с сервером.", "No connection to the server.")); }
             ob.disabled = false;
         });
+        paint(); if (!pop.hidden) popDraw();
     }
 
     /* ---- личный планер ---- */
@@ -16365,6 +16519,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (b.dataset.relink === "edit") { const o = db(); o.p[j.id] = { tok: r.edit, name: r.name, role: "edit" }; wr(LS, o); st.plan.tok = r.edit; history.replaceState(null, "", "#row=p." + j.id + "." + r.edit); }
             st.plan.data = r; drawOwn();
         }));
+        paint(); if (!pop.hidden) popDraw();
     }
     function bindCopy() {
         panel.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", () => { navigator.clipboard.writeText(b.dataset.copy).then(() => { const t = b.textContent; b.textContent = L("Скопировано", "Copied"); setTimeout(() => { b.textContent = t; }, 1500); }); }));
@@ -16372,11 +16527,12 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
 
     function draw() {
         if (!st.opened) return;
+        if (!st.plan && !pop.hidden) popClose(); else paint();
         if (st.view === "plan" && st.plan) return st.plan.kind === "a" ? drawTeam() : drawOwn();
         if (st.view === "ally" && st.ally) return showAlly(st.ally);
         if (st.view === "start") drawStart();
     }
-    window.addEventListener("wi18n", draw);
+    window.addEventListener("wi18n", () => { draw(); if (!pop.hidden) popDraw(); });
     window.addEventListener("focus", () => { if (st.view === "start") draw(); });   // альянс мог появиться во вкладке «Альянс»
     document.querySelectorAll('.nav-item[data-page="row"]').forEach((b) => b.addEventListener("click", () => { if (st.view === "start") draw(); }));
 
