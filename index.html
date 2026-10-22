@@ -2579,6 +2579,10 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-bd.pin{z-index:150!important}
 .rw-bd.pin img{opacity:1;transform:scale(1.3);filter:drop-shadow(0 0 6px rgba(255,214,110,.85)) drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 @media (prefers-reduced-motion:reduce){.rw-bd img{transition:opacity .15s ease}}
+.rw-bd[data-t="3"] img{transform-origin:50% 20%}
+@media (hover:hover){.rw-bd[data-t="3"]:hover img{transform:scale(1.42)}}
+.rw-bd[data-t="3"]:focus-visible img{transform:scale(1.42)}
+.rw-bd[data-t="3"].pin img{transform:scale(1.5)}
 @media (max-width:720px){#page-ally input,#page-ally select,#page-ally textarea{font-size:16px}}
 #page-ally,#page-ally .al-card{max-width:100%;overflow-wrap:anywhere}
 .al-mc{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,rgba(217,164,65,.07),rgba(255,255,255,.02))}
@@ -16167,7 +16171,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         const lay = document.createElement("div"); lay.className = "rw-bl"; lay.id = "rwBld";
         lay.innerHTML = BLD.map(([t, cx, top, h], i) => {
             const hc = h / 0.955, w = 0.6 * hc * AR;   // кадр копии (высота, % карты) и зона наведения (ширина, % карты)
-            return '<button type="button" class="rw-bd" data-b="' + i + '" style="left:' + (cx - w / 2).toFixed(2) + "%;top:" + top + "%;width:" + w.toFixed(2) + "%;height:" + (0.955 * hc).toFixed(2) + "%;z-index:" + Math.round(top + h) + '" aria-label="' + L("Здание ", "Building ") + (i + 1) + '">' +
+            return '<button type="button" class="rw-bd" data-b="' + i + '" data-t="' + t + '" style="left:' + (cx - w / 2).toFixed(2) + "%;top:" + top + "%;width:" + w.toFixed(2) + "%;height:" + (0.955 * hc).toFixed(2) + "%;z-index:" + Math.round(top + h) + '" aria-label="' + L("Здание ", "Building ") + (i + 1) + '">' +
                 '<img src="img/row-b' + t + '.webp" alt="" draggable="false" loading="lazy" decoding="async"></button>';
         }).join("");
         stage.appendChild(lay);
