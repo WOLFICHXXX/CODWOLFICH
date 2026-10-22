@@ -2470,6 +2470,29 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .al-drop.drag{background:rgba(217,164,65,.16)}
 .al-drop.sel{border-style:solid;background:rgba(217,164,65,.12);box-shadow:0 0 0 1px var(--gold) inset}
 .al-shots1{grid-template-columns:1fr!important}
+.al-show{overflow:hidden}
+.al-sh-top{display:flex;justify-content:center;align-items:flex-start;gap:0;margin:-6px 0 6px}
+.al-sh-flag{flex:none;width:clamp(44px,7vw,84px);height:auto;margin-top:-10px;transform-origin:50% 4%;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));animation:hmSway 6s ease-in-out infinite}
+.al-sh-flag.r{scale:-1 1;animation-delay:-3s}
+.al-sh-mid{display:flex;flex-direction:column;align-items:center;min-width:0;flex:0 1 auto;padding:6px 10px 0;text-align:center}
+.al-sh-h{margin:0;font:800 clamp(1.05rem,2.6vw,1.6rem) Cinzel,Georgia,serif;letter-spacing:.04em;background:linear-gradient(180deg,#fffbe6,#e7a93a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.al-sh-div{display:block;width:min(100%,420px);height:auto;margin:4px auto 2px}
+.al-sh-div2{margin:14px auto 0;opacity:.85}
+.al-sh-sub{color:var(--muted);font-size:.86rem}
+.al-sh-sub b{color:var(--gold-light)}
+.al-sh-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:14px}
+.al-sh-it{position:relative;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;border-radius:14px;border:1px solid rgba(217,164,65,.35);background:linear-gradient(180deg,rgba(35,42,80,.55),rgba(14,11,28,.7));box-shadow:inset 0 0 18px rgba(217,164,65,.06)}
+.al-sh-it::before{content:"";position:absolute;left:12px;right:12px;top:-1px;height:2px;background:linear-gradient(90deg,transparent,#e6b34f,transparent);opacity:.7}
+.al-sh-it.top1{border-color:rgba(255,215,120,.85);box-shadow:inset 0 0 22px rgba(255,200,90,.14),0 0 16px rgba(217,164,65,.18)}
+.al-sh-it.top2,.al-sh-it.top3{border-color:rgba(217,164,65,.6)}
+.al-bar{flex:none;width:40px;height:50px;filter:drop-shadow(0 4px 5px rgba(0,0,0,.5))}
+.al-sh-tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.al-sh-tx b{color:#fff1c5;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.al-sh-tx small{color:var(--muted);font-size:.78rem}
+.al-sh-it .btn{flex:none}
+.al-sh-adm{margin-top:10px;text-align:center}
+@media (prefers-reduced-motion:reduce){.al-sh-flag{animation:none}}
+@media (max-width:640px){.al-sh-flag{width:12vw}.al-sh-list{grid-template-columns:1fr}}
 .al-langw{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid rgba(229,56,59,.65);background:rgba(229,56,59,.13);color:#ffd0c9;font-size:1rem;line-height:1.35;letter-spacing:.01em}
 .al-langw b{font-weight:900}
 .al-langw span{font-size:1.25rem}
@@ -2668,6 +2691,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .pf-acc:empty{display:none}
 .pf-acc-h{color:var(--muted);font-size:.9rem;margin-bottom:8px}
 .pf-acc-h b{color:var(--gold-light)}
+.pf-acc-id{margin-left:6px;font-size:.74rem;color:var(--muted);user-select:all}
 .pf-acc-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .pf-acc-m{font-size:.82rem;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
 .pf-acc-m.on{border-color:rgba(110,190,140,.6);color:#bfe8cc}
@@ -5252,6 +5276,8 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
         </div>
         <div class="tk-msg" id="alMsg" style="display:none"></div>
     </div>
+
+    <div class="card al-card al-show" id="alShow" style="display:none"></div>
 
     <div class="card al-card" id="alJoin" style="display:none">
         <h2 class="al-h" id="alJoinTitle">Вступление в альянс</h2>
@@ -13756,7 +13782,7 @@ pfSyncSoon(true);
     function accDraw() {
         const t = pfTg(); if (!t) { acc.innerHTML = ""; return; }
         const I = idents || {};
-        acc.innerHTML = '<div class="pf-acc-h">' + esc(L("Аккаунт", "Account")) + ": <b>" + esc(t.name || "") + '</b></div><div class="pf-acc-row">' +
+        acc.innerHTML = '<div class="pf-acc-h">' + esc(L("Аккаунт", "Account")) + ": <b>" + esc(t.name || "") + '</b> <small class="pf-acc-id" title="' + esc(L("ID аккаунта на сайте", "Site account ID")) + '">ID ' + esc(t.uid || "") + '</small></div><div class="pf-acc-row">' +
             '<span class="pf-acc-m' + (I.tg ? " on" : "") + '">Telegram ' + (I.tg ? "✓" : "") + "</span>" + (idents && !I.tg ? '<button type="button" class="btn secondary small" data-link="tg">' + esc(L("Привязать Telegram", "Link Telegram")) + "</button>" : "") +
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="tg">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
             '<span class="pf-acc-m' + (I.google ? " on" : "") + '">Google ' + (I.google ? "✓" : "") + "</span>" + (idents && !I.google ? '<span class="pf-acc-g"></span>' : "") +
@@ -15657,11 +15683,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const linkOf = (id, tok) => location.origin + location.pathname + "#ally=" + id + "." + tok;
     // ссылка: альянс.доступ[.карточка.секрет] — с карточкой это личная ссылка: та же карточка на другом устройстве
     const parseLink = (s) => { const m = /ally=([a-z0-9]{6,16})\.([a-z0-9]{8,24})(?:\.([a-z0-9]{6,12})\.([a-z0-9]{12,24}))?/i.exec(String(s || "")); return m ? { id: m[1].toLowerCase(), tok: m[2].toLowerCase(), mid: m[3] || "", k: m[4] || "" } : null; };
-    const show = (w) => { $("alHome").style.display = w === "home" ? "" : "none"; $("alJoin").style.display = w === "join" ? "" : "none"; $("alView").style.display = w === "view" ? "" : "none"; };
+    const show = (w) => { $("alHome").style.display = w === "home" ? "" : "none"; if ($("alShow")) $("alShow").style.display = w === "home" && st.show && st.show.length ? "" : "none"; $("alJoin").style.display = w === "join" ? "" : "none"; $("alView").style.display = w === "view" ? "" : "none"; };
     const ROLE = { own: "создатель", off: "офицер", inv: "участник", mem: "участник" };
 
     async function home(noFetch) {
-        st.cur = null; show("home"); drawList();
+        st.cur = null; show("home"); drawList(); if (st.show) showDraw(); if (window.wolfichAcc && window.wolfichAcc()) showLoad();
         if (noFetch || !(window.wolfichAcc && window.wolfichAcc())) return;
         try {
             const j = await call({ op: "mine" }); if (!j.ok) return;
@@ -15669,6 +15695,31 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (!st.cur) drawList();
         } catch (e) { /* нет связи — остаётся кэш */ }
     }
+    /* витрина: альянсы на сайте — стяги и разделитель как на главной, у каждого альянса бочка с флагом */
+    const BARREL = '<svg class="al-bar" viewBox="0 0 48 60" aria-hidden="true"><defs><linearGradient id="alBw" x1="0" x2="1"><stop offset="0" stop-color="#5a3518"/><stop offset=".45" stop-color="#9a6332"/><stop offset="1" stop-color="#4a2a12"/></linearGradient><linearGradient id="alBg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffe39a"/><stop offset="1" stop-color="#b8802e"/></linearGradient><linearGradient id="alBf" x1="0" x2="1"><stop offset="0" stop-color="#2f5fd0"/><stop offset="1" stop-color="#173a8c"/></linearGradient></defs>' +
+        '<rect x="30" y="2" width="2.6" height="34" rx="1.2" fill="url(#alBg)"/><circle cx="31.3" cy="2.6" r="2.4" fill="url(#alBg)"/><path d="M32.6 5h13l-3.6 5.2 3.6 5.2h-13z" fill="url(#alBf)" stroke="#e6b34f" stroke-width="1.1"/>' +
+        '<path d="M9 24c-2 6-2 26 0 32h26c2-6 2-26 0-32z" fill="url(#alBw)" stroke="#2c1608" stroke-width="1"/><path d="M14 24.5v31M22 24v32M30 24.5v31" stroke="#3a200c" stroke-width=".8" opacity=".55"/>' +
+        '<rect x="7.6" y="28" width="28.8" height="3.4" rx="1.4" fill="url(#alBg)"/><rect x="7.2" y="38.5" width="29.6" height="3.4" rx="1.4" fill="url(#alBg)"/><rect x="7.6" y="49" width="28.8" height="3.4" rx="1.4" fill="url(#alBg)"/>' +
+        '<ellipse cx="22" cy="24.6" rx="13" ry="2.8" fill="#6b4220" stroke="#2c1608" stroke-width="1"/></svg>';
+    async function showLoad() {
+        try { const j = await call({ op: "all" }); if (!j.ok) return; st.show = j.list || []; st.adm = !!j.adm; showDraw(); } catch (e) { /* нет связи — витрина появится позже */ }
+    }
+    function showDraw() {
+        const box = $("alShow"); if (!box) return;
+        const list = st.show || []; box.style.display = list.length && $("alHome").style.display !== "none" ? "" : "none"; if (!list.length) return;
+        const fl = document.querySelector(".hm-flag"), dv = document.querySelector(".hm-div");
+        const flag = (r) => (fl ? '<img class="al-sh-flag' + (r ? " r" : "") + '" alt="" src="' + fl.src + '">' : "");
+        const day = (t) => (t ? new Date(t).toLocaleDateString(EN() ? "en-GB" : "ru-RU") : "");
+        const mem = (n) => (EN() ? n + (n === 1 ? " member" : " members") : n + " " + (n % 10 === 1 && n % 100 !== 11 ? "участник" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "участника" : "участников"));
+        box.innerHTML = '<div class="al-sh-top">' + flag(false) + '<div class="al-sh-mid"><h2 class="al-sh-h">' + L("Альянсы, которые пользуются нашими услугами", "Alliances that use our services") + "</h2>" + (dv ? '<img class="al-sh-div" alt="" src="' + dv.src + '">' : "") +
+            '<div class="al-sh-sub">' + L("Всего альянсов на сайте: ", "Alliances on the site: ") + "<b>" + list.length + "</b></div></div>" + flag(true) + "</div>" +
+            '<div class="al-sh-list">' + list.map((x, i) => '<div class="al-sh-it' + (i < 3 ? " top" + (i + 1) : "") + '">' + BARREL + '<div class="al-sh-tx"><b translate="no">' + esc(x.name) + "</b><small>" + mem(x.n) + (x.ts ? " · " + L("с ", "since ") + day(x.ts) : "") + "</small></div>" +
+                (st.adm && x.id ? '<button type="button" class="btn small" data-adm="' + esc(x.id) + '">' + L("Открыть", "Open") + "</button>" : "") + "</div>").join("") + "</div>" +
+            (dv ? '<img class="al-sh-div al-sh-div2" alt="" src="' + dv.src + '">' : "") +
+            (st.adm ? '<div class="al-note al-sh-adm">' + L("Вы владелец сайта: «Открыть» — просмотр и управление любым альянсом без вступления.", "You are the site owner: “Open” — view and manage any alliance without joining.") + "</div>" : "");
+        box.querySelectorAll("[data-adm]").forEach((b) => b.addEventListener("click", () => openAlly(b.dataset.adm)));
+    }
+    window.addEventListener("wi18n", () => showDraw());
     function drawList() {
         const all = load(), ids = Object.keys(all);
         $("alList").innerHTML = ids.length ? ids.map((id) => '<div class="al-item" data-id="' + id + '"><span><b>' + esc(all[id].name || id) + "</b> <small>· " + ROLE[all[id].role] + "</small></span><span>›</span></div>").join("")
@@ -15688,9 +15739,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     }
 
     function render(j) {
-        st.data = j; const a = load(), e = a[j.id] || (a[j.id] = {}); e.name = j.name; e.role = j.role === "inv" ? "mem" : j.role; store(a);
+        st.data = j; const a = load(), e = a[j.id] || (j.adm && !j.me ? {} : (a[j.id] = {})); e.name = j.name; e.role = j.role === "inv" ? "mem" : j.role; if (!(j.adm && !j.me)) store(a);   // владелец сайта без членства — не в «Мои альянсы»
         $("alName").textContent = j.name;
-        $("alRole").textContent = "Ваш доступ: " + (j.role === "own" ? "создатель альянса" : j.role === "off" ? "офицер — редактирование и исключение участников" : "участник — просмотр и свои данные");
+        $("alRole").textContent = "Ваш доступ: " + (j.adm && j.role !== "own" ? "владелец сайта — управление участниками и правами" + (j.me ? "" : " (вы не состоите в альянсе)") : j.role === "own" ? "создатель альянса" : j.role === "off" ? "офицер — редактирование и исключение участников" : "участник — просмотр и свои данные");
         const boss = j.role === "own" || j.role === "off";
         $("alLinks").style.display = boss ? "" : "none";
         if (boss) {
@@ -15719,7 +15770,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             my.style.display = show ? "" : "none";
             if (show) { const u = linkOf(j.id, e.tok, e.mid, e.k); my.querySelector(".al-url").textContent = u; my.querySelector("[data-mycopy]").dataset.u = u; }
         }
-        $("alAddMe").style.display = "none";   // офицер без своей карточки — может добавить её
+        $("alAddMe").style.display = j.adm && !j.me ? "" : "none";   // владелец сайта без своей карточки — может добавить её
         form(j.members.find((m) => m.mid === st.edit));
         table();
     }
@@ -15864,7 +15915,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 (boss ? '<button data-note="' + m.mid + '" type="button">' + (m.note ? "Изменить пометку" : "Пометка") + "</button>" + (m.note ? '<button data-unnote="' + m.mid + '" type="button" class="ok">Снять пометку</button>' : "") : "") +
                 '<button class="del" data-clr="' + m.mid + '" type="button">Удалить карточку</button>' +
                 (boss && m.role === "mem" ? '<button class="ok" data-role="' + m.mid + '" data-to="off" type="button">Сделать офицером</button>' : "") +
-                (j.role === "own" && m.role === "off" ? '<button data-role="' + m.mid + '" data-to="mem" type="button">Сделать участником</button>' : "") +
+                ((j.role === "own" || j.adm) && m.role === "off" ? '<button data-role="' + m.mid + '" data-to="mem" type="button">Сделать участником</button>' : "") +
                 (boss && m.role !== "own" ? '<button class="del" data-kick="' + m.mid + '" type="button">Исключить из альянса</button>' : "") + "</div>" : "") +
             "</div>").join("");
         if (!ms.length) $("alTbl").innerHTML = '<div class="al-note">' + L("Нет участников под выбранный фильтр.", "No members match the filter.") + "</div>";
@@ -15950,13 +16001,13 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     });
     if ($("alMyLink")) $("alMyLink").querySelector("[data-mycopy]").addEventListener("click", (ev) => { const b = ev.currentTarget; navigator.clipboard.writeText(b.dataset.u || "").then(() => { b.textContent = "Скопировано"; setTimeout(() => { b.textContent = "Скопировать"; }, 1500); }); });
     $("alAddBtn").addEventListener("click", async () => {   // офицер добавляет себе карточку участника
-        const j = st.data, e = load()[j.id], nick = $("alAddNick").value.trim();
+        const j = st.data, e = load()[j.id] || {}, nick = $("alAddNick").value.trim();
         if (!nick) return say("alAddMsg", "Укажите ник", true);
         $("alAddBtn").disabled = true;
         try {
             const r = await call({ op: "join", id: j.id, tok: e.tok, nick });
             if (!r.ok) return say("alAddMsg", r.err || "Не получилось", true);
-            const a = load(); a[j.id].mid = r.mid; a[j.id].k = r.k; store(a); st.edit = r.mid; say("alAddMsg", ""); openAlly(j.id);
+            st.edit = r.me || r.mid; say("alAddMsg", ""); render(r);
         } catch (er) { say("alAddMsg", "Нет связи с сервером", true); } finally { $("alAddBtn").disabled = false; }
     });
     $("alJoinBack").addEventListener("click", () => { history.replaceState(null, "", location.pathname); home(); });
