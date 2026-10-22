@@ -2680,6 +2680,11 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-chp[hidden]{display:none}
 .rw-chh{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(217,164,65,.25);color:var(--gold-light)}
 .rw-chx{background:none;border:0;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 4px}
+.rw-chh b{flex:1}
+.rw-chlg{display:flex;align-items:center;gap:4px;margin-right:6px;font-size:.85rem;color:var(--muted)}
+.rw-chlg select{max-width:150px;background:rgba(255,255,255,.06);color:#e8e2f0;border:1px solid rgba(217,164,65,.35);border-radius:8px;padding:3px 6px;font:inherit;font-size:.78rem}
+.rw-chlg select option{background:#1a1428}
+.rw-trbad{font-size:.78rem;text-align:center}
 .rw-chx:hover{color:#fff}
 .rw-chl{flex:1;overflow:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
 .rw-chm{align-self:flex-start;max-width:88%;padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:.88rem;line-height:1.4}
@@ -17080,13 +17085,16 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => setTimeout(() => { hereTick(true); if (typeof chatTick === "function") chatTick(true); }, 50)));
 
     /* ---- автоперевод заметок и чата на язык устройства (оригинал, черта, перевод) ---- */
-    const TO = (() => { const l = String((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase(); const m = /^([a-z]{2,3})(?:-([a-z]{2,4}))?/.exec(l) || [0, "en"]; return m[1] === "zh" ? (/tw|hk|mo|hant/.test(l) ? "zh-TW" : "zh-CN") : m[1]; })();
+    const DEV = (() => { const l = String((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase(); const m = /^([a-z]{2,3})(?:-([a-z]{2,4}))?/.exec(l) || [0, "en"]; return m[1] === "zh" ? (/tw|hk|mo|hant/.test(l) ? "zh-TW" : "zh-CN") : m[1]; })();
+    const TRL = [["ru", "Русский"], ["en", "English"], ["uk", "Українська"], ["be", "Беларуская"], ["kk", "Қазақша"], ["de", "Deutsch"], ["fr", "Français"], ["es", "Español"], ["it", "Italiano"], ["pt", "Português"], ["pl", "Polski"], ["tr", "Türkçe"], ["ar", "العربية"], ["zh-CN", "中文"], ["ja", "日本語"], ["ko", "한국어"], ["vi", "Tiếng Việt"], ["id", "Indonesia"], ["th", "ไทย"]];
+    const LST = "wolfich_trto"; let TRTO = ""; try { TRTO = localStorage.getItem(LST) || ""; } catch (e) {}
+    let TO = TRTO || DEV;   // язык перевода: по умолчанию — язык устройства, в чате можно выбрать другой
     const trBase = (x) => String(x || "").toLowerCase().split("-")[0];
-    const TRC = new Map(), trIds = new Map(), trWait = new Set(); let trTimer = 0, trSeq = 0;
+    let TRC = new Map(), trIds = new Map(), trWait = new Set(), trTimer = 0, trSeq = 0, trBad = 0;
     try { const o = JSON.parse(sessionStorage.getItem("wolfich_trc") || "{}"); if (o.to === TO) Object.keys(o.m || {}).forEach((k) => TRC.set(k, o.m[k])); } catch (e) {}
     const trShow = (txt, r) => !!(r && r.t && trBase(r.src) !== trBase(TO) && r.t.trim().toLowerCase() !== String(txt).trim().toLowerCase());
     const TRW = { ru: "перевод", uk: "переклад", be: "пераклад", en: "translation", de: "Übersetzung", fr: "traduction", es: "traducción", it: "traduzione", pt: "tradução", pl: "tłumaczenie", tr: "çeviri", kk: "аударма", zh: "翻译", ja: "翻訳", ko: "번역", ar: "ترجمة", vi: "bản dịch", id: "terjemahan", th: "แปล" };
-    const trInner = (r) => '<span class="rw-trl">🌐 ' + esc(TRW[trBase(TO)] || "translation") + "</span>" + esc(r.t);   // подпись — на языке устройства
+    const trInner = (r) => '<span class="rw-trl">🌐 ' + esc(TRW[trBase(TO)] || "translation") + "</span>" + esc(r.t);   // подпись — на языке перевода
     function trHtml(txt) {   // разметка перевода под оригиналом; пока перевода нет — пустое место, заполнится само
         txt = String(txt || "").trim(); if (!txt || !/\p{L}/u.test(txt)) return "";
         const r = TRC.get(txt);
@@ -17096,23 +17104,35 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         return '<div class="rw-tr" translate="no" data-trk="' + trIds.get(txt) + '" hidden></div>';
     }
     async function trFlush() {
-        const list = Array.from(trWait).filter((t) => !TRC.has(t)).slice(0, 30); trWait.clear(); if (!list.length) return;
-        const j = await ntCall("tr", { texts: list, to: TO });
-        if (!j || !j.ok || !Array.isArray(j.list)) return;
-        list.forEach((t, i) => {
-            const r = j.list[i]; if (!r || r.err) return;
-            TRC.set(t, { t: r.t || "", src: r.src || "" });
-            document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, TRC.get(t))) { el.innerHTML = trInner(TRC.get(t)); el.hidden = false; } });
-        });
-        try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {}
+        const to = TO, list = Array.from(trWait).filter((t) => !TRC.has(t)).slice(0, 30); trWait.clear(); if (!list.length) return;
+        const j = await ntCall("tr", { texts: list, to });
+        if (to !== TO) return;
+        const was = trBad;
+        if (!j || !j.ok || !Array.isArray(j.list)) trBad = Date.now();
+        else {
+            let bad = 0;
+            list.forEach((t, i) => {
+                const r = j.list[i]; if (!r || r.err) { bad++; return; }
+                TRC.set(t, { t: r.t || "", src: r.src || "" });
+                document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, TRC.get(t))) { el.innerHTML = trInner(TRC.get(t)); el.hidden = false; } });
+            });
+            trBad = bad && bad === list.length ? Date.now() : 0;
+            try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {}
+        }
+        if (!!was !== !!trBad && chat.open) chatDraw();
         if (chat.open) chatScroll(false);
+    }
+    function trSetLang(v) {   // другой язык перевода: кэш и подписи — заново
+        TRTO = v; TO = v || DEV; try { if (v) localStorage.setItem(LST, v); else localStorage.removeItem(LST); } catch (e) {}
+        TRC = new Map(); trIds = new Map(); trWait = new Set(); trBad = 0; try { sessionStorage.removeItem("wolfich_trc"); } catch (e) {}
+        chatDraw(); paint(); if (!pop.hidden && typeof popDraw === "function" && !pop.querySelector("textarea")) popDraw(); if (!mp.hidden && typeof mpDraw === "function" && !mp.querySelector("textarea")) mpDraw();
     }
     const noteHtml = (txt) => '<div class="rw-nt"><span>✎</span><div>' + esc(txt) + trHtml(txt) + "</div></div>";
 
     /* ---- чат карты: та же комната, что у «кто на карте»; красный кружок — непрочитанные ---- */
     const chatEl = document.createElement("div"); chatEl.className = "rw-chat"; chatEl.hidden = true; stage.appendChild(chatEl);
     chatEl.innerHTML = '<button type="button" class="rw-chb" id="rwChB"><span class="rw-chi">💬</span><b class="rw-chn" id="rwChN" hidden></b></button>' +
-        '<div class="rw-chp" id="rwChP" hidden><div class="rw-chh"><b id="rwChT"></b><button type="button" class="rw-chx" id="rwChX" aria-label="close">✕</button></div>' +
+        '<div class="rw-chp" id="rwChP" hidden><div class="rw-chh"><b id="rwChT"></b><label class="rw-chlg" id="rwChLgW">🌐<select id="rwChLg"></select></label><button type="button" class="rw-chx" id="rwChX" aria-label="close">✕</button></div>' +
         '<div class="rw-chl" id="rwChL"></div><form class="rw-chf" id="rwChF"><textarea class="al-in" id="rwChI" maxlength="500" rows="1"></textarea><button type="submit" class="btn small" id="rwChS">➤</button></form></div>';
     const chat = { room: "", list: [], last: 0, open: false, busy: false, at: 0, err: "" };
     const LSR = "wolfich_chat_rd";
@@ -17127,10 +17147,14 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         $("rwChB").title = L("Чат карты", "Map chat"); $("rwChB").classList.toggle("on", chat.open);
         $("rwChP").hidden = !chat.open; chatEl.classList.toggle("open", chat.open); if (!chat.open) return;
         $("rwChT").textContent = L("Чат карты", "Map chat"); $("rwChI").placeholder = L("Сообщение…", "Message…");
+        const nm = (c) => (TRL.find((x) => x[0] === c) || [c, c])[1];
+        $("rwChLg").innerHTML = '<option value="">' + esc(L("Авто: ", "Auto: ") + nm(DEV)) + "</option>" + TRL.map((x) => '<option value="' + x[0] + '"' + (TRTO === x[0] ? " selected" : "") + ">" + esc(x[1]) + "</option>").join("");
+        $("rwChLgW").title = L("Автоперевод сообщений и заметок на этот язык", "Auto-translate messages and notes into this language");
         const l = $("rwChL"), keep = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
         l.innerHTML = chat.list.length ? chat.list.map((m) => '<div class="rw-chm' + (m.me ? " me" : "") + '"><div class="rw-chm-h"><b>' + esc(m.name || "—") + "</b><small>" + hhmm(m.at) + '</small></div><div class="rw-chm-t">' + esc(m.text) + "</div>" + (m.me ? "" : trHtml(m.text)) + "</div>").join("")
             : '<div class="al-note">' + L("Сообщений пока нет. Пишите — увидят все, кто открыл эту карту.", "No messages yet. Everyone who opened this map will see what you write.") + "</div>";
         if (chat.err) l.innerHTML += '<div class="tk-msg err" style="display:block">' + esc(chat.err) + "</div>";
+        if (trBad) l.innerHTML += '<div class="al-note rw-trbad">🌐 ' + esc(L("Автоперевод сейчас недоступен — сервер перевода не ответил.", "Auto-translation is unavailable right now — the translation server did not respond.")) + "</div>";
         if (stick || keep) l.scrollTop = l.scrollHeight;
         const last = chat.list.length ? chat.list[chat.list.length - 1].id : 0; if (last) rdSet(chat.room, last);
     }
@@ -17149,6 +17173,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     }
     $("rwChB").addEventListener("click", (e) => { e.stopPropagation(); chat.open = !chat.open; if (chat.open && matchMedia("(max-width:720px)").matches) { if (!pop.hidden) popClose(); if (!mp.hidden) mpClose(); } chatDraw(true); if (chat.open) { chatTick(true); setTimeout(() => { const i = $("rwChI"); if (i && matchMedia("(pointer:fine)").matches) i.focus(); }, 30); } });
     $("rwChX").addEventListener("click", (e) => { e.stopPropagation(); chat.open = false; chatDraw(); });
+    $("rwChLg").addEventListener("change", (e) => trSetLang(e.target.value));
     $("rwChF").addEventListener("submit", async (e) => {
         e.preventDefault(); const i = $("rwChI"), t = i.value.trim(); if (!t || chat.busy) return;
         $("rwChS").disabled = true; const ok = await chatTick(true, t); $("rwChS").disabled = false;
