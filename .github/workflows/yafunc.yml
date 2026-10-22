@@ -1,6 +1,6 @@
 # Функция-зеркало API в Yandex Cloud Functions: код — yandex/mirror/index.js.
-# При заливке в test с изменением yandex/mirror/** выкладывается новая версия функции (настройки и переменные — как у текущей).
-# Вручную (Actions → «Запустить»): check — только проверить доступ, deploy — выложить.
+# При заливке в test с изменением yandex/mirror/index.js выкладывается новая версия функции (настройки и переменные — как у текущей);
+# изменение только других файлов в yandex/mirror/ (например README.md) — лишь проверка доступа.
 # Секреты репозитория: YC_SA_JSON (авторизованный ключ сервисного аккаунта, роль functions.editor), YC_FOLDER_ID.
 name: Функция-зеркало в Yandex Cloud
 on:
@@ -21,9 +21,16 @@ jobs:
       FN: d4efk5gct1uv86m11gui
       YC_SA_JSON: ${{ secrets.YC_SA_JSON }}
       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-      MODE: ${{ github.event_name == 'push' && 'deploy' || inputs.mode }}
+      MODE: ${{ inputs.mode || 'auto' }}
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Что изменилось
+        if: env.MODE == 'auto'
+        shell: bash
+        run: |
+          B="${{ github.event.before }}"
+          if git cat-file -e "$B" 2>/dev/null && ! git diff --quiet "$B" "${{ github.sha }}" -- yandex/mirror/index.js; then echo "MODE=deploy" >> "$GITHUB_ENV"; else echo "MODE=check" >> "$GITHUB_ENV"; fi
       - name: Доступ к Yandex Cloud
         shell: bash
         run: |
