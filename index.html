@@ -2584,7 +2584,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-bn i{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:linear-gradient(180deg,#ffe39a,#d9a441);color:#2a1a00;font-size:.72rem;font-weight:800;line-height:18px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.55),0 0 0 1px rgba(60,35,0,.5)}
 .rw-bn i.nt{background:linear-gradient(180deg,#d8e6ff,#8fb0e6);color:#14233f}
 .rw-bd.pin .rw-bn,.rw-bd:hover .rw-bn{opacity:.25}
-.rw-pop{position:absolute;z-index:400;width:min(320px,calc(100% - 8px));max-height:min(440px,70vh);overflow:auto;padding:10px 12px 12px;border-radius:14px;background:rgba(20,15,32,.97);border:1px solid var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.6);color:var(--text);font-size:.9rem;animation:rwPop .16s ease}
+.rw-pop{position:absolute;z-index:400;width:min(360px,calc(100% - 8px));max-height:min(520px,75vh);overflow:auto;padding:10px 12px 12px;border-radius:14px;background:rgba(20,15,32,.97);border:1px solid var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.6);color:var(--text);font-size:.9rem;animation:rwPop .16s ease}
 @keyframes rwPop{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
 .rw-pop[hidden]{display:none}
 .rw-ph{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -2606,6 +2606,18 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-sub2{color:var(--gold-light);margin-bottom:4px}
 .rw-ta{min-height:90px;resize:vertical;box-sizing:border-box}
 .rw-chk{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.86rem;margin:0 0 4px}
+.rw-ah{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.rw-as{flex-direction:column;align-items:stretch}
+.rw-hs{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.rw-hs .al-hero{padding:6px;gap:7px}
+.rw-pop .al-hpw{flex:none}
+.rw-pop .al-hn{font-size:.82rem}
+.rw-tcs{margin-top:6px!important;gap:4px!important}
+.rw-tcs .al-tc{font-size:.74rem}
+.rw-ml2{max-height:340px}
+.rw-ml2 .rw-mi{align-items:stretch;gap:3px}
+.rw-ml2 .rw-mi>b{color:var(--gold-light)}
+.rw-foot{position:sticky;bottom:-12px;margin:8px -12px -12px!important;padding:8px 12px 12px;background:linear-gradient(180deg,rgba(20,15,32,.85),rgba(20,15,32,.98) 30%);border-top:1px solid rgba(217,164,65,.25)}
 @media (max-width:720px){.rw-pop{position:fixed;z-index:10050;left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto;max-height:62vh}.rw-pop input,.rw-pop select,.rw-pop textarea{font-size:16px}}
 @media (max-width:720px){#page-ally input,#page-ally select,#page-ally textarea{font-size:16px}}
 #page-ally,#page-ally .al-card{max-width:100%;overflow-wrap:anywhere}
@@ -15377,14 +15389,14 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         return d;
     }
 
-    function heroCard(h, role) {   // карточка героя: портрет, имя, вид войск, специализация, навыки с уровнями
+    function heroCard(h, role, lite) {   // карточка героя: портрет, имя, вид войск, специализация, навыки с уровнями; lite — без титула и специализаций (планер RoW)
         const H = HERO(h.name), sk = String(h.skills || "").split("/");
         const port = H && H.i ? '<img class="al-hp" alt="" src="' + H.i + '">' : '<div class="al-hp al-hp0">?</div>';
         const skills = H ? H.s.map((s, k) => { const lv = +sk[k] || 0; return '<span class="al-ski' + (lv ? "" : " off") + '" title="' + esc(EN() ? "Skill " + (k + 1) : s.n) + (lv ? L(" — ур. ", " — lv. ") + lv : L(" — не изучен", " — not learned")) + '"><img alt="" src="' + (s.r || s.i) + '">' + (lv ? "<b>" + lv + "</b>" : "") + "</span>"; }).join("")
             : sk.filter(x => x !== "").map((x, k) => '<span class="al-ski al-skn' + (+x ? "" : " off") + '" title="Навык ' + (k + 1) + '">' + (+x || "–") + "</span>").join("");   // героя нет в базе (эпический) — уровни цифрами
         return '<div class="al-hero"><div class="al-hpw">' + port + (h.lvl ? '<span class="al-lv">' + h.lvl + "</span>" : "") + '</div><div class="al-hi">' +
             '<div class="al-hn">' + esc(h.name) + ' <small>' + role + "</small></div>" +
-            (H ? '<div class="al-ht">' + esc(H.t) + '</div><div class="al-hc">' + (typeof tkSpecHtml === "function" ? tkSpecHtml(H) : "<span>" + esc(HTR[H.tr] || H.tr) + "</span><span>" + esc(H.sp) + "</span>") + "</div>" : "") +
+            (H && !lite ? '<div class="al-ht">' + esc(H.t) + '</div><div class="al-hc">' + (typeof tkSpecHtml === "function" ? tkSpecHtml(H) : "<span>" + esc(HTR[H.tr] || H.tr) + "</span><span>" + esc(H.sp) + "</span>") + "</div>" : "") +
             '<div class="al-sks">' + skills + "</div></div></div>";
     }
     function troopChip(t) {
@@ -15633,6 +15645,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const fromHash = () => { if (/ally=/.test(location.hash)) { const b = document.querySelector('.nav-item[data-page="ally"]'); if (b) b.click(); joinFlow(location.hash); return true; } return false; };
     window.addEventListener("hashchange", fromHash);
     if (!fromHash()) home();
+    window.WALLY = { heroCard, troopChip };   // для планера RoW: миниатюры марша как в карточке участника
 })();
 
 /* ---------- Альянс: распознавание скриншотов профиля и основного марша ----------
@@ -16232,12 +16245,18 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         let y = br.bottom - sr.top + 6; if (br.top - sr.top > sr.height * 0.5 && br.top - sr.top - ph - 6 > 0) y = br.top - sr.top - ph - 6;
         pop.style.left = x + "px"; pop.style.top = y + "px";
     }
+    const HO = (h) => (typeof h === "string" ? { name: h } : h || {});   // старые записи: только имя героя
+    function marchMini(hs, tr, full) {   // как развёрнутый марш в карточке участника; без титула и специализаций, кроме выбора марша (full)
+        const W = window.WALLY; hs = (hs || []).map(HO).filter((h) => h.name); tr = tr || [];
+        if (!W) return (hs.length ? "<span>" + esc(hs.map((h) => heroName(h.name)).join(" + ")) + "</span>" : "") + (tr.length ? "<span>" + esc(tr.map(trTxt).join(", ")) + "</span>" : "");
+        return (hs.length ? '<div class="rw-hs">' + hs.map((h, k) => W.heroCard(h, k ? L("заместитель", "deputy") : L("командир", "commander"), !full)).join("") + "</div>" : "") +
+            (tr.length ? '<div class="al-tcs rw-tcs">' + tr.map(W.troopChip).join("") + "</div>" : "");
+    }
     function aLine(x, k, ed) {
-        let d;
-        if (x.mid != null || x.h || x.tr) d = (x.h && x.h.length ? x.h.map(heroName).join(" + ") : "") + (x.tr && x.tr.length ? (x.h && x.h.length ? " · " : "") + x.tr.map(trTxt).join(", ") : "");
-        else d = tyName(x.ty) + (x.fly ? " ✈" : "");
-        return '<div class="rw-as"><div><b>' + esc(x.nick) + "</b>" + (x.m != null && x.mid ? ' <small>' + L("Марш ", "March ") + (x.m + 1) + "</small>" : "") + (d ? "<span>" + esc(d) + "</span>" : "") + "</div>" +
-            (ed ? '<button type="button" class="rw-x" data-del="' + k + '" title="' + esc(L("Убрать", "Remove")) + '">✕</button>' : "") + "</div>";
+        const full = x.mid != null || x.h || x.tr;
+        const d = full ? marchMini(x.h, x.tr) : "<span>" + esc(tyName(x.ty) + (x.fly ? " ✈" : "")) + "</span>";
+        return '<div class="rw-as"><div class="rw-ah"><div><b>' + esc(x.nick) + "</b>" + (x.m != null && x.mid ? ' <small>' + L("Марш ", "March ") + (x.m + 1) + "</small>" : "") + "</div>" +
+            (ed ? '<button type="button" class="rw-x" data-del="' + k + '" title="' + esc(L("Убрать", "Remove")) + '">✕</button>' : "") + "</div>" + d + "</div>";
     }
     function popDraw() {
         const i = pv.i, e = entry(i), ed = canEdit(), ally = st.plan && st.plan.kind === "a";
@@ -16248,7 +16267,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const a = e.a || [];
             h += a.length ? '<div class="rw-asl">' + a.map((x, k) => aLine(x, k, ed)).join("") + "</div>" : (ed ? "" : '<div class="al-note">' + L("Участники не назначены", "No members assigned") + "</div>");
             if (e.note) h += '<div class="rw-nt"><span>✎</span><div>' + esc(e.note) + "</div></div>";
-            if (ed) h += '<div class="rw-pb"><button type="button" class="btn small" data-v="' + (ally ? "pick" : "manual") + '">' + L("Выбрать участника", "Select a member") + '</button><button type="button" class="btn secondary small" data-v="note">' + L("Заметка", "Note") + "</button></div>";
+            if (ed) h += '<div class="rw-pb rw-foot"><button type="button" class="btn small" data-v="' + (ally ? "pick" : "manual") + '">' + L("Выбрать участника", "Select a member") + '</button><button type="button" class="btn secondary small" data-v="note">' + L("Заметка", "Note") + "</button></div>";
         } else if (pv.view === "pick") {
             h += '<input class="al-in rw-q" placeholder="' + esc(L("Поиск по нику", "Search by nickname")) + '" value="' + esc(pv.q) + '">';
             h += '<div class="rw-ml">' + memList() + "</div>";
@@ -16256,8 +16275,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         } else if (pv.view === "march") {
             const m = (st.plan.data.members || []).find((x) => x.mid === pv.who) || {}, mm = m.marches || [];
             h += '<div class="rw-sub2">' + esc(m.nick || "") + " — " + L("какой марш?", "which march?") + "</div>";
-            h += mm.length ? '<div class="rw-ml">' + mm.map((x, k) => '<button type="button" class="rw-mi" data-m="' + k + '"><b>' + L("Марш ", "March ") + (k + 1) + "</b><small>" +
-                esc(((x.heroes || []).map((hh) => heroName(hh.name) + (hh.lvl ? " " + hh.lvl : "")).join(" + ") || L("герои не указаны", "no heroes")) + ((x.troops || []).length ? " · " + x.troops.map(trTxt).join(", ") : "")) + "</small></button>").join("") + "</div>"
+            h += mm.length ? '<div class="rw-ml rw-ml2">' + mm.map((x, k) => '<button type="button" class="rw-mi" data-m="' + k + '"><b>' + L("Марш ", "March ") + (k + 1) + "</b>" +
+                ((x.heroes || []).length || (x.troops || []).length ? marchMini(x.heroes, x.troops, true) : "<small>" + L("герои не указаны", "no heroes") + "</small>") + "</button>").join("") + "</div>"
                 : '<div class="al-note">' + L("У участника нет сохранённых маршей. Можно поставить его без марша.", "This member has no saved marches. You can assign them without a march.") + '</div><button type="button" class="btn small" data-m="-1">' + L("Поставить без марша", "Assign without a march") + "</button>";
             h += ' <button type="button" class="btn secondary small" data-v="pick">' + L("← Назад", "← Back") + "</button>";
         } else if (pv.view === "manual") {
@@ -16303,7 +16322,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const m = (st.plan.data.members || []).find((x) => x.mid === pv.who); if (!m) return;
             const k = +t.dataset.m, mm = (m.marches || [])[k];
             const x = { mid: m.mid, nick: m.nick };
-            if (mm) { x.m = k; x.h = (mm.heroes || []).map((hh) => hh.name).filter(Boolean); x.tr = mm.troops || []; }
+            if (mm) { x.m = k; x.h = (mm.heroes || []).filter((hh) => hh && hh.name).map((hh) => ({ name: hh.name, lvl: hh.lvl || 0, skills: hh.skills || "" })); x.tr = mm.troops || []; }
             return saveB(i, withA(i, x));
         }
         if (t.id === "rwMAdd") {
