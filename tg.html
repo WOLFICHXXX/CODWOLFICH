@@ -301,7 +301,7 @@
     lbl("rstBtn", rw ? T("⏳ Ждёт программу…|⏳ Waiting…") : T("Перезапустить игру|Restart the game"));
     var xw = !!(b.closeWait && b.closeWait[cur.inst]); pend = pend || xw || !!(b.ldWait && b.ldWait[cur.inst]);
     drawLd(b);
-    var sv = (b.state || {})[cur.inst], stw = !!(b.stopWait && b.stopWait[cur.inst]), idle = sv && sv.st === "idle" && Date.now() - sv.ts < 35 * 60000;
+    var sv = (b.state || {})[cur.inst], stw = !!(b.stopWait && b.stopWait[cur.inst]), idle = sv && sv.st === "idle" && Date.now() - sv.ts < 75 * 60000;
     var tw = !!(b.trainWait && b.trainWait[cur.inst]); pend = pend || stw || tw;
     $("trainBtn").disabled = tw; lbl("trainBtn", tw ? T("⏳ Обучение ждёт программу…|⏳ Waiting for the program…") : T("🪖 Обучить войска|🪖 Train troops"));
     var tlw = !!(b.titleWait && b.titleWait[cur.inst]); pend = pend || tlw;
@@ -312,7 +312,7 @@
     }
     $("stopBtn").style.display = closed ? "none" : "";   // окно эмулятора закрыто — останавливать некого
     $("stopBtn").disabled = false; stopPending = stw;
-    var busyNow = sv && sv.st !== "idle" && Date.now() - sv.ts < 35 * 60000;
+    var busyNow = sv && sv.st !== "idle" && Date.now() - sv.ts < 75 * 60000;
     $("busyWarn").className = "warn" + (busyNow ? " hot" : "");
     $("busyWarn").textContent = busyNow ? T("⚠️ Бот на этом эмуляторе сейчас работает — сначала нажмите «Остановить бота» вверху, затем отправляйте команду.|⚠️ The bot on this emulator is working now — press «Stop the bot» above first, then send the command.")
       : T("⚠️ Перед отправкой команды с пульта остановите бота, если он сейчас работает (кнопка «Остановить бота» вверху).|⚠️ Before sending a command from the remote, stop the bot if it is working now («Stop the bot» above).");
@@ -496,7 +496,7 @@
   }
   function tabStatus(b, inst) {   // состояние вкладки по последнему сигналу программы
     var v = (b.state || {})[inst];
-    if (!v || Date.now() - v.ts > 35 * 60000) return T("⚫ нет связи|⚫ offline");
+    if (!v || Date.now() - v.ts > 75 * 60000) return T("⚫ нет связи|⚫ offline");   // программа отмечается раз в час, даже когда бот стоит
     return { auto: T("🟢 автопоход|🟢 auto-march"), remote: T("📡 команда пульта|📡 remote job"), pause: T("⏸ пауза|⏸ paused"), idle: T("⚪ остановлен|⚪ stopped") }[v.st] || "";
   }
   function drawTabs() {
@@ -505,7 +505,7 @@
       var b = bots.filter(function (y) { return y.rid === x.rid; })[0] || {};
       if (x.inst === null) return '<div class="chip dis"><b>' + esc(x.name) + '</b><small>' + (x.on ? T("🟢 окно открыто · нет вкладки в боте|🟢 window open · no bot tab") : T("⏻ окно закрыто|⏻ window closed")) + '</small></div>';
       var on = cur && x.rid === cur.rid && x.inst === cur.inst;
-      var sv = (b.state || {})[x.inst], off = x.inst && (!sv || Date.now() - sv.ts > 35 * 60000);
+      var sv = (b.state || {})[x.inst], off = x.inst && (!sv || Date.now() - sv.ts > 75 * 60000);
       var stt = x.known && !x.on ? T("⏻ окно закрыто|⏻ window closed") : tabStatus(b, x.inst);
       return '<button type="button" class="chip' + (on ? " sel" : "") + '" data-k="' + k + '"><b>' + esc(x.name) + '</b><small>' + stt +
         (off && !x.known ? ' · <u data-forget="' + k + '">' + T("убрать|remove") + '</u>' : "") + '</small></button>';
