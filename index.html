@@ -3646,6 +3646,30 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 /* Настройки уведомлений в Telegram. Заполняются после развёртывания облачной части:
    bot — имя бота без @ (из @BotFather), api — адрес функции в Yandex Cloud. Пока пусто — блок скрыт. */
 window.WOLFICH_TG = { bot: "WOLFICH_COD_BOT", api: "https://wolfich-notify.wolfichplay.workers.dev" };
+/* Запросы к серверам сайта: напрямую к Cloudflare, а если не открывается (бывает в России) — через зеркало в Yandex Cloud.
+   Касается входа, профиля, напоминаний (wolfich-notify) и альянса с планером (wolfich-license /al, /row). */
+(function () {
+    const MIR = "https://functions.yandexcloud.net/d4efk5gct1uv86m11gui", LIC = "https://wolfich-license.wolfichplay.workers.dev", NT = "https://wolfich-notify.wolfichplay.workers.dev";
+    const of = window.fetch.bind(window), KEY = "wolfich_via";
+    const viaM = () => { try { return +sessionStorage.getItem(KEY) > Date.now(); } catch (e) { return false; } };
+    const setM = (on) => { try { if (on) sessionStorage.setItem(KEY, String(Date.now() + 30 * 60000)); else sessionStorage.removeItem(KEY); } catch (e) { /* не критично */ } };
+    const alt = (u) => {
+        if (u.indexOf(LIC + "/al") === 0) return MIR + "?p=al";
+        if (u.indexOf(LIC + "/row") === 0) return MIR + "?p=row";
+        if (u.indexOf(NT) === 0) { const m = /[?&]r=([a-z]+)/.exec(u); return m ? MIR + "?p=nt&r=" + m[1] : null; }
+        return null;
+    };
+    const isApi = (r) => /json/i.test(r.headers.get("content-type") || "");
+    window.fetch = async function (input, init) {
+        const u = typeof input === "string" ? input : (input && input.url) || "", m = alt(u);
+        if (!m || (init && init.method && init.method !== "POST")) return of(input, init);
+        if (viaM()) { try { const r = await of(m, init); if (isApi(r)) return r; } catch (e) { /* зеркало не ответило — пробуем напрямую */ } setM(false); return of(input, init); }
+        const ac = new AbortController(), t = setTimeout(() => ac.abort(), 9000);
+        try { const r = await of(input, Object.assign({}, init, { signal: ac.signal })); clearTimeout(t); if (isApi(r)) return r; }
+        catch (e) { clearTimeout(t); }
+        setM(true); return of(m, init);
+    };
+})();
 window.WOLFICH_GOOGLE = { client: "935769507418-12nremjs6snl3l5pvg7lcamtih0hcreb.apps.googleusercontent.com" };   // Client ID из Google Cloud Console (OAuth, Web application)
 </script>
 <script type="text/plain" id="rmSrc"><!doctype html>
