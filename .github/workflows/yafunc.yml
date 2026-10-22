@@ -1,0 +1,64 @@
+# Функция-зеркало API в Yandex Cloud Functions: код — yandex/mirror/index.js.
+# При заливке в test с изменением yandex/mirror/** выкладывается новая версия функции (настройки и переменные — как у текущей).
+# Вручную (Actions → «Запустить»): check — только проверить доступ, deploy — выложить.
+# Секреты репозитория: YC_SA_JSON (авторизованный ключ сервисного аккаунта, роль functions.editor), YC_FOLDER_ID.
+name: Функция-зеркало в Yandex Cloud
+on:
+  push:
+    branches: [test]
+    paths: ['yandex/mirror/**']
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check — проверить доступ, deploy — выложить код'
+        type: choice
+        options: [check, deploy]
+        default: check
+jobs:
+  fn:
+    runs-on: ubuntu-latest
+    env:
+      FN: d4efk5gct1uv86m11gui
+      YC_SA_JSON: ${{ secrets.YC_SA_JSON }}
+      YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+      MODE: ${{ github.event_name == 'push' && 'deploy' || inputs.mode }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Доступ к Yandex Cloud
+        shell: bash
+        run: |
+          if [ -z "$YC_SA_JSON" ] || [ -z "$YC_FOLDER_ID" ]; then echo "::error::Не заданы секреты YC_SA_JSON / YC_FOLDER_ID"; exit 1; fi
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i "$HOME/yc" -n > /dev/null
+          echo "$HOME/yc/bin" >> "$GITHUB_PATH"; export PATH="$HOME/yc/bin:$PATH"
+          printf %s "$YC_SA_JSON" > "$RUNNER_TEMP/key.json"
+          yc config set service-account-key "$RUNNER_TEMP/key.json"
+          yc config set folder-id "$(printf %s "$YC_FOLDER_ID" | tr -d '[:space:]')"
+          yc serverless function get --id "$FN" --format json | jq -c '{name, status}' || { echo "::error::Нет доступа к функции $FN — проверьте роль functions.editor на каталоге"; exit 1; }
+          yc serverless function version get-by-tag --function-id "$FN" --tag '$latest' --format json > "$RUNNER_TEMP/v.json"
+          jq -c '{version: .id, created: .created_at, runtime, entrypoint, memory: .resources.memory, timeout: .execution_timeout, service_account: (.service_account_id != null), env: (.environment // {} | keys)}' "$RUNNER_TEMP/v.json"
+          echo "::notice::Доступ к функции есть, текущая версия $(jq -r .id "$RUNNER_TEMP/v.json")"
+      - name: Новая версия функции
+        if: env.MODE == 'deploy'
+        shell: bash
+        run: |
+          set -e
+          cd yandex/mirror && zip -q -r "$RUNNER_TEMP/fn.zip" . && cd -
+          # настройки и переменные окружения — как у текущей версии (значения в журнал не попадают)
+          jq --arg fn "$FN" --rawfile zip <(base64 -w0 "$RUNNER_TEMP/fn.zip") '{functionId: $fn, runtime, entrypoint, resources: {memory: (.resources.memory | tostring)}, executionTimeout: .execution_timeout, environment: (.environment // {}), content: $zip}
+            + (if .service_account_id then {serviceAccountId: .service_account_id} else {} end)' "$RUNNER_TEMP/v.json" > "$RUNNER_TEMP/req.json"
+          TOKEN=$(yc iam create-token); echo "::add-mask::$TOKEN"
+          curl -sS -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" --data @"$RUNNER_TEMP/req.json" https://serverless-functions.api.cloud.yandex.net/functions/v1/versions > "$RUNNER_TEMP/op.json"
+          OP=$(jq -r '.id // empty' "$RUNNER_TEMP/op.json"); [ -n "$OP" ] || { echo "::error::Версия не создана: $(jq -c '{code, message}' "$RUNNER_TEMP/op.json")"; exit 1; }
+          for i in $(seq 1 60); do
+            curl -sS -H "Authorization: Bearer $TOKEN" "https://operation.api.cloud.yandex.net/operations/$OP" > "$RUNNER_TEMP/st.json"
+            [ "$(jq -r .done "$RUNNER_TEMP/st.json")" = "true" ] && break; sleep 3
+          done
+          if jq -e .error "$RUNNER_TEMP/st.json" > /dev/null; then echo "::error::Ошибка сборки версии: $(jq -c .error "$RUNNER_TEMP/st.json")"; exit 1; fi
+          echo "::notice::Новая версия: $(jq -r '.response.id // .metadata.functionVersionId' "$RUNNER_TEMP/st.json")"
+      - name: Проверка (?p=diag)
+        shell: bash
+        run: |
+          sleep 2
+          R=$(curl -sS -m 30 "https://functions.yandexcloud.net/$FN?p=diag" || true)
+          echo "$R" | head -c 600; echo
+          echo "::notice::diag: $(echo "$R" | jq -c '{worker}' 2>/dev/null || echo "$R" | head -c 200)"
