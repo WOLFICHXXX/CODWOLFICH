@@ -2648,6 +2648,8 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .pf-acc-m{font-size:.82rem;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
 .pf-acc-m.on{border-color:rgba(110,190,140,.6);color:#bfe8cc}
 .pf-acc-g{display:inline-flex}
+.pf-acc-u{background:none;border:0;padding:0 6px 0 0;color:var(--muted);font:inherit;font-size:.78rem;text-decoration:underline;cursor:pointer}
+.pf-acc-u:hover{color:#ffb3b3}
 .pf-acc-msg{font-size:.84rem;margin-top:6px;color:var(--gold-light)}
 .pf-acc-msg:empty{display:none}
 .pf-acc-msg.bad{color:#ffb3b3}
@@ -13649,14 +13651,22 @@ pfSyncSoon(true);
         const I = idents || {};
         acc.innerHTML = '<div class="pf-acc-h">' + esc(L("Аккаунт", "Account")) + ": <b>" + esc(t.name || "") + '</b></div><div class="pf-acc-row">' +
             '<span class="pf-acc-m' + (I.tg ? " on" : "") + '">Telegram ' + (I.tg ? "✓" : "") + "</span>" + (idents && !I.tg ? '<button type="button" class="btn secondary small" data-link="tg">' + esc(L("Привязать Telegram", "Link Telegram")) + "</button>" : "") +
+            (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="tg">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
             '<span class="pf-acc-m' + (I.google ? " on" : "") + '">Google ' + (I.google ? "✓" : "") + "</span>" + (idents && !I.google ? '<span class="pf-acc-g"></span>' : "") +
+            (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="google">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
             '</div><div class="pf-acc-msg"></div><div class="pf-acc-n">' + esc(L("Привязанным способом можно входить в этот же аккаунт с любого устройства.", "You can sign in to this same account with any linked method on any device.")) + "</div>";
         const gb = acc.querySelector(".pf-acc-g"); if (gb) googleButton(gb, linkGoogle, amsg);
     }
-    async function linkGoogle(cred) {
+    const moveAsk = (what, name) => confirm(L(what + " уже зарегистрирован на сайте отдельным аккаунтом" + (name ? " «" + name + "»" : "") + ".\n\nПеренести его в этот аккаунт? Дальше вход через " + what + " будет открывать этот аккаунт. Напоминания перейдут сюда, профиль (герои и расчёты) — если здесь он пуст. Альянсы и планеры того аккаунта останутся за ним.",
+        what + " is already registered on the site as a separate account" + (name ? " “" + name + "”" : "") + ".\n\nMove it into this account? Signing in with " + what + " will then open this account. Reminders move here, and the profile (heroes and calculations) too if this one is empty. Alliances and planners of that account stay with it."));
+    async function linkGoogle(cred, force) {
         amsg(L("Привязываю…", "Linking…"));
-        try { const r = await pfTgFetch("glink", { credential: cred }); if (r.ok && r.j.ok) { idents = r.j.idents; accDraw(); amsg(L("Google привязан.", "Google linked.")); } else amsg((r.j && r.j.error) || L("Не получилось", "Failed"), true); }
-        catch (e) { amsg(L("Нет связи с сервером", "No connection to the server"), true); }
+        try {
+            const r = await pfTgFetch("glink", { credential: cred, force: force ? 1 : 0 });
+            if (r.ok && r.j.ok) { idents = r.j.idents; accDraw(); amsg(L("Google привязан.", "Google linked.")); window.dispatchEvent(new Event("wolfich-acct")); return; }
+            if (r.j && r.j.conflict && !force) { amsg(""); if (moveAsk("Google", r.j.name)) return linkGoogle(cred, true); return; }
+            amsg((r.j && r.j.error) || L("Не получилось", "Failed"), true);
+        } catch (e) { amsg(L("Нет связи с сервером", "No connection to the server"), true); }
     }
     let tlTimer = 0;
     async function linkTelegram() {
@@ -13669,10 +13679,29 @@ pfSyncSoon(true);
         clearInterval(tlTimer); let n = 0;
         tlTimer = setInterval(async () => {
             if (++n > 90) { clearInterval(tlTimer); return amsg(L("Время ожидания вышло. Нажмите ещё раз.", "Timed out. Press again."), true); }
-            try { const r = await pfTgFetch("tlpoll", { code }); if (r.j && r.j.ok) { clearInterval(tlTimer); idents = r.j.idents; accDraw(); amsg(L("Telegram привязан.", "Telegram linked.")); window.dispatchEvent(new Event("wolfich-acct")); } else if (r.j && r.j.error) { clearInterval(tlTimer); amsg(r.j.error, true); } } catch (e) {}
+            try {
+                const r = await pfTgFetch("tlpoll", { code });
+                if (r.j && r.j.ok) { clearInterval(tlTimer); idents = r.j.idents; accDraw(); amsg(L("Telegram привязан.", "Telegram linked.")); window.dispatchEvent(new Event("wolfich-acct")); }
+                else if (r.j && r.j.conflict) {
+                    clearInterval(tlTimer); amsg("");
+                    if (!moveAsk("Telegram", r.j.name)) return amsg(L("Telegram не привязан.", "Telegram not linked."));
+                    const m = await pfTgFetch("tlmove", { code });
+                    if (m.j && m.j.ok) { idents = m.j.idents; accDraw(); amsg(L("Telegram перенесён в этот аккаунт.", "Telegram moved into this account.")); window.dispatchEvent(new Event("wolfich-acct")); pfSyncSoon(true); }
+                    else amsg((m.j && m.j.error) || L("Не получилось", "Failed"), true);
+                }
+                else if (r.j && r.j.error) { clearInterval(tlTimer); amsg(r.j.error, true); }
+            } catch (e) {}
         }, 2000);
     }
-    acc.addEventListener("click", (e) => { const b = e.target.closest("[data-link]"); if (b && b.dataset.link === "tg") linkTelegram(); });
+    acc.addEventListener("click", async (e) => {
+        const b = e.target.closest("[data-link]"); if (b && b.dataset.link === "tg") return linkTelegram();
+        const u = e.target.closest("[data-unl]"); if (!u) return;
+        const w = u.dataset.unl === "google" ? "Google" : "Telegram";
+        if (!confirm(L("Отвязать " + w + " от этого аккаунта?\n\nВойти в аккаунт можно будет только через " + (w === "Google" ? "Telegram" : "Google") + ". Если потом войти через " + w + ", создастся новый, отдельный аккаунт." + (w === "Telegram" ? " Напоминания в Telegram перестанут приходить." : ""),
+            "Unlink " + w + " from this account?\n\nYou will be able to sign in only with " + (w === "Google" ? "Telegram" : "Google") + ". Signing in with " + w + " later will create a new, separate account." + (w === "Telegram" ? " Telegram reminders will stop." : "")))) return;
+        try { const r = await pfTgFetch("unl", { what: u.dataset.unl }); if (r.ok && r.j.ok) { idents = r.j.idents; accDraw(); amsg(L(w + " отвязан.", w + " unlinked.")); window.dispatchEvent(new Event("wolfich-acct")); } else amsg((r.j && r.j.error) || L("Не получилось", "Failed"), true); }
+        catch (er) { amsg(L("Нет связи с сервером", "No connection to the server"), true); }
+    });
     window.wolfichLinkTelegram = linkTelegram;
 
     // профиль: только аккаунт (профили по нику больше не создаются), «Выйти» вместо «Сменить профиль»
