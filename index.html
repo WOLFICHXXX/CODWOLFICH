@@ -2648,6 +2648,8 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .pf-acc-m{font-size:.82rem;padding:3px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
 .pf-acc-m.on{border-color:rgba(110,190,140,.6);color:#bfe8cc}
 .pf-acc-g{display:inline-flex}
+.pf-acc-cf{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--gold);background:rgba(217,164,65,.08);font-size:.86rem;line-height:1.45}
+.pf-acc-cfb{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .pf-acc-u{background:none;border:0;padding:0 6px 0 0;color:var(--muted);font:inherit;font-size:.78rem;text-decoration:underline;cursor:pointer}
 .pf-acc-u:hover{color:#ffb3b3}
 .pf-acc-msg{font-size:.84rem;margin-top:6px;color:var(--gold-light)}
@@ -13654,7 +13656,10 @@ pfSyncSoon(true);
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="tg">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
             '<span class="pf-acc-m' + (I.google ? " on" : "") + '">Google ' + (I.google ? "✓" : "") + "</span>" + (idents && !I.google ? '<span class="pf-acc-g"></span>' : "") +
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="google">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
-            '</div><div class="pf-acc-msg"></div><div class="pf-acc-n">' + esc(L("Привязанным способом можно входить в этот же аккаунт с любого устройства.", "You can sign in to this same account with any linked method on any device.")) + "</div>";
+            "</div>" + (tlConf ? '<div class="pf-acc-cf"><div>' + esc(L("Этот Telegram уже зарегистрирован на сайте отдельным аккаунтом" + (tlConf.name ? " «" + tlConf.name + "»" : "") + ". Перенести его в этот аккаунт? Дальше вход через Telegram будет открывать этот аккаунт. Напоминания перейдут сюда, профиль — если здесь он пуст. Альянсы и планеры того аккаунта останутся за ним.",
+                "This Telegram is already registered on the site as a separate account" + (tlConf.name ? " “" + tlConf.name + "”" : "") + ". Move it into this account? Signing in with Telegram will then open this account. Reminders move here, the profile too if this one is empty. Alliances and planners of that account stay with it.")) +
+                '</div><div class="pf-acc-cfb"><button type="button" class="btn small" data-tlmove="1">' + esc(L("Перенести", "Move")) + '</button><button type="button" class="btn secondary small" data-tlno="1">' + esc(L("Отмена", "Cancel")) + "</button></div></div>" : "") +
+            '<div class="pf-acc-msg"></div><div class="pf-acc-n">' + esc(L("Привязанным способом можно входить в этот же аккаунт с любого устройства.", "You can sign in to this same account with any linked method on any device.")) + "</div>";
         const gb = acc.querySelector(".pf-acc-g"); if (gb) googleButton(gb, linkGoogle, amsg);
     }
     const moveAsk = (what, name) => confirm(L(what + " уже зарегистрирован на сайте отдельным аккаунтом" + (name ? " «" + name + "»" : "") + ".\n\nПеренести его в этот аккаунт? Дальше вход через " + what + " будет открывать этот аккаунт. Напоминания перейдут сюда, профиль (герои и расчёты) — если здесь он пуст. Альянсы и планеры того аккаунта останутся за ним.",
@@ -13668,33 +13673,50 @@ pfSyncSoon(true);
             amsg((r.j && r.j.error) || L("Не получилось", "Failed"), true);
         } catch (e) { amsg(L("Нет связи с сервером", "No connection to the server"), true); }
     }
-    let tlTimer = 0;
+    /* привязка Telegram: код ждёт «Старт» у бота; проверка — раз в 2 с и сразу при возврате на вкладку; код помнится 30 мин (переживает перезагрузку) */
+    const TLK = "wolfich_tlink";
+    let tlTimer = 0, tlBusy = false, tlConf = null;
+    const tlGet = () => { try { const o = JSON.parse(sessionStorage.getItem(TLK) || "null"); return o && o.code && Date.now() - o.at < 1800000 ? o : null; } catch (e) { return null; } };
+    const tlSet = (o) => { try { if (o) sessionStorage.setItem(TLK, JSON.stringify(o)); else sessionStorage.removeItem(TLK); } catch (e) {} };
+    async function tlCheck() {
+        const p = tlGet(); if (!p || tlBusy || !pfTg()) return;
+        tlBusy = true;
+        try {
+            const r = await pfTgFetch("tlpoll", { code: p.code });
+            if (r.j && r.j.ok) { tlStop(); idents = r.j.idents; accDraw(); amsg(L("Telegram привязан.", "Telegram linked.")); window.dispatchEvent(new Event("wolfich-acct")); }
+            else if (r.j && r.j.conflict) { clearInterval(tlTimer); tlConf = { code: p.code, name: r.j.name || "" }; accDraw(); }
+            else if (r.j && r.j.error) { tlStop(); amsg(r.j.error, true); }
+        } catch (e) { /* нет связи — повторим */ } finally { tlBusy = false; }
+    }
+    function tlStop() { clearInterval(tlTimer); tlSet(null); tlConf = null; }
+    function tlWatch() { clearInterval(tlTimer); let n = 0; tlTimer = setInterval(() => { if (++n > 150) { clearInterval(tlTimer); return; } tlCheck(); }, 2000); }
     async function linkTelegram() {
         const cfg = window.WOLFICH_TG || {}; if (!cfg.bot) return;
         const a = new Uint8Array(16); crypto.getRandomValues(a); const code = Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
         try { const r = await pfTgFetch("tlreq", { code }); if (!r.ok) return amsg((r.j && r.j.error) || L("Не получилось", "Failed"), true); } catch (e) { return amsg(L("Нет связи с сервером", "No connection to the server"), true); }
+        tlConf = null; tlSet({ code, at: Date.now() });
         const url = "https://t.me/" + cfg.bot + "?start=link_" + code;
         amsg(L("Открылся Telegram: нажмите «Старт» у бота и вернитесь сюда.", "Telegram opened: press “Start” in the bot and come back here."));
         if (!window.open(url, "_blank")) location.href = url;
-        clearInterval(tlTimer); let n = 0;
-        tlTimer = setInterval(async () => {
-            if (++n > 90) { clearInterval(tlTimer); return amsg(L("Время ожидания вышло. Нажмите ещё раз.", "Timed out. Press again."), true); }
-            try {
-                const r = await pfTgFetch("tlpoll", { code });
-                if (r.j && r.j.ok) { clearInterval(tlTimer); idents = r.j.idents; accDraw(); amsg(L("Telegram привязан.", "Telegram linked.")); window.dispatchEvent(new Event("wolfich-acct")); }
-                else if (r.j && r.j.conflict) {
-                    clearInterval(tlTimer); amsg("");
-                    if (!moveAsk("Telegram", r.j.name)) return amsg(L("Telegram не привязан.", "Telegram not linked."));
-                    const m = await pfTgFetch("tlmove", { code });
-                    if (m.j && m.j.ok) { idents = m.j.idents; accDraw(); amsg(L("Telegram перенесён в этот аккаунт.", "Telegram moved into this account.")); window.dispatchEvent(new Event("wolfich-acct")); pfSyncSoon(true); }
-                    else amsg((m.j && m.j.error) || L("Не получилось", "Failed"), true);
-                }
-                else if (r.j && r.j.error) { clearInterval(tlTimer); amsg(r.j.error, true); }
-            } catch (e) {}
-        }, 2000);
+        tlWatch();
     }
+    async function tlMove() {
+        const c = tlConf; if (!c) return;
+        amsg(L("Переношу…", "Moving…"));
+        try {
+            const m = await pfTgFetch("tlmove", { code: c.code });
+            if (m.j && m.j.ok) { tlStop(); idents = m.j.idents; accDraw(); amsg(L("Telegram перенесён в этот аккаунт.", "Telegram moved into this account.")); window.dispatchEvent(new Event("wolfich-acct")); pfSyncSoon(true); }
+            else { tlStop(); accDraw(); amsg((m.j && m.j.error) || L("Не получилось", "Failed"), true); }
+        } catch (e) { amsg(L("Нет связи с сервером", "No connection to the server"), true); }
+    }
+    document.addEventListener("visibilitychange", () => { if (!document.hidden && tlGet() && !tlConf) { tlCheck(); if (!tlTimer) tlWatch(); } });
+    window.addEventListener("focus", () => { if (tlGet() && !tlConf) tlCheck(); });
+    window.wolfichLinkTelegram = linkTelegram;
+
     acc.addEventListener("click", async (e) => {
         const b = e.target.closest("[data-link]"); if (b && b.dataset.link === "tg") return linkTelegram();
+        if (e.target.closest("[data-tlmove]")) return tlMove();
+        if (e.target.closest("[data-tlno]")) { tlStop(); accDraw(); return amsg(L("Telegram не привязан.", "Telegram not linked.")); }
         const u = e.target.closest("[data-unl]"); if (!u) return;
         const w = u.dataset.unl === "google" ? "Google" : "Telegram";
         if (!confirm(L("Отвязать " + w + " от этого аккаунта?\n\nВойти в аккаунт можно будет только через " + (w === "Google" ? "Telegram" : "Google") + ". Если потом войти через " + w + ", создастся новый, отдельный аккаунт." + (w === "Telegram" ? " Напоминания в Telegram перестанут приходить." : ""),
@@ -13724,7 +13746,7 @@ pfSyncSoon(true);
 
     function sync() {
         const t = pfTg();
-        if (t) { closeGate(false); enterAccount(); loadIdents(); if (want) { const p = want; want = null; const b = document.querySelector('.nav-item[data-page="' + p + '"]'); if (b) b.click(); if (/(?:^|#)(ally|row)=/.test(location.hash)) window.dispatchEvent(new HashChangeEvent("hashchange")); } }
+        if (t) { closeGate(false); enterAccount(); loadIdents(); if (tlGet() && !tlConf) { tlCheck(); tlWatch(); } if (want) { const p = want; want = null; const b = document.querySelector('.nav-item[data-page="' + p + '"]'); if (b) b.click(); if (/(?:^|#)(ally|row)=/.test(location.hash)) window.dispatchEvent(new HashChangeEvent("hashchange")); } }
         else { idents = null; if (pf.user) pfLogout(); accDraw(); enforce(); }
         accDraw(); pfTgRender();
     }
