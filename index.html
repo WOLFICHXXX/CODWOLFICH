@@ -2777,6 +2777,12 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-pt{position:relative;border:0;border-radius:999px;padding:6px 14px;background:none;color:var(--muted);font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;white-space:nowrap}
 .rw-pt:hover{color:var(--gold-light)}
 .rw-pt.on{background:linear-gradient(180deg,#ffe39a,#d9a441);color:#2a1a00}
+.rw-sv{margin-left:4px;border:1px solid rgba(120,200,140,.45);border-radius:999px;padding:5px 13px;background:rgba(60,140,80,.18);color:#bfe8cc;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.rw-sv:disabled{cursor:default;opacity:.85}
+.rw-sv.dirty{border-color:#f0c878;background:linear-gradient(180deg,#efc269,#c98f36);color:#2b1704;animation:rwSvP 1.6s ease-in-out infinite}
+.rw-sv.rw-oth{border-color:rgba(110,165,255,.6);background:rgba(61,139,253,.22);color:#d6e5ff}
+@keyframes rwSvP{0%,100%{box-shadow:0 0 0 0 rgba(240,200,120,.55)}50%{box-shadow:0 0 0 6px rgba(240,200,120,0)}}
+@media (max-width:720px){.rw-sv{padding:3px 9px;font-size:.72rem}}
 .rw-pt.has:not(.on)::after{content:"";position:absolute;right:6px;top:6px;width:6px;height:6px;border-radius:50%;background:#f0b94a}
 .rw-sh2{margin-top:14px}
 .rw-sz{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:.84rem;color:var(--muted)}.rw-sz input{flex:1;accent-color:#d9a441}.rw-sz b{min-width:42px;text-align:right;color:var(--gold-light);font-weight:600}
@@ -16850,24 +16856,13 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     async function saveAll(d, noHist) {   // план целиком: очистка карты и её отмена
         if (!noHist) histPush({ t: "all", before: cl(pdata()), after: cl(d) });
         if (!pop.hidden) popClose(); if (typeof mpClose === "function") mpClose();
-        try {
-            let r;
-            if (st.plan.kind === "a") { const c = allyCred(st.plan.id); r = await call("/al", { op: "rowall", id: st.plan.id, tok: c.tok, mid: c.mid, k: c.k, t: st.plan.t, pl: st.plan.pl, data: d }); }
-            else r = await call("/row", { op: "all", id: st.plan.id, tok: st.plan.tok, pl: st.plan.pl, data: d });
-            if (!r.ok) { alert(EN() && window.WI18N.tr ? window.WI18N.tr(r.err || "Ошибка") : (r.err || "Ошибка")); return false; }
-            st.plan.data.data = r.data || {}; sOpen.clear(); paint(); return true;
-        } catch (err) { alert(L("Нет связи с сервером — изменение не сохранено.", "No connection to the server — the change was not saved.")); return false; }
+        st.plan.data.data = cl(d) || {}; dirty(); sOpen.clear(); paint(); return true;   // только у себя — на сервер уходит по кнопке «Сохранить»
     }
     async function saveB(i, e, noHist) {
         if (!noHist) histPush({ t: "b", i, before: cl(entry(i)), after: cl(e) });
-        const pm = pop.querySelector(".rw-pm"); if (pm) pm.innerHTML = '<div class="al-note">' + L("Сохраняю…", "Saving…") + "</div>";
-        try {
-            let r;
-            if (st.plan.kind === "a") { const c = allyCred(st.plan.id); r = await call("/al", { op: "rowsave", id: st.plan.id, tok: c.tok, mid: c.mid, k: c.k, t: st.plan.t, pl: st.plan.pl, b: i, e }); }
-            else r = await call("/row", { op: "save", id: st.plan.id, tok: st.plan.tok, pl: st.plan.pl, b: i, e });
-            if (!r.ok) { if (pm) pm.innerHTML = msg(EN() && window.WI18N.tr ? window.WI18N.tr(r.err || "Ошибка") : (r.err || "Ошибка"), true); return false; }
-            st.plan.data.data = r.data || {}; pv.view = "menu"; popDraw(); paint(); return true;
-        } catch (err) { if (pm) pm.innerHTML = msg(L("Нет связи с сервером.", "No connection to the server."), true); return false; }
+        const d = st.plan.data.data = st.plan.data.data || {}; d.b = d.b || {}; e = cl(e) || {};
+        if ((e.a && e.a.length) || e.note) d.b[i] = e; else delete d.b[i];
+        dirty(); pv.view = "menu"; if (!pop.hidden) popDraw(); paint(); return true;
     }
     const withA = (i, x) => { const e = Object.assign({}, tgEntry(i)); e.a = (e.a || []).concat([x]); return e; };
     pop.addEventListener("click", (ev) => {
@@ -16904,17 +16899,41 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     setInterval(async () => {   // наблюдатели и другие офицеры видят изменения: раз в 30 с, пока открыт планер и меню не редактируется
         if (!st.plan || document.hidden || !page.classList.contains("active")) return;
         if (!pop.hidden && pv.view !== "menu") return;
-        if (tacBusy()) return;
+        if (tacBusy() || st.plan.dirty) return;
+        await planReload();
+    }, 60000);
+    async function planReload(force) {   // свежая карта с сервера (после «Сохранить» у другого редактора, или раз в минуту)
+        if (!st.plan || (st.plan.dirty && !force)) return;
         try {
             const pl = st.plan; let j;
             if (pl.kind === "a") { const c = allyCred(pl.id); if (!c) return; j = await call("/al", { op: "rowget", id: pl.id, tok: c.tok, mid: c.mid, k: c.k, t: pl.t, pl: pl.pl }); }
             else j = await call("/row", { op: "get", id: pl.id, tok: pl.tok, pl: pl.pl });
-            if (!j.ok || st.plan !== pl || (j.pl || "A") !== (pl.pl || "A")) return;
+            if (!j.ok || st.plan !== pl || (j.pl || "A") !== (pl.pl || "A") || (pl.dirty && !force) || tacBusy()) return;
             if (j.plans) pl.data.plans = j.plans;
             if (pl.kind === "a") { pl.data.data = j.data; if (j.members) pl.data.members = j.members; } else pl.data.data = j.data;
-            paint(); if (!pop.hidden && pv.view === "menu") popDraw();
+            pl.dirty = false; pl.other = false; paint(); if (!pop.hidden && pv.view === "menu") popDraw();
         } catch (e) { /* нет связи — попробуем позже */ }
-    }, 30000);
+    }
+    /* ---- черновик редактора: правки только у себя, кнопка «Сохранить» отправляет план целиком — у всех карта перезагружается ---- */
+    function dirty() { if (st.plan) { st.plan.dirty = true; } }
+    async function planSave() {
+        const pl = st.plan; if (!pl || !pl.dirty || pl.saving) return true;
+        pl.saving = true; plansDraw(); let r = null;
+        try {
+            const d = pl.data.data || {};
+            if (pl.kind === "a") { const c = allyCred(pl.id); r = await call("/al", { op: "rowall", id: pl.id, tok: c.tok, mid: c.mid, k: c.k, t: pl.t, pl: pl.pl, data: d }); }
+            else r = await call("/row", { op: "all", id: pl.id, tok: pl.tok, pl: pl.pl, data: d });
+        } catch (e) { r = null; }
+        pl.saving = false;
+        if (!r || !r.ok) { plansDraw(); alert(r ? (EN() && window.WI18N.tr ? window.WI18N.tr(r.err || "Ошибка") : (r.err || "Ошибка")) : L("Нет связи с сервером — карта не сохранена. Попробуйте ещё раз.", "No connection to the server — the map was not saved. Try again.")); return false; }
+        if (st.plan === pl) {
+            if (!tac.drag && !tac.draw) pl.data.data = r.data || pl.data.data;
+            pl.dirty = false; pl.other = false; pl.savedAt = Date.now(); pl.data.plans = Object.assign({}, pl.data.plans || {}, { [pl.pl || "A"]: hasData(pl.data.data) });
+            paint(); if (typeof chatTick === "function") chatTick(true, "", false, pl.pl || "A");   // сигнал остальным: «карта сохранена»
+        }
+        return true;
+    }
+    window.addEventListener("beforeunload", (e) => { if (st.plan && st.plan.dirty) { e.preventDefault(); e.returnValue = ""; } });
 
     /* ---- План А / Б / В: у каждого плана свои назначения, метки и стрелки ---- */
     const plMem = {};   // последний открытый план карты (на время сессии)
@@ -16924,11 +16943,22 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     function plansDraw() {
         const on = !!(st.plan && stage.classList.contains("done")); plans.hidden = !on; if (!on) return;
         const cur = st.plan.pl || "A", fl = Object.assign({}, st.plan.data.plans || {}); fl[cur] = hasData(pdata());
-        plans.innerHTML = Object.keys(PLN).map((k) => '<button type="button" class="rw-pt' + (k === cur ? " on" : "") + (fl[k] ? " has" : "") + '" data-pl="' + k + '">' + (EN() ? PLN[k][1] : PLN[k][0]) + "</button>").join("");
+        plans.innerHTML = Object.keys(PLN).map((k) => '<button type="button" class="rw-pt' + (k === cur ? " on" : "") + (fl[k] ? " has" : "") + '" data-pl="' + k + '">' + (EN() ? PLN[k][1] : PLN[k][0]) + "</button>").join("") +
+            (canEdit() ? '<button type="button" class="rw-sv' + (st.plan.dirty ? " dirty" : "") + '" data-sv="1"' + (st.plan.dirty && !st.plan.saving ? "" : " disabled") + ' title="' + esc(st.plan.dirty ? L("Отправить изменения — карта обновится у всех", "Send the changes — the map updates for everyone") : L("Все изменения сохранены", "All changes are saved")) + '">' +
+                (st.plan.saving ? L("Сохраняю…", "Saving…") : st.plan.dirty ? "💾 " + L("Сохранить", "Save") : "✓ " + L("Сохранено", "Saved")) + "</button>" : "") +
+            (st.plan.other ? '<button type="button" class="rw-sv rw-oth" data-oth="1" title="' + esc(L("Другой редактор сохранил карту. Загрузить его версию? Ваши несохранённые изменения пропадут.", "Another editor saved the map. Load their version? Your unsaved changes will be lost.")) + '">⟳ ' + L("Новая версия", "New version") + "</button>" : "");
     }
     plans.addEventListener("click", async (ev) => {
-        ev.stopPropagation(); const b = ev.target.closest("[data-pl]"); if (!b || !st.plan) return;
+        ev.stopPropagation();
+        if (ev.target.closest("[data-sv]")) { planSave(); return; }
+        if (ev.target.closest("[data-oth]")) { if (confirm(L("Другой редактор сохранил карту. Загрузить его версию? Ваши несохранённые изменения пропадут.", "Another editor saved the map. Load their version? Your unsaved changes will be lost."))) planReload(true); return; }
+        const b = ev.target.closest("[data-pl]"); if (!b || !st.plan) return;
         const want = b.dataset.pl, pl = st.plan; if ((pl.pl || "A") === want) return;
+        if (pl.dirty) {   // несохранённые правки текущего плана
+            if (confirm(L("На карте есть несохранённые изменения. Сохранить их перед переключением?", "The map has unsaved changes. Save them before switching?"))) { if (!(await planSave())) return; }
+            else if (!confirm(L("Переключить план без сохранения? Изменения пропадут.", "Switch the plan without saving? The changes will be lost."))) return;
+            pl.dirty = false;
+        }
         plans.classList.add("busy");
         try {
             let j;
@@ -17016,14 +17046,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     async function tacSave(kind, id, v, noHist) {
         const d = st.plan.data.data = st.plan.data.data || {}; d[kind] = d[kind] || {};
         if (!noHist) histPush({ t: "m", kind, id, before: cl(d[kind][id]), after: cl(v) });
-        if (v) d[kind][id] = v; else delete d[kind][id]; tacDraw();
-        try {
-            let r;
-            if (st.plan.kind === "a") { const c = allyCred(st.plan.id); r = await call("/al", { op: "rowmark", id: st.plan.id, tok: c.tok, mid: c.mid, k: c.k, t: st.plan.t, pl: st.plan.pl, kind, mid2: id, v }); }
-            else r = await call("/row", { op: "mark", id: st.plan.id, tok: st.plan.tok, pl: st.plan.pl, kind, mid2: id, v });
-            if (!r.ok) { alert(EN() && window.WI18N.tr ? window.WI18N.tr(r.err || "Ошибка") : (r.err || "Ошибка")); return; }
-            if (!tac.drag && !tac.draw) { st.plan.data.data = r.data || {}; paint(); }
-        } catch (e) { alert(L("Нет связи с сервером — изменение не сохранено.", "No connection to the server — the change was not saved.")); }
+        if (v) d[kind][id] = v; else delete d[kind][id]; dirty(); tacDraw(); plansDraw();
     }
     tools.addEventListener("click", (ev) => {
         ev.stopPropagation(); const b = ev.target.closest("button"); if (!b) return;
@@ -17235,7 +17258,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     function chatScroll(force) { const l = $("rwChL"); if (!l) return; if (force || l.scrollHeight - l.scrollTop - l.clientHeight < 120) l.scrollTop = l.scrollHeight; }
     function chatDraw(stick) {
         const on = !!(st.plan && st.plan.rt && stage.classList.contains("done") && chat.room === roomOf() && chat.room); chatEl.hidden = !on; if (!on) return;
-        const rd = rdGet(chat.room), unread = chat.list.filter((m) => m.id > rd && !m.me && !m.sys).length, n = $("rwChN");
+        const rd = rdGet(chat.room), unread = chat.list.filter((m) => m.id > rd && !m.me && !m.sys).length, shown = chat.list.filter((m) => m.sys !== "upd"), n = $("rwChN");
         n.hidden = !unread || chat.open; n.textContent = unread > 99 ? "99+" : unread;
         $("rwChB").title = L("Чат карты", "Map chat"); $("rwChB").classList.toggle("on", chat.open);
         $("rwChP").hidden = !chat.open; chatEl.classList.toggle("open", chat.open); if (!chat.open) return;
@@ -17245,23 +17268,27 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         $("rwChC").hidden = !canEdit(); $("rwChC").title = L("Очистить чат для всех", "Clear the chat for everyone");
         $("rwChLgW").title = L("Автоперевод сообщений и заметок на этот язык", "Auto-translate messages and notes into this language");
         const l = $("rwChL"), keep = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
-        l.innerHTML = chat.list.length ? chat.list.map((m) => m.sys ? '<div class="rw-chsys">' + esc(L("Чат очищен", "Chat cleared") + (m.name ? " — " + m.name : "") + " · " + hhmm(m.at)) + "</div>" : '<div class="rw-chm' + (m.me ? " me" : "") + '"><div class="rw-chm-h"><b>' + esc(m.name || "—") + "</b><small>" + hhmm(m.at) + '</small></div><div class="rw-chm-t">' + esc(m.text) + "</div>" + (m.me ? "" : trHtml(m.text)) + "</div>").join("")
+        l.innerHTML = shown.length ? shown.map((m) => m.sys ? '<div class="rw-chsys">' + esc(L("Чат очищен", "Chat cleared") + (m.name ? " — " + m.name : "") + " · " + hhmm(m.at)) + "</div>" : '<div class="rw-chm' + (m.me ? " me" : "") + '"><div class="rw-chm-h"><b>' + esc(m.name || "—") + "</b><small>" + hhmm(m.at) + '</small></div><div class="rw-chm-t">' + esc(m.text) + "</div>" + (m.me ? "" : trHtml(m.text)) + "</div>").join("")
             : '<div class="al-note">' + L("Сообщений пока нет. Пишите — увидят все, кто открыл эту карту.", "No messages yet. Everyone who opened this map will see what you write.") + "</div>";
         if (chat.err) l.innerHTML += '<div class="tk-msg err" style="display:block">' + esc(chat.err) + "</div>";
         if (trBad) l.innerHTML += '<div class="al-note rw-trbad">🌐 ' + esc(L("Автоперевод сейчас недоступен — сервер перевода не ответил.", "Auto-translation is unavailable right now — the translation server did not respond.")) + "</div>";
         if (stick || keep) l.scrollTop = l.scrollHeight;
         const last = chat.list.length ? chat.list[chat.list.length - 1].id : 0; if (last) rdSet(chat.room, last);
     }
-    async function chatTick(force, text, clear) {
+    async function chatTick(force, text, clear, upd) {
         const room = st.plan && st.plan.rt && stage.classList.contains("done") && page.classList.contains("active") && !document.hidden ? roomOf() : "";
-        if (room !== chat.room) { chat.room = room; chat.list = []; chat.last = 0; chat.err = ""; chat.at = 0; }
+        if (room !== chat.room) { chat.room = room; chat.list = []; chat.last = 0; chat.err = ""; chat.at = 0; chat.loaded = false; }
         if (!room) { chatDraw(); return; }
-        if (chat.busy || (!force && !text && !clear && Date.now() - chat.at < (chat.open ? 3500 : 12000))) return;
-        chat.busy = true; const j = await ntCall("chat", { room, rt: st.plan.rt, since: chat.last, name: myName(), text: text || "", clear: clear ? 1 : 0 }); chat.busy = false; chat.at = Date.now();
+        if ((chat.busy && !upd) || (!force && !text && !clear && Date.now() - chat.at < (chat.open ? 3500 : 6000))) return;
+        chat.busy = true; const j = await ntCall("chat", { room, rt: st.plan.rt, since: chat.last, name: myName(), text: text || "", clear: clear ? 1 : 0, upd: upd ? 1 : 0, pl: upd || "" }); chat.busy = false; chat.at = Date.now();
         if (room !== chat.room) return;
         if (!j || !j.ok) { if (text || clear) chat.err = (j && j.error) || L("Не отправлено — нет связи.", "Not sent — no connection."); chatDraw(); return false; }
         chat.err = "";
-        const add = (j.list || []).filter((m) => m.id > chat.last); if (add.length) { let l = chat.list.concat(add); for (let k = l.length - 1; k >= 0; k--) if (l[k].sys === "clr") { l = l.slice(k); break; } chat.list = l.slice(-200); chat.last = add[add.length - 1].id; }
+        const first = !chat.loaded; chat.loaded = true; const add = (j.list || []).filter((m) => m.id > chat.last);
+        if (!first && !upd && add.some((m) => m.sys === "upd" && (m.pl || "A") === ((st.plan && st.plan.pl) || "A"))) {   // другой редактор сохранил этот план
+            if (st.plan && st.plan.dirty) { st.plan.other = true; plansDraw(); } else planReload(true);
+        }
+        if (add.length) { let l = chat.list.concat(add); for (let k = l.length - 1; k >= 0; k--) if (l[k].sys === "clr") { l = l.slice(k); break; } chat.list = l.slice(-200); chat.last = add[add.length - 1].id; }
         if (add.length || force || text || clear) chatDraw(!!text);
         return true;
     }
@@ -17352,7 +17379,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         } catch (e) { panel.innerHTML = msg(L("Нет связи с сервером. Попробуйте позже.", "No connection to the server. Try again later."), true) + backBtn(); bindBack(); }
     }
     const backBtn = () => '<button class="btn secondary small" id="rwBack" type="button">' + L("← Назад", "← Back") + "</button>";
-    const bindBack = () => { const b = $("rwBack"); if (b) b.addEventListener("click", () => { st.plan = null; popClose(); history.replaceState(null, "", location.pathname + location.search); setView("start"); }); };
+    const leaveOk = () => !(st.plan && st.plan.dirty) || confirm(L("На карте есть несохранённые изменения. Уйти без сохранения? Изменения пропадут.", "The map has unsaved changes. Leave without saving? The changes will be lost."));
+    const bindBack = () => { const b = $("rwBack"); if (b) b.addEventListener("click", () => { if (!leaveOk()) return; st.plan = null; popClose(); history.replaceState(null, "", location.pathname + location.search); setView("start"); }); };
 
     function showAlly(j) {
         if (!pop.hidden) popClose(); setTimeout(paint, 0);
@@ -17442,7 +17470,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         h += '<div class="al-note">' + L("Участников в альянсе: ", "Alliance members: ") + j.members.length + L(", офицеров и R4/R5: ", ", officers and R4/R5: ") + off + ".</div>";
         panel.innerHTML = h;
         bindCopy();
-        $("rwToAlly").addEventListener("click", () => { history.replaceState(null, "", location.pathname + location.search); openAlly(j.id); });
+        $("rwToAlly").addEventListener("click", () => { if (!leaveOk()) return; st.plan.dirty = false; history.replaceState(null, "", location.pathname + location.search); openAlly(j.id); });
         const rd = panel.querySelector(".rw-red"); if (rd) rd.addEventListener("toggle", () => { st.redOpen = rd.open; });
         panel.querySelectorAll("[data-red]").forEach((cb) => cb.addEventListener("change", async () => {
             cb.disabled = true;
