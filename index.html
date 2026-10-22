@@ -2576,6 +2576,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-bd img{position:absolute;left:-33.33%;top:-2.1%;width:166.67%;height:auto;max-width:none;opacity:0;transform:scale(1);transform-origin:50% 97%;transition:opacity .22s ease,transform .28s cubic-bezier(.3,1.4,.5,1),filter .28s ease;pointer-events:none;user-select:none}
 @media (hover:hover){.rw-bd:hover{z-index:200!important}.rw-bd:hover img{opacity:1;transform:scale(1.22)}}
 .rw-bd:focus-visible img{opacity:1;transform:scale(1.22)}
+.rw-bd.hov{z-index:200!important}.rw-bd.hov img{opacity:1;transform:scale(1.22)}
 .rw-bd.pin{z-index:150!important}
 .rw-bd.pin img{opacity:1;transform:scale(1.3);filter:drop-shadow(0 0 6px rgba(255,214,110,.85)) drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 @media (prefers-reduced-motion:reduce){.rw-bd img{transition:opacity .15s ease}}
@@ -16273,7 +16274,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         let h = '<div class="rw-sh">' + L("Здания", "Buildings") + "</div>";
         h += bList().map((i) => {
             const e = entry(i), n = (e.a || []).length, op = sOpen.has(i);
-            let r = '<div class="rw-si' + (op ? " on" : "") + (n || e.note ? " has" : "") + '"><button type="button" class="rw-st2" data-sb="' + i + '"><span class="rw-si-n">' + esc(bName(i)) + "</span>" +
+            let r = '<div class="rw-si' + (op ? " on" : "") + (n || e.note ? " has" : "") + '" data-si="' + i + '"><button type="button" class="rw-st2" data-sb="' + i + '"><span class="rw-si-n">' + esc(bName(i)) + "</span>" +
                 '<span class="rw-si-b">' + (n ? "<i>" + n + "</i>" : '<i class="z">0</i>') + (e.note ? '<i class="nt">✎</i>' : "") + '</span><span class="rw-si-a">▾</span></button>';
             if (op) {
                 r += '<div class="rw-sd">' + ((e.a || []).length ? '<div class="rw-asl">' + e.a.map((x, k) => aLine(x, k, false)).join("") + "</div>" : '<div class="al-note">' + L("Никто не назначен", "Nobody assigned") + "</div>") +
@@ -16290,6 +16291,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (t.dataset.se != null) return popOpen(+t.dataset.se);
         if (t.dataset.sb != null) { const i = +t.dataset.sb; if (sOpen.has(i)) sOpen.delete(i); else sOpen.add(i); if (!pop.hidden) popClose(); else paint(); }
     });
+    const hovB = (i, on) => { const b = stage.querySelector('.rw-bd[data-b="' + i + '"]'); if (b) b.classList.toggle("hov", on); };   // наведение на строку списка — подсветка здания
+    if (side) {
+        side.addEventListener("mouseover", (ev) => { const r = ev.target.closest(".rw-si"); if (r && !r.contains(ev.relatedTarget)) hovB(r.dataset.si, true); });
+        side.addEventListener("mouseout", (ev) => { const r = ev.target.closest(".rw-si"); if (r && !r.contains(ev.relatedTarget)) hovB(r.dataset.si, false); });
+    }
     function popClose() { pop.hidden = true; pv.i = -1; paint(); }
     function popOpen(i) { pv = { i, view: "menu", who: null, q: "" }; pop.hidden = false; popDraw(); paint(); }
     function place() {   // рядом со зданием: снизу, а у нижней половины карты — сверху
