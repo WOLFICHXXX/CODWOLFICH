@@ -2642,6 +2642,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-tb svg{width:22px;height:22px}
 .rw-tb img{width:32px;height:32px;object-fit:contain}
 .rw-tb:hover{border-color:var(--gold);background:rgba(217,164,65,.14)}
+.rw-tb:disabled{opacity:.35;cursor:default;border-color:rgba(255,255,255,.08);background:none}
 .rw-tb.on{border-color:var(--gold);background:rgba(217,164,65,.28);box-shadow:0 0 0 1px var(--gold) inset,0 0 12px rgba(247,210,120,.35)}
 .rw-col i{width:22px;height:22px;border-radius:50%;border:2px solid #fff3;box-shadow:0 0 0 1px #0008}
 .rw-tsep{height:1px;background:rgba(217,164,65,.35);margin:2px 4px}
@@ -16396,7 +16397,20 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         return ms.length ? ms.map((m) => '<button type="button" class="rw-mi" data-mid="' + esc(m.mid) + '"><b>' + esc(m.nick) + "</b><small>" + (m.power ? fmt(m.power) + " · " : "") + L("маршей: ", "marches: ") + ((m.marches || []).length) + "</small></button>").join("")
             : '<div class="al-note">' + L("Никого не нашёл", "Nobody found") + "</div>";
     }
-    async function saveB(i, e) {
+    /* ---- отмена / возврат изменений (здания, метки, стрелки): история своих действий в этом планере ---- */
+    let hist = { key: "", u: [], r: [] };
+    const planKey = () => (st.plan ? st.plan.kind + ":" + st.plan.id + ":" + (st.plan.t || "") : "");
+    const cl = (o) => (o == null ? null : JSON.parse(JSON.stringify(o)));
+    function histPush(x) { const k = planKey(); if (hist.key !== k) hist = { key: k, u: [], r: [] }; hist.u.push(x); if (hist.u.length > 60) hist.u.shift(); hist.r = []; tacDraw(); }
+    async function histGo(back) {
+        if (!st.plan || hist.key !== planKey()) return;
+        const from = back ? hist.u : hist.r, to = back ? hist.r : hist.u, x = from.pop(); if (!x) return;
+        to.push(x); const v = back ? x.before : x.after;
+        if (x.t === "b") await saveB(x.i, v || {}, true); else await tacSave(x.kind, x.id, v, true);
+        tacDraw();
+    }
+    async function saveB(i, e, noHist) {
+        if (!noHist) histPush({ t: "b", i, before: cl(entry(i)), after: cl(e) });
         const pm = pop.querySelector(".rw-pm"); if (pm) pm.innerHTML = '<div class="al-note">' + L("Сохраняю…", "Saving…") + "</div>";
         try {
             let r;
@@ -16503,6 +16517,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 bt("arrow", '<svg viewBox="0 0 24 24"><path d="M3 19c4-1 8-5 11-10l-3-1 8-5-1 9-2-2c-3 5-7 9-12 11z" fill="currentColor"/></svg>', L("Стрелка — проведите от начала к концу", "Arrow — drag from start to end")) +
                 '<button type="button" class="rw-tb rw-col" data-tc="1" title="' + esc(L("Цвет стрелки", "Arrow colour")) + '"><i style="background:' + ACOL[tac.color] + '"></i></button>' +
                 Object.keys(MK).map((t) => bt(t, '<img src="img/row-m-' + t + '.webp" alt="">', mkName(t) + L(" — нажмите на карту", " — click on the map"))).join("") + '<span class="rw-tsep"></span>';
+            const hk = hist.key === planKey();
+            h += '<button type="button" class="rw-tb" data-hu="1"' + (hk && hist.u.length ? "" : " disabled") + ' title="' + esc(L("Отменить (Ctrl+Z)", "Undo (Ctrl+Z)")) + '"><svg viewBox="0 0 24 24"><path d="M9 5L3 10l6 5v-3.2c5 0 8.4 1.4 10.6 5.2C18.8 11.6 15.6 8.4 9 8.2z" fill="currentColor"/></svg></button>' +
+                '<button type="button" class="rw-tb" data-hr="1"' + (hk && hist.r.length ? "" : " disabled") + ' title="' + esc(L("Вернуть (Ctrl+Y)", "Redo (Ctrl+Y)")) + '"><svg viewBox="0 0 24 24"><path d="M15 5l6 5-6 5v-3.2c-5 0-8.4 1.4-10.6 5.2C5.2 11.6 8.4 8.4 15 8.2z" fill="currentColor"/></svg></button><span class="rw-tsep"></span>';
         }
         h += '<button type="button" class="rw-tb" data-big="1" title="' + esc(heroBox.classList.contains("big") ? L("Обычный вид", "Normal view") : L("Увеличить карту", "Enlarge the map")) + '">' + (heroBox.classList.contains("big") ? "⤡" : "⤢") + "</button>";
         tools.innerHTML = h;
@@ -16513,8 +16530,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         tools.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", b.dataset.tm === m));
     }
     const pct = (ev) => { const r = stage.getBoundingClientRect(); return { x: Math.round((ev.clientX - r.left) / r.width * 10000) / 100, y: Math.round((ev.clientY - r.top) / r.height * 10000) / 100 }; };
-    async function tacSave(kind, id, v) {
+    async function tacSave(kind, id, v, noHist) {
         const d = st.plan.data.data = st.plan.data.data || {}; d[kind] = d[kind] || {};
+        if (!noHist) histPush({ t: "m", kind, id, before: cl(d[kind][id]), after: cl(v) });
         if (v) d[kind][id] = v; else delete d[kind][id]; tacDraw();
         try {
             let r;
@@ -16527,6 +16545,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     tools.addEventListener("click", (ev) => {
         ev.stopPropagation(); const b = ev.target.closest("button"); if (!b) return;
         if (b.dataset.tm) { setMode(tac.mode === b.dataset.tm && b.dataset.tm !== "cur" ? "cur" : b.dataset.tm); return; }
+        if (b.dataset.hu) return histGo(true);
+        if (b.dataset.hr) return histGo(false);
         if (b.dataset.tc) { const o = ["r", "b", "g"]; tac.color = o[(o.indexOf(tac.color) + 1) % 3]; if (tac.mode !== "arrow") setMode("arrow"); tacDraw(); return; }
         if (b.dataset.big) {
             heroBox.classList.toggle("big"); tacDraw(); if (!pop.hidden) place(); if (!mp.hidden) mpPlace();
@@ -16609,6 +16629,13 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (b.dataset.ab != null) { o.bend = +b.dataset.ab; tacSave("r", s.id, o); return mpDraw(); }
     });
     document.addEventListener("click", (ev) => { if (!mp.hidden && Date.now() - (tac.mpAt || 0) > 400 && !mp.contains(ev.target) && !ev.target.closest(".rw-mk") && !ev.target.closest("[data-ar]")) mpClose(); });
+    document.addEventListener("keydown", (ev) => {   // Ctrl+Z / Ctrl+Y (Ctrl+Shift+Z) — когда открыт планер и курсор не в поле ввода
+        if (!(ev.ctrlKey || ev.metaKey) || !st.plan || !canEdit() || !page.classList.contains("active")) return;
+        if (/^(INPUT|TEXTAREA|SELECT)$/.test((ev.target && ev.target.tagName) || "")) return;
+        const k = ev.key.toLowerCase(), code = ev.code;
+        if ((k === "z" || code === "KeyZ") && !ev.shiftKey) { ev.preventDefault(); histGo(true); }
+        else if (k === "y" || code === "KeyY" || ((k === "z" || code === "KeyZ") && ev.shiftKey)) { ev.preventDefault(); histGo(false); }
+    });
     document.addEventListener("keydown", (ev) => { if (ev.key !== "Escape") return; if (tac.draw) { tac.draw = null; tacDraw(); } if (tac.mode !== "cur") setMode("cur"); if (!mp.hidden) mpClose(); });
     window.addEventListener("resize", () => { if (!mp.hidden) mpPlace(); });
 
