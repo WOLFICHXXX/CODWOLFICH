@@ -2685,6 +2685,28 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-chlg select{max-width:150px;background:rgba(255,255,255,.06);color:#e8e2f0;border:1px solid rgba(217,164,65,.35);border-radius:8px;padding:3px 6px;font:inherit;font-size:.78rem}
 .rw-chlg select option{background:#1a1428}
 .rw-trbad{font-size:.78rem;text-align:center}
+.rw-chsys{align-self:center;font-size:.74rem;color:var(--muted);padding:2px 10px;border-radius:999px;background:rgba(255,255,255,.04)}
+#rwChC{font-size:.9rem;margin-right:2px}
+#rwChC[hidden]{display:none}
+/* телефоны (портрет и альбом): окна планера компактнее */
+@media (max-width:720px),(max-height:520px){
+ .rw-pop>*,.rw-chp>.rw-chh,.rw-chp>.rw-chl{zoom:.8}
+ .rw-pop input,.rw-pop select,.rw-pop textarea{font-size:20px}
+ .rw-pop .rw-pb .btn{padding:6px 12px}
+ .rw-chb{width:38px;height:38px;font-size:1rem}
+ .rw-chn{min-width:17px;height:17px;line-height:17px;font-size:.64rem;top:-4px;right:-4px}
+ .rw-eyeb{padding:3px 9px;font-size:.76rem}
+ .rw-chf{padding:6px}
+ .rw-chf textarea{min-height:34px;padding:6px 8px;font-size:16px}
+}
+@media (max-width:720px){.rw-pop{max-height:52vh;bottom:58px}.rw-chp{height:52vh}}
+@media (max-height:520px) and (min-width:721px){
+ .rw-pop{position:fixed;z-index:2147483000;left:auto!important;right:8px;top:52px!important;bottom:auto;width:min(300px,46vw);max-height:calc(100vh - 60px)}
+ .rw-chp{position:fixed;right:8px;top:52px;bottom:8px;height:auto;max-height:none;width:min(300px,46vw);z-index:60}
+ .rw-chat.open{z-index:70}
+ .rw-tools{zoom:.68}
+ html.rw-inrow .rw-navt{height:44px;width:18px}
+}
 .rw-chx:hover{color:#fff}
 .rw-chl{flex:1;overflow:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
 .rw-chm{align-self:flex-start;max-width:88%;padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:.88rem;line-height:1.4}
@@ -2781,7 +2803,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-se{margin-top:8px}
 @media (max-width:900px){.row-hero.rw-hs2{grid-template-columns:1fr}.rw-side{position:static;max-height:none}}
 .rw-foot{position:sticky;bottom:-12px;margin:8px -12px -12px!important;padding:8px 12px 12px;background:linear-gradient(180deg,rgba(20,15,32,.85),rgba(20,15,32,.98) 30%);border-top:1px solid rgba(217,164,65,.25)}
-@media (max-width:720px){.rw-pop{position:fixed;z-index:2147483000;left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto;max-height:62vh}.rw-pop input,.rw-pop select,.rw-pop textarea{font-size:16px}}
+@media (max-width:720px){.rw-pop{position:fixed;z-index:2147483000;left:8px!important;right:8px;top:auto!important;bottom:58px;width:auto;max-height:52vh}.rw-pop input,.rw-pop select,.rw-pop textarea{font-size:16px}}
 @media (max-width:720px){#page-ally input,#page-ally select,#page-ally textarea{font-size:16px}}
 #page-ally,#page-ally .al-card{max-width:100%;overflow-wrap:anywhere}
 .al-mc{border:1px solid var(--border);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,rgba(217,164,65,.07),rgba(255,255,255,.02))}
@@ -17132,7 +17154,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     /* ---- чат карты: та же комната, что у «кто на карте»; красный кружок — непрочитанные ---- */
     const chatEl = document.createElement("div"); chatEl.className = "rw-chat"; chatEl.hidden = true; stage.appendChild(chatEl);
     chatEl.innerHTML = '<button type="button" class="rw-chb" id="rwChB"><span class="rw-chi">💬</span><b class="rw-chn" id="rwChN" hidden></b></button>' +
-        '<div class="rw-chp" id="rwChP" hidden><div class="rw-chh"><b id="rwChT"></b><label class="rw-chlg" id="rwChLgW">🌐<select id="rwChLg"></select></label><button type="button" class="rw-chx" id="rwChX" aria-label="close">✕</button></div>' +
+        '<div class="rw-chp" id="rwChP" hidden><div class="rw-chh"><b id="rwChT"></b><label class="rw-chlg" id="rwChLgW">🌐<select id="rwChLg"></select></label><button type="button" class="rw-chx" id="rwChC" hidden>🗑</button><button type="button" class="rw-chx" id="rwChX" aria-label="close">✕</button></div>' +
         '<div class="rw-chl" id="rwChL"></div><form class="rw-chf" id="rwChF"><textarea class="al-in" id="rwChI" maxlength="500" rows="1"></textarea><button type="submit" class="btn small" id="rwChS">➤</button></form></div>';
     const chat = { room: "", list: [], last: 0, open: false, busy: false, at: 0, err: "" };
     const LSR = "wolfich_chat_rd";
@@ -17142,37 +17164,39 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     function chatScroll(force) { const l = $("rwChL"); if (!l) return; if (force || l.scrollHeight - l.scrollTop - l.clientHeight < 120) l.scrollTop = l.scrollHeight; }
     function chatDraw(stick) {
         const on = !!(st.plan && st.plan.rt && stage.classList.contains("done") && chat.room === roomOf() && chat.room); chatEl.hidden = !on; if (!on) return;
-        const rd = rdGet(chat.room), unread = chat.list.filter((m) => m.id > rd && !m.me).length, n = $("rwChN");
+        const rd = rdGet(chat.room), unread = chat.list.filter((m) => m.id > rd && !m.me && !m.sys).length, n = $("rwChN");
         n.hidden = !unread || chat.open; n.textContent = unread > 99 ? "99+" : unread;
         $("rwChB").title = L("Чат карты", "Map chat"); $("rwChB").classList.toggle("on", chat.open);
         $("rwChP").hidden = !chat.open; chatEl.classList.toggle("open", chat.open); if (!chat.open) return;
         $("rwChT").textContent = L("Чат карты", "Map chat"); $("rwChI").placeholder = L("Сообщение…", "Message…");
         const nm = (c) => (TRL.find((x) => x[0] === c) || [c, c])[1];
         $("rwChLg").innerHTML = '<option value="">' + esc(L("Авто: ", "Auto: ") + nm(DEV)) + "</option>" + TRL.map((x) => '<option value="' + x[0] + '"' + (TRTO === x[0] ? " selected" : "") + ">" + esc(x[1]) + "</option>").join("");
+        $("rwChC").hidden = !canEdit(); $("rwChC").title = L("Очистить чат для всех", "Clear the chat for everyone");
         $("rwChLgW").title = L("Автоперевод сообщений и заметок на этот язык", "Auto-translate messages and notes into this language");
         const l = $("rwChL"), keep = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
-        l.innerHTML = chat.list.length ? chat.list.map((m) => '<div class="rw-chm' + (m.me ? " me" : "") + '"><div class="rw-chm-h"><b>' + esc(m.name || "—") + "</b><small>" + hhmm(m.at) + '</small></div><div class="rw-chm-t">' + esc(m.text) + "</div>" + (m.me ? "" : trHtml(m.text)) + "</div>").join("")
+        l.innerHTML = chat.list.length ? chat.list.map((m) => m.sys ? '<div class="rw-chsys">' + esc(L("Чат очищен", "Chat cleared") + (m.name ? " — " + m.name : "") + " · " + hhmm(m.at)) + "</div>" : '<div class="rw-chm' + (m.me ? " me" : "") + '"><div class="rw-chm-h"><b>' + esc(m.name || "—") + "</b><small>" + hhmm(m.at) + '</small></div><div class="rw-chm-t">' + esc(m.text) + "</div>" + (m.me ? "" : trHtml(m.text)) + "</div>").join("")
             : '<div class="al-note">' + L("Сообщений пока нет. Пишите — увидят все, кто открыл эту карту.", "No messages yet. Everyone who opened this map will see what you write.") + "</div>";
         if (chat.err) l.innerHTML += '<div class="tk-msg err" style="display:block">' + esc(chat.err) + "</div>";
         if (trBad) l.innerHTML += '<div class="al-note rw-trbad">🌐 ' + esc(L("Автоперевод сейчас недоступен — сервер перевода не ответил.", "Auto-translation is unavailable right now — the translation server did not respond.")) + "</div>";
         if (stick || keep) l.scrollTop = l.scrollHeight;
         const last = chat.list.length ? chat.list[chat.list.length - 1].id : 0; if (last) rdSet(chat.room, last);
     }
-    async function chatTick(force, text) {
+    async function chatTick(force, text, clear) {
         const room = st.plan && st.plan.rt && stage.classList.contains("done") && page.classList.contains("active") && !document.hidden ? roomOf() : "";
         if (room !== chat.room) { chat.room = room; chat.list = []; chat.last = 0; chat.err = ""; chat.at = 0; }
         if (!room) { chatDraw(); return; }
-        if (chat.busy || (!force && !text && Date.now() - chat.at < (chat.open ? 3500 : 12000))) return;
-        chat.busy = true; const j = await ntCall("chat", { room, rt: st.plan.rt, since: chat.last, name: myName(), text: text || "" }); chat.busy = false; chat.at = Date.now();
+        if (chat.busy || (!force && !text && !clear && Date.now() - chat.at < (chat.open ? 3500 : 12000))) return;
+        chat.busy = true; const j = await ntCall("chat", { room, rt: st.plan.rt, since: chat.last, name: myName(), text: text || "", clear: clear ? 1 : 0 }); chat.busy = false; chat.at = Date.now();
         if (room !== chat.room) return;
-        if (!j || !j.ok) { if (text) chat.err = (j && j.error) || L("Не отправлено — нет связи.", "Not sent — no connection."); chatDraw(); return false; }
+        if (!j || !j.ok) { if (text || clear) chat.err = (j && j.error) || L("Не отправлено — нет связи.", "Not sent — no connection."); chatDraw(); return false; }
         chat.err = "";
-        const add = (j.list || []).filter((m) => m.id > chat.last); if (add.length) { chat.list = chat.list.concat(add).slice(-200); chat.last = add[add.length - 1].id; }
-        if (add.length || force || text) chatDraw(!!text);
+        const add = (j.list || []).filter((m) => m.id > chat.last); if (add.length) { let l = chat.list.concat(add); for (let k = l.length - 1; k >= 0; k--) if (l[k].sys === "clr") { l = l.slice(k); break; } chat.list = l.slice(-200); chat.last = add[add.length - 1].id; }
+        if (add.length || force || text || clear) chatDraw(!!text);
         return true;
     }
     $("rwChB").addEventListener("click", (e) => { e.stopPropagation(); chat.open = !chat.open; if (chat.open && matchMedia("(max-width:720px)").matches) { if (!pop.hidden) popClose(); if (!mp.hidden) mpClose(); } chatDraw(true); if (chat.open) { chatTick(true); setTimeout(() => { const i = $("rwChI"); if (i && matchMedia("(pointer:fine)").matches) i.focus(); }, 30); } });
     $("rwChX").addEventListener("click", (e) => { e.stopPropagation(); chat.open = false; chatDraw(); });
+    $("rwChC").addEventListener("click", (e) => { e.stopPropagation(); if (confirm(L("Очистить чат карты у всех участников?", "Clear the map chat for all members?"))) chatTick(true, "", true); });
     $("rwChLg").addEventListener("change", (e) => trSetLang(e.target.value));
     $("rwChF").addEventListener("submit", async (e) => {
         e.preventDefault(); const i = $("rwChI"), t = i.value.trim(); if (!t || chat.busy) return;
