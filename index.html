@@ -2804,6 +2804,23 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-sv{margin-left:4px;border:1px solid rgba(120,200,140,.45);border-radius:999px;padding:5px 13px;background:rgba(60,140,80,.18);color:#bfe8cc;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;white-space:nowrap}
 .rw-sv:disabled{cursor:default;opacity:.85}
 .rw-sv.dirty{border-color:#f0c878;background:linear-gradient(180deg,#efc269,#c98f36);color:#2b1704;animation:rwSvP 1.6s ease-in-out infinite}
+.rw-ack{position:absolute;top:-16px;right:8px;z-index:10;display:flex;gap:5px;align-items:flex-start}
+.rw-ack[hidden]{display:none}
+.rw-akb,.rw-akl{border-radius:999px;padding:5px 13px;font:inherit;font-size:.84rem;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.rw-akb{border:1px solid #f0c878;background:linear-gradient(180deg,#efc269,#c98f36);color:#2b1704;animation:rwSvP 1.6s ease-in-out infinite}
+.rw-akb.old{border-color:#ffb86b;background:linear-gradient(180deg,#ffc27a,#d9822b)}
+.rw-akb.ok{border-color:rgba(120,200,140,.6);background:rgba(40,110,60,.85);color:#d7f5df;animation:none;cursor:default}
+.rw-akb:disabled{opacity:.6}
+.rw-akl{border:1px solid rgba(110,165,255,.55);background:rgba(20,26,52,.92);color:#d6e5ff}
+.rw-akl.on,.rw-akl:hover{background:rgba(61,139,253,.35)}
+.rw-akp{position:absolute;right:0;top:calc(100% + 6px);min-width:230px;max-height:340px;overflow:auto;padding:8px 10px;border-radius:12px;background:#17122a;border:1px solid var(--gold);box-shadow:0 14px 30px rgba(0,0,0,.6);font-size:.86rem;cursor:auto}
+.rw-akh{color:var(--gold-light);font-weight:700;margin-bottom:6px}
+.rw-akh2{color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 4px}
+.rw-aki{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.rw-aki span{color:#bfe8cc}.rw-aki b{color:#fff}
+.rw-aki.old span{color:#ffcf9a}.rw-aki.no span{color:#f1b3b3}
+.rw-aki small{color:var(--muted);white-space:nowrap}
+@media (max-width:720px){.rw-ack{top:calc(100% + 6px);right:4px}.rw-akb,.rw-akl{padding:4px 10px;font-size:.74rem}.rw-akp{position:fixed;left:8px;right:8px;top:auto;bottom:58px;max-height:55vh;z-index:66}}
 .rw-whb{margin-left:4px;border:1px solid rgba(110,165,255,.5);border-radius:999px;padding:5px 12px;background:rgba(61,139,253,.16);color:#d6e5ff;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;white-space:nowrap}
 .rw-whb b{display:inline-block;min-width:18px;margin-left:3px;padding:0 5px;border-radius:999px;background:rgba(61,139,253,.55);color:#fff;font-size:.74rem;line-height:18px;text-align:center}
 .rw-whb.on,.rw-whb:hover{background:rgba(61,139,253,.32);border-color:#9cc0ff}
@@ -16815,7 +16832,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             b.querySelector(".rw-bn").innerHTML = (n ? '<i>' + n + "</i>" : "") + (e.note ? '<i class="nt">✎</i>' : "");
             b.classList.toggle("pin", (pv.i === +b.dataset.b && !pop.hidden) || (!!st.plan && sOpen.has(+b.dataset.b)));
         });
-        sideDraw(); tacDraw(); plansDraw();
+        sideDraw(); tacDraw(); plansDraw(); if (typeof ackDraw === "function") ackDraw();
         if (typeof hereTick === "function" && roomOf() !== here.room) setTimeout(() => hereTick(true), 0); else if (typeof eyeDraw === "function") eyeDraw();
         if (typeof chatTick === "function" && roomOf() !== chat.room) setTimeout(() => chatTick(true), 0);
     }
@@ -17017,6 +17034,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (!j.ok || st.plan !== pl || (j.pl || "A") !== (pl.pl || "A") || (pl.dirty && !force) || tacBusy()) return;
             if (j.plans) pl.data.plans = j.plans;
             if (pl.kind === "a") { pl.data.data = j.data; if (j.members) pl.data.members = j.members; } else pl.data.data = j.data;
+            ackTake(pl, j);
             pl.dirty = false; pl.other = false; paint(); if (!pop.hidden && pv.view === "menu") popDraw();
         } catch (e) { /* нет связи — попробуем позже */ }
     }
@@ -17098,6 +17116,48 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     whoEl.addEventListener("mouseover", (ev) => { const r = ev.target.closest("tr[data-wk]"); if (r && !r.contains(ev.relatedTarget)) { const k = r.dataset.wk; hovB(isMk(k) ? k : +k, true); } });
     whoEl.addEventListener("mouseout", (ev) => { const r = ev.target.closest("tr[data-wk]"); if (r && !r.contains(ev.relatedTarget)) { const k = r.dataset.wk; hovB(isMk(k) ? k : +k, false); } });
 
+    /* ---- «Ознакомлен» с планом битвы: кнопка у правого верхнего края карты; офицеры и создатель видят, кто ознакомлен ---- */
+    const ackEl = document.createElement("div"); ackEl.className = "rw-ack"; ackEl.hidden = true; stage.appendChild(ackEl);
+    let ackOpen = false, ackBusy = false;
+    function ackTake(pl, j) { if (!pl || !j) return; if ("ackMe" in j) pl.data.ackMe = j.ackMe; if ("acks" in j) pl.data.acks = j.acks; }
+    const tHM = (t) => { const d = new Date(t), p2 = (x) => String(x).padStart(2, "0"); return p2(d.getDate()) + "." + p2(d.getMonth() + 1) + " " + p2(d.getHours()) + ":" + p2(d.getMinutes()); };
+    function ackDraw() {
+        const on = !!(st.plan && stage.classList.contains("done")); ackEl.hidden = !on; if (!on) return;
+        const d = st.plan.data, me = d.ackMe, acks = d.acks, pn = EN() ? PLN[st.plan.pl || "A"][1] : PLN[st.plan.pl || "A"][0];
+        const btn = me && me.cur ? '<button type="button" class="rw-akb ok" data-ak="1" title="' + esc(L("Вы ознакомились: ", "You acknowledged: ") + tHM(me.ts)) + '">✓ ' + L("Ознакомлен", "Acknowledged") + "</button>"
+            : '<button type="button" class="rw-akb' + (me ? " old" : "") + '" data-ak="1"' + (ackBusy ? " disabled" : "") + ' title="' + esc(L("Нажмите, когда изучили план битвы — офицеры увидят отметку", "Press once you have studied the battle plan — officers will see it")) + '">' + (me ? "⚠ " + L("План изменён — ознакомиться", "Plan changed — acknowledge") : "📜 " + L("Ознакомлен", "Acknowledge")) + "</button>";
+        let h = btn;
+        if (Array.isArray(acks)) {
+            const cur = acks.filter((x) => x.cur);
+            let miss = [], total = 0;
+            if (st.plan.kind === "a") {
+                const ms = st.plan.data.members || [], team = ms.filter((m) => String(m.rt || "") === String(st.plan.t)), base = team.length ? team : ms;
+                const got = new Set(acks.map((x) => x.nick)); miss = base.filter((m) => !got.has(m.nick)).map((m) => m.nick); total = base.length;   // смотревшие прошлую версию — в своём списке
+            }
+            h += '<button type="button" class="rw-akl' + (ackOpen ? " on" : "") + '" data-akl="1" title="' + esc(L("Кто ознакомлен с планом", "Who acknowledged the plan")) + '">✅ ' + cur.length + (st.plan.kind === "a" ? "/" + total : "") + "</button>";
+            if (ackOpen) h += '<div class="rw-akp"><div class="rw-akh">' + L("Ознакомлены с планом", "Acknowledged the plan") + " · " + esc(pn) + "</div>" +
+                (cur.length ? cur.map((x) => '<div class="rw-aki"><span>✓ <b translate="no">' + esc(x.nick) + "</b></span><small>" + tHM(x.ts) + "</small></div>").join("") : '<div class="al-note">' + L("Пока никто.", "Nobody yet.") + "</div>") +
+                (acks.some((x) => !x.cur) ? '<div class="rw-akh2">' + L("Смотрели прошлую версию", "Saw an older version") + "</div>" + acks.filter((x) => !x.cur).map((x) => '<div class="rw-aki old"><span>⚠ <b translate="no">' + esc(x.nick) + "</b></span><small>" + tHM(x.ts) + "</small></div>").join("") : "") +
+                (miss.length ? '<div class="rw-akh2">' + L("Не ознакомлены", "Not acknowledged") + " (" + miss.length + ")</div>" + miss.map((n) => '<div class="rw-aki no"><span>✗ <b translate="no">' + esc(n) + "</b></span></div>").join("") : "") + "</div>";
+        }
+        ackEl.innerHTML = h;
+    }
+    ackEl.addEventListener("click", async (ev) => {
+        ev.stopPropagation();
+        if (ev.target.closest("[data-akl]")) { ackOpen = !ackOpen; ackDraw(); return; }
+        const b = ev.target.closest("[data-ak]"); if (!b || ackBusy || !st.plan) return;
+        const me = st.plan.data.ackMe; if (me && me.cur) return;
+        const pl = st.plan; ackBusy = true; ackDraw();
+        try {
+            let j;
+            if (pl.kind === "a") { const c = allyCred(pl.id); j = await call("/al", { op: "rowack", id: pl.id, tok: c.tok, mid: c.mid, k: c.k, t: pl.t, pl: pl.pl }); }
+            else j = await call("/row", { op: "ack", id: pl.id, tok: pl.tok, pl: pl.pl, nick: myName() });
+            if (j && j.ok && st.plan === pl) ackTake(pl, j); else if (j && !j.ok) alert(EN() && window.WI18N.tr ? window.WI18N.tr(j.err || "Ошибка") : (j.err || "Ошибка"));
+        } catch (e) { alert(L("Нет связи с сервером.", "No connection to the server.")); }
+        ackBusy = false; ackDraw();
+    });
+    document.addEventListener("click", (ev) => { if (ackOpen && !ackEl.contains(ev.target)) { ackOpen = false; ackDraw(); } });
+
     /* ---- План А / Б / В: у каждого плана свои назначения, метки и стрелки ---- */
     const plMem = {};   // последний открытый план карты (на время сессии)
     const PLN = { A: ["План А", "Plan A"], B: ["План Б", "Plan B"], C: ["План В", "Plan C"] };
@@ -17131,7 +17191,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             else j = await call("/row", { op: "get", id: pl.id, tok: pl.tok, pl: want });
             if (!j.ok || st.plan !== pl) { if (j && !j.ok) alert(j.err || "Ошибка"); return; }
             pl.pl = want; plMem[(pl.kind === "a" ? "a" + pl.id + pl.t : "p" + pl.id)] = want;
-            pl.data.data = j.data || {}; if (j.plans) pl.data.plans = j.plans; if (j.members) pl.data.members = j.members; if (j.rt) pl.rt = j.rt;
+            pl.data.data = j.data || {}; if (j.plans) pl.data.plans = j.plans; if (j.members) pl.data.members = j.members; if (j.rt) pl.rt = j.rt; ackTake(pl, j);
             if (!pop.hidden) popClose(); if (typeof mpClose === "function") mpClose(); sOpen.clear(); paint();
         } catch (e) { alert(L("Нет связи с сервером.", "No connection to the server.")); }
         finally { plans.classList.remove("busy"); }

@@ -554,6 +554,12 @@ async function roomTk(env, room, acc, ed) {   // билет комнаты пл�
   const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.ACC_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return exp + "." + Array.from(new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(room + "|" + acc + "|" + exp.replace(".", "|")))), (x) => x.toString(16).padStart(2, "0")).join("");
 }
+function ackView(ack, acc, ver, full, nickOf) {   // «Ознакомлен»: моя отметка; полный список — офицерам / редакторам
+  ack = ack && typeof ack === "object" ? ack : {};
+  const o = { ackMe: ack[acc] ? { ts: ack[acc].ts, cur: (ack[acc].v || 0) >= (ver || 0) } : null };
+  if (full) o.acks = Object.keys(ack).map((k) => ({ nick: (nickOf && nickOf(k)) || ack[k].nick || "—", ts: ack[k].ts, cur: (ack[k].v || 0) >= (ver || 0), acc: k === acc })).sort((x, y) => x.ts - y.ts);
+  return o;
+}
 async function isAdm(env, acc) {   // владелец сайта: аккаунты из KV adm (JSON-массив uid) — видит все альянсы и управляет ими
   try { const l = JSON.parse((await env.LIC.get("adm")) || "[]"); return !!acc && Array.isArray(l) && l.includes(acc); } catch (e) { return false; }
 }
@@ -585,8 +591,15 @@ async function rowApi(req, env) {
   await accIdx(env, acc, "rp", p.id, p.name);
   const pl = rowPl(b.pl), pk = pl === "A" ? "data" : "data" + pl;   // данные плана: data (А), dataB, dataC
   const rt = await roomTk(env, "p:" + p.id, acc, role === "edit");
-  const out = () => { const o = { ok: true, id: p.id, name: p.name, role, pl, rt, data: p[pk] || {}, plans: { A: rowHas(p.data), B: rowHas(p.dataB), C: rowHas(p.dataC) } }; if (role === "edit") { o.view = p.view; o.edit = p.edit; } return json(o); };
+  p.ack = p.ack && typeof p.ack === "object" ? p.ack : {};
+  const out = () => { const o = { ok: true, id: p.id, name: p.name, role, pl, rt, data: p[pk] || {}, plans: { A: rowHas(p.data), B: rowHas(p.dataB), C: rowHas(p.dataC) } }; if (role === "edit") { o.view = p.view; o.edit = p.edit; } Object.assign(o, ackView(p.ack[pl], acc, (p[pk] || {}).ts, role === "edit")); return json(o); };
   if (op === "get") return out();
+  if (op === "ack") {   // «Ознакомлен» с планом (своя отметка за аккаунтом; версия — время сохранения плана)
+    const m = p.ack[pl] = p.ack[pl] && typeof p.ack[pl] === "object" ? p.ack[pl] : {};
+    if (b.off) delete m[acc]; else m[acc] = { nick: alStr(b.nick, 32) || "—", ts: Date.now(), v: (p[pk] || {}).ts || 0 };
+    const ks = Object.keys(m); if (ks.length > 300) delete m[ks[0]];
+    await env.LIC.put(rpKey(p.id), JSON.stringify(p)); return out();
+  }
   if (role !== "edit") return json({ ok: false, err: "нужна офицерская ссылка планера" });
   if (op === "all") { p[pk] = rowAll(b.data); await env.LIC.put(rpKey(p.id), JSON.stringify(p)); return out(); }   // очистить план / вернуть целиком
   if (op === "mark") { p[pk] = rowMark(p[pk], b.kind, b.mid2, b.v); await env.LIC.put(rpKey(p.id), JSON.stringify(p)); return out(); }   // метка или стрелка
@@ -700,6 +713,17 @@ async function alApi(req, env) {
     const t = Math.floor(+b.t || 0); if (t >= 1 && t <= 3) a.m[mid].rt = t; else delete a.m[mid].rt;
     await save(); return view();
   }
+  if (op === "rowack") {   // «Ознакомлен» с планом команды: любой, кому карта открыта; список видят офицеры и создатель
+    const t = rowT(b.t), r = a.row && a.row[t], pl = rowPl(b.pl);
+    if (!r) return json({ ok: false, err: "команда RoW " + t + " ещё не создана" });
+    if (!pEd && !r.open) return json({ ok: false, err: "доступ к команде закрыт" });
+    let d = {}; try { d = JSON.parse((await env.LIC.get(rwKey(a.id, t, pl))) || "{}"); } catch (e) {}
+    a.ack = a.ack || {}; const k = t + ":" + pl, m = a.ack[k] = a.ack[k] || {};
+    if (b.off) delete m[acc]; else m[acc] = { nick: (me && a.m[me] && a.m[me].nick) || "—", ts: Date.now(), v: d.ts || 0 };
+    await save();
+    const ak = ackView(m, acc, d.ts, boss, (x) => { const y = Object.values(a.m).find((z) => z.acc === x); return y && y.nick; });
+    return json(Object.assign({ ok: true }, ak));
+  }
   if (op === "rowget") {   // карта команды RoW: офицеры и создатель — всегда (редактирование), участники — только если команда открыта (просмотр)
     const t = rowT(b.t), r = a.row && a.row[t];
     if (!r) return json({ ok: false, err: "команда RoW " + t + " ещё не создана", nort: true });
@@ -713,7 +737,8 @@ async function alApi(req, env) {
     });
     const pl = rowPl(b.pl), plans = {}; let data = {};
     for (const x of ["A", "B", "C"]) { let d = {}; try { d = JSON.parse((await env.LIC.get(rwKey(a.id, t, x))) || "{}"); } catch (e) {} plans[x] = rowHas(d); if (x === pl) data = d; }
-    return json({ ok: true, id: a.id, name: a.name, role, edit: pEd, boss, t, pl, plans, open: !!r.open, me, members: ms, data, row: rowOf(a), rt: await roomTk(env, "a:" + a.id + ":" + t, acc, pEd) });
+    a.ack = a.ack || {}; const ak = ackView(a.ack[t + ":" + pl], acc, data.ts, boss, (k) => { const x = Object.values(a.m).find((y) => y.acc === k); return x && x.nick; });
+    return json({ ok: true, ackMe: ak.ackMe, acks: ak.acks, id: a.id, name: a.name, role, edit: pEd, boss, t, pl, plans, open: !!r.open, me, members: ms, data, row: rowOf(a), rt: await roomTk(env, "a:" + a.id + ":" + t, acc, pEd) });
   }
   if (["rowall", "rowmark", "rowsave"].includes(op) && !pEd) return json({ ok: false, err: "нужны права на редактирование планера" });
   if (!["rowall", "rowmark", "rowsave"].includes(op) && !boss) return json({ ok: false, err: "нужен офицерский доступ" });
