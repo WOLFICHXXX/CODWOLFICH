@@ -2804,6 +2804,49 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-sv{margin-left:4px;border:1px solid rgba(120,200,140,.45);border-radius:999px;padding:5px 13px;background:rgba(60,140,80,.18);color:#bfe8cc;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;white-space:nowrap}
 .rw-sv:disabled{cursor:default;opacity:.85}
 .rw-sv.dirty{border-color:#f0c878;background:linear-gradient(180deg,#efc269,#c98f36);color:#2b1704;animation:rwSvP 1.6s ease-in-out infinite}
+.rw-whb{margin-left:4px;border:1px solid rgba(110,165,255,.5);border-radius:999px;padding:5px 12px;background:rgba(61,139,253,.16);color:#d6e5ff;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.rw-whb b{display:inline-block;min-width:18px;margin-left:3px;padding:0 5px;border-radius:999px;background:rgba(61,139,253,.55);color:#fff;font-size:.74rem;line-height:18px;text-align:center}
+.rw-whb.on,.rw-whb:hover{background:rgba(61,139,253,.32);border-color:#9cc0ff}
+.rw-who{position:absolute;top:30px;left:50%;transform:translateX(-50%);z-index:9;width:min(860px,calc(100% - 16px));max-height:calc(100% - 44px);display:flex;flex-direction:column;border-radius:14px;background:#17122a;border:1px solid var(--gold);box-shadow:0 16px 40px rgba(0,0,0,.65);overflow:hidden;cursor:auto}
+.rw-who[hidden]{display:none}
+.rw-wh{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(217,164,65,.25);color:var(--gold-light);flex-wrap:wrap}
+.rw-wh b{flex:1;min-width:150px}
+.rw-wq2{width:170px;margin:0;padding:5px 10px;font-size:.85rem}
+.rw-wall{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:.82rem;cursor:pointer}
+.rw-wall input{accent-color:#d9a441;width:16px!important;height:16px!important;min-height:0!important;margin:0;padding:0;flex:none}
+.rw-wtw{overflow:auto}
+.rw-wt{width:100%;border-collapse:collapse;font-size:.86rem}
+.rw-wt th{position:sticky;top:0;z-index:1;background:#1d1730;color:var(--muted);font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:7px 10px;border-bottom:1px solid rgba(217,164,65,.3)}
+.rw-wt td{padding:6px 10px;vertical-align:middle;border-bottom:1px solid rgba(255,255,255,.05)}
+.rw-wt tr.rw-wl td,.rw-wt tr.rw-wr0 td{border-bottom:1px solid rgba(217,164,65,.22)}
+.rw-wt tbody tr:hover td{background:rgba(217,164,65,.06)}
+.rw-wc-o{vertical-align:top!important;background:rgba(255,255,255,.02);width:1%;white-space:nowrap}
+.rw-wo{display:flex;align-items:center;gap:6px;border:0;background:none;color:#fff1c5;font:inherit;font-weight:700;cursor:pointer;padding:2px 0;text-align:left}
+.rw-wo:hover span{text-decoration:underline}
+.rw-wmi{width:22px;height:22px;object-fit:contain}
+.rw-wnt{font-style:normal;color:#a9c4ee}
+.rw-wc-n b{color:#fff}
+.rw-wc-m{color:var(--muted);white-space:nowrap;font-size:.8rem}
+.rw-wim{display:inline-flex;gap:3px;vertical-align:middle;margin-right:6px}
+.rw-wim img,.rw-wq{width:28px;height:28px;border-radius:7px;border:1px solid rgba(217,164,65,.55);object-fit:cover;background:#2a2340}
+.rw-wq{display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem}
+.rw-whn{color:#ddd6e8;font-size:.8rem}
+.rw-wtc{display:inline-block;margin:1px 4px 1px 0;padding:1px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-size:.76rem;color:#e6e0ef;white-space:nowrap}
+.rw-wty{color:#ddd6e8}
+.rw-wnone{color:var(--muted);font-size:.8rem;font-style:italic}
+.rw-wempty{padding:14px;text-align:center}
+@media (max-width:720px){
+ .rw-who{position:fixed;left:8px!important;right:8px;top:auto;bottom:58px;transform:none;width:auto;max-height:62vh;z-index:65}
+ .rw-wq2{width:120px}
+ .rw-wt thead{display:none}
+ .rw-wt,.rw-wt tbody,.rw-wt tr,.rw-wt td{display:block;width:auto}
+ .rw-wt tr{padding:4px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+ .rw-wt td{border:0!important;padding:2px 0;background:none!important}
+ .rw-wc-o{white-space:normal;margin-top:4px}
+ .rw-wc-n,.rw-wc-m{display:inline-block!important;margin-right:8px}
+ .rw-whb{padding:3px 9px;font-size:.72rem}
+}
+@media (max-height:520px) and (min-width:721px){.rw-who{position:fixed;left:auto!important;right:8px;top:52px;transform:none;width:min(560px,60vw);max-height:calc(100vh - 60px);z-index:65}}
 .rw-sv.rw-oth{border-color:rgba(110,165,255,.6);background:rgba(61,139,253,.22);color:#d6e5ff}
 @keyframes rwSvP{0%,100%{box-shadow:0 0 0 0 rgba(240,200,120,.55)}50%{box-shadow:0 0 0 6px rgba(240,200,120,0)}}
 @media (max-width:720px){.rw-sv{padding:3px 9px;font-size:.72rem}}
@@ -16773,9 +16816,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     /* ---- столбец справа: список зданий, раскрытое — назначенные марши и заметка ---- */
     const side = $("rwSide"), heroBox = stage.parentElement; let sOpen = new Set();
     function sideDraw() {
+        if (typeof whoDraw === "function") whoDraw();
         if (!side) return;
-        const on = !!(st.plan && stage.classList.contains("done"));
-        heroBox.classList.toggle("rw-hs2", on); side.hidden = !on; if (!on) return;
+        heroBox.classList.remove("rw-hs2"); side.hidden = true; return;   // правый столбец убран — вместо него табличка «Кто куда»
         const ed = canEdit();
         const row = (i, nm) => {
             const e = tgEntry(i), n = (e.a || []).length, op = sOpen.has(i);
@@ -16986,6 +17029,58 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     }
     window.addEventListener("beforeunload", (e) => { if (st.plan && st.plan.dirty) { e.preventDefault(); e.returnValue = ""; } });
 
+    /* ---- «Кто куда»: выпадающая табличка — здания и метки с назначенными участниками и их маршами ---- */
+    const whoEl = document.createElement("div"); whoEl.className = "rw-who"; whoEl.hidden = true; stage.appendChild(whoEl);
+    const who = { open: false, all: false, q: "" };
+    const whoItems = () => {   // [ключ, название, значок, запись]
+        const out = bList().map((i) => [i, esc(bName(i)), "", tgEntry(i)]);
+        const K = pdata().k || {};
+        Object.keys(K).forEach((id) => out.push(["k:" + id, esc(mkLabel(id)), '<img class="rw-wmi" src="img/row-m-' + K[id].t + '.webp" alt="">', K[id]]));
+        return out;
+    };
+    const whoCount = () => (st.plan ? whoItems().reduce((n, x) => n + ((x[3].a || []).length), 0) : 0);
+    const heroImg = (h) => { const H = (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).find((z) => z.n === h.name); return H && H.i ? '<img src="' + H.i + '" alt="" title="' + esc(heroName(h.name)) + '">' : '<span class="rw-wq" title="' + esc(heroName(h.name)) + '">?</span>'; };
+    function whoMarch(x) {
+        if (!(x.mid != null || x.h || x.tr)) return '<td class="rw-wc-h" colspan="2"><span class="rw-wty">' + esc(tyName(x.ty) + (x.fly ? " ✈" : "")) + "</span></td>";
+        const hs = (x.h || []).map(HO).filter((h) => h.name), tr = x.tr || [];
+        return '<td class="rw-wc-h">' + (hs.length ? '<span class="rw-wim">' + hs.map(heroImg).join("") + '</span><span class="rw-whn">' + esc(hs.map((h) => heroName(h.name)).join(" + ")) + "</span>" : "—") + "</td>" +
+            '<td class="rw-wc-t">' + (tr.length ? tr.map((t) => '<span class="rw-wtc">' + esc(trTxt(t)) + "</span>").join("") : "—") + "</td>";
+    }
+    function whoDraw() {
+        const on = !!(who.open && st.plan && stage.classList.contains("done")); whoEl.hidden = !on; if (!on) return;
+        const q = who.q.trim().toLowerCase(), its = whoItems();
+        let rows = "", shown = 0;
+        its.forEach(([key, nm, ico, e]) => {
+            let a = e.a || []; if (q) a = a.filter((x) => String(x.nick || "").toLowerCase().includes(q));
+            if (!a.length && (q || !who.all)) return;
+            shown++;
+            const head = '<td class="rw-wc-o" rowspan="' + Math.max(1, a.length) + '"><button type="button" class="rw-wo" data-wo="' + esc(String(key)) + '">' + ico + "<span>" + nm + "</span>" + (e.note ? ' <i class="rw-wnt" title="' + esc(e.note) + '">✎</i>' : "") + "</button></td>";
+            if (!a.length) { rows += '<tr data-wk="' + esc(String(key)) + '" class="rw-wr0">' + head + '<td colspan="4" class="rw-wnone">' + L("никто не назначен", "nobody assigned") + "</td></tr>"; return; }
+            a.forEach((x, k) => {
+                rows += '<tr data-wk="' + esc(String(key)) + '"' + (k === a.length - 1 ? ' class="rw-wl"' : "") + ">" + (k ? "" : head) +
+                    '<td class="rw-wc-n"><b translate="no">' + esc(x.nick) + "</b></td>" +
+                    '<td class="rw-wc-m">' + (x.m != null && x.mid ? L("Марш ", "March ") + (x.m + 1) : "") + "</td>" + whoMarch(x) + "</tr>";
+            });
+        });
+        whoEl.innerHTML = '<div class="rw-wh"><b>📋 ' + L("Кто куда", "Who goes where") + " · " + esc(EN() ? PLN[st.plan.pl || "A"][1] : PLN[st.plan.pl || "A"][0]) + "</b>" +
+            '<input class="al-in rw-wq2" type="search" placeholder="' + esc(L("Найти ник", "Find a nickname")) + '" value="' + esc(who.q) + '">' +
+            '<label class="rw-wall"><input type="checkbox" data-wall="1"' + (who.all ? " checked" : "") + "> " + L("все объекты", "all objects") + "</label>" +
+            '<button type="button" class="rw-chx" data-wx="1" aria-label="close">✕</button></div>' +
+            (shown ? '<div class="rw-wtw"><table class="rw-wt"><thead><tr><th>' + L("Здание / метка", "Building / mark") + "</th><th>" + L("Участник", "Member") + "</th><th>" + L("Марш", "March") + "</th><th>" + L("Герои", "Heroes") + "</th><th>" + L("Войска", "Troops") + "</th></tr></thead><tbody>" + rows + "</tbody></table></div>"
+                : '<div class="al-note rw-wempty">' + (q ? L("Ник не найден на этой карте.", "Nickname not found on this map.") : L("На этой карте ещё никто не назначен. Нажмите на здание или метку → «Выбрать участника».", "Nobody is assigned on this map yet. Click a building or a mark → “Select a member”.")) + "</div>");
+        const qi = whoEl.querySelector(".rw-wq2");
+        qi.addEventListener("input", () => { who.q = qi.value; const pos = qi.selectionStart; whoDraw(); const n = whoEl.querySelector(".rw-wq2"); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} });
+    }
+    whoEl.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (ev.target.closest("[data-wx]")) { who.open = false; plansDraw(); whoDraw(); return; }
+        const w = ev.target.closest("[data-wall]"); if (w) { who.all = w.checked; whoDraw(); return; }
+        const o = ev.target.closest("[data-wo]"); if (o) { const k = o.dataset.wo, i = isMk(k) ? k : +k; who.open = false; plansDraw(); whoDraw(); popOpen(i); }
+    });
+    ["pointerdown", "wheel", "keydown"].forEach((e) => whoEl.addEventListener(e, (ev) => ev.stopPropagation()));
+    whoEl.addEventListener("mouseover", (ev) => { const r = ev.target.closest("tr[data-wk]"); if (r && !r.contains(ev.relatedTarget)) { const k = r.dataset.wk; hovB(isMk(k) ? k : +k, true); } });
+    whoEl.addEventListener("mouseout", (ev) => { const r = ev.target.closest("tr[data-wk]"); if (r && !r.contains(ev.relatedTarget)) { const k = r.dataset.wk; hovB(isMk(k) ? k : +k, false); } });
+
     /* ---- План А / Б / В: у каждого плана свои назначения, метки и стрелки ---- */
     const plMem = {};   // последний открытый план карты (на время сессии)
     const PLN = { A: ["План А", "Plan A"], B: ["План Б", "Plan B"], C: ["План В", "Plan C"] };
@@ -16997,11 +17092,13 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         plans.innerHTML = Object.keys(PLN).map((k) => '<button type="button" class="rw-pt' + (k === cur ? " on" : "") + (fl[k] ? " has" : "") + '" data-pl="' + k + '">' + (EN() ? PLN[k][1] : PLN[k][0]) + "</button>").join("") +
             (canEdit() ? '<button type="button" class="rw-sv' + (st.plan.dirty ? " dirty" : "") + '" data-sv="1"' + (st.plan.dirty && !st.plan.saving ? "" : " disabled") + ' title="' + esc(st.plan.dirty ? L("Отправить изменения — карта обновится у всех", "Send the changes — the map updates for everyone") : L("Все изменения сохранены", "All changes are saved")) + '">' +
                 (st.plan.saving ? L("Сохраняю…", "Saving…") : st.plan.dirty ? "💾 " + L("Сохранить", "Save") : "✓ " + L("Сохранено", "Saved")) + "</button>" : "") +
+            '<button type="button" class="rw-whb' + (who.open ? " on" : "") + '" data-who="1" title="' + esc(L("Кто куда: здания и метки с назначенными маршами", "Who goes where: buildings and marks with assigned marches")) + '">📋 ' + L("Кто куда", "Who where") + (whoCount() ? " <b>" + whoCount() + "</b>" : "") + "</button>" +
             (st.plan.other ? '<button type="button" class="rw-sv rw-oth" data-oth="1" title="' + esc(L("Другой редактор сохранил карту. Загрузить его версию? Ваши несохранённые изменения пропадут.", "Another editor saved the map. Load their version? Your unsaved changes will be lost.")) + '">⟳ ' + L("Новая версия", "New version") + "</button>" : "");
     }
     plans.addEventListener("click", async (ev) => {
         ev.stopPropagation();
         if (ev.target.closest("[data-sv]")) { planSave(); return; }
+        if (ev.target.closest("[data-who]")) { who.open = !who.open; plansDraw(); whoDraw(); return; }
         if (ev.target.closest("[data-oth]")) { if (confirm(L("Другой редактор сохранил карту. Загрузить его версию? Ваши несохранённые изменения пропадут.", "Another editor saved the map. Load their version? Your unsaved changes will be lost."))) planReload(true); return; }
         const b = ev.target.closest("[data-pl]"); if (!b || !st.plan) return;
         const want = b.dataset.pl, pl = st.plan; if ((pl.pl || "A") === want) return;
