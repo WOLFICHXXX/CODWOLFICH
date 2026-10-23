@@ -69,6 +69,7 @@ const SCHEMA = [
 /* автоперевод: Google (без ключа, язык исходника определяется сам); запасной — Workers AI (привязка AI), если подключена */
 async function sha256Hex(s) { return Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s))), (x) => x.toString(16).padStart(2, "0")).join(""); }
 const TR_UA = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36", accept: "application/json,text/plain,*/*" };
+const TR_LANG = { ru: "Russian", en: "English", uk: "Ukrainian", be: "Belarusian", kk: "Kazakh", de: "German", fr: "French", es: "Spanish", it: "Italian", pt: "Portuguese", pl: "Polish", tr: "Turkish", ar: "Arabic", "zh-CN": "Simplified Chinese", "zh-TW": "Traditional Chinese", zh: "Chinese", ja: "Japanese", ko: "Korean", vi: "Vietnamese", id: "Indonesian", th: "Thai" };
 const TRP = {   // переводчики по очереди: первый ответивший — победил
   async gtx(text, to) {
     const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=" + encodeURIComponent(to) + "&q=" + encodeURIComponent(text), { headers: TR_UA });
@@ -89,15 +90,23 @@ const TRP = {   // переводчики по очереди: первый от
     let src = String((j.responseData && j.responseData.detectedLanguage) || ""); if (!src && Array.isArray(j.matches) && j.matches[0]) src = String(j.matches[0].source || "");
     return { out: String(out), src: src.split("-")[0] };
   },
-  async ai(text, to, env) {
+  async ai(text, to, env) {   // Workers AI (привязка AI, бесплатно 10 000 нейронов в день): языковая модель сама определяет язык оригинала
     if (!env.AI) throw new Error("нет привязки AI");
-    const src = /[\u0400-\u04ff]/.test(text) ? "ru" : "en"; if (src === to.split("-")[0]) return { out: text, src };
-    const r = await env.AI.run("@cf/meta/m2m100-1.2b", { text, source_lang: src, target_lang: to.split("-")[0] });
+    const base = to.split("-")[0], name = TR_LANG[to] || TR_LANG[base] || to;
+    try {
+      const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fp8-fast", { temperature: 0, max_tokens: 600, messages: [
+        { role: "system", content: "You are a translation engine for the mobile strategy game Call of Dragons. Translate the user's message into " + name + ". Detect the source language yourself. Keep nicknames, alliance tags, numbers, times and emoji unchanged. If the message is already in " + name + ", return it unchanged. Answer ONLY with JSON: {\"src\":\"<ISO 639-1 code of the source language>\",\"t\":\"<translation>\"}" },
+        { role: "user", content: text }] });
+      let o = r && r.response; if (typeof o === "string") { const m = /\{[\s\S]*\}/.exec(o); try { o = m ? JSON.parse(m[0]) : null; } catch (e) { o = null; } }
+      if (o && typeof o.t === "string" && o.t.trim()) return { out: o.t.trim(), src: String(o.src || "").toLowerCase().slice(0, 5) };
+    } catch (e) { /* модель недоступна — простой переводчик ниже */ }
+    const src = /[\u0400-\u04ff]/.test(text) ? "ru" : "en"; if (src === base) return { out: text, src };
+    const r = await env.AI.run("@cf/meta/m2m100-1.2b", { text, source_lang: src, target_lang: base });
     if (!r || !r.translated_text) throw new Error("empty"); return { out: r.translated_text, src };
   },
 };
 async function trOne(env, text, to, log) {
-  for (const k of ["dict", "gtx", "mym", "ai"]) {
+  for (const k of ["dict", "gtx", "ai", "mym"]) {
     try { const r = await TRP[k](text, to, env); if (log) log[k] = "ok: " + r.out + " (" + r.src + ")"; else return r; }
     catch (e) { if (log) log[k] = "ошибка: " + String((e && e.message) || e).slice(0, 120); }
   }
