@@ -2825,6 +2825,11 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-wo:hover span{text-decoration:underline}
 .rw-wmi{width:22px;height:22px;object-fit:contain}
 .rw-wnt{font-style:normal;color:#a9c4ee}
+.rw-wimp{display:inline-flex;align-items:center;gap:4px;margin-top:5px;border:1px solid rgba(229,56,59,.6);border-radius:999px;padding:2px 10px;background:rgba(229,56,59,.14);color:#ffc9c2;font:inherit;font-size:.74rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.rw-wimp:hover,.rw-wimp.on{background:rgba(229,56,59,.32);color:#fff}
+.rw-wnr td{padding:4px 10px 10px!important;background:rgba(229,56,59,.05)}
+.rw-wnr .rw-nt{margin-top:0;border-left-color:rgba(229,56,59,.7)}
+@media (max-width:720px){.rw-wimp{margin:3px 0 0 6px}}
 .rw-wc-n b{color:#fff}
 .rw-wc-m{color:var(--muted);white-space:nowrap;font-size:.8rem}
 .rw-wim{display:inline-flex;gap:3px;vertical-align:middle;margin-right:6px}
@@ -16792,11 +16797,12 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     async function tgSave(i, e) {
         if (!isMk(i)) return saveB(i, e);
         const id = String(i).slice(2), m = mkOf(i); if (!m) return;
-        const v = { t: m.t, x: m.x, y: m.y }; if (m.s) v.s = m.s; if (e.a && e.a.length) v.a = e.a; if (e.note) v.note = e.note;
+        const v = { t: m.t, x: m.x, y: m.y }; if (m.s) v.s = m.s; if (m.n) v.n = m.n; if (e.a && e.a.length) v.a = e.a; if (e.note) v.note = e.note;
         await tacSave("k", id, v); pv.view = "menu"; if (!pop.hidden) popDraw(); paint();
     }
     function mkLabel(id) {   // «Зона внимания 2»: номер по порядку среди меток этого вида
         const K = pdata().k || {}, m = K[id]; if (!m) return "";
+        if (m.n) return m.n;   // своё название метки
         const same = Object.keys(K).filter((x) => K[x].t === m.t);
         return mkName(m.t) + (same.length > 1 ? " " + (same.indexOf(id) + 1) : "");
     }
@@ -16884,7 +16890,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (ed && mk) h += '<label class="rw-sz"><span>' + L("Размер", "Size") + '</span><input type="range" id="rwSz" min="50" max="300" step="10" value="' + Math.round((mkOf(i).s || 1) * 100) + '"><b>' + Math.round((mkOf(i).s || 1) * 100) + "%</b></label>" +
                 '<div class="al-note">' + L("Метку можно перетащить мышью или пальцем.", "Drag the mark to move it.") + "</div>";
             if (ed) h += '<div class="rw-pb rw-foot"><button type="button" class="btn small" data-v="' + (ally ? "pick" : "manual") + '">' + L("Выбрать участника", "Select a member") + '</button><button type="button" class="btn secondary small" data-v="note">' + L("Заметка", "Note") + "</button>" +
-                (mk ? '<button type="button" class="btn secondary small al-danger" data-mkdel="1">' + L("Удалить метку", "Delete mark") + "</button>" : "") + "</div>";
+                (mk ? '<button type="button" class="btn secondary small" data-v="ren">✏ ' + L("Переименовать", "Rename") + '</button><button type="button" class="btn secondary small al-danger" data-mkdel="1">' + L("Удалить метку", "Delete mark") + "</button>" : "") + "</div>";
         } else if (pv.view === "pick") {
             h += '<input class="al-in rw-q" placeholder="' + esc(L("Поиск по нику", "Search by nickname")) + '" value="' + esc(pv.q) + '">';
             h += '<div class="rw-mf">' + memFlt() + '</div><div class="rw-ml">' + memList() + "</div>";
@@ -16901,6 +16907,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 '<select class="al-in" id="rwMT">' + Object.keys(TYP).map((k) => '<option value="' + k + '">' + tyName(k) + "</option>").join("") + "</select>" +
                 '<label class="rw-chk"><input type="checkbox" id="rwMF"> ' + L("Летающие", "Flying") + "</label>" +
                 '<div class="rw-pb"><button type="button" class="btn small" id="rwMAdd">' + L("Добавить", "Add") + '</button><button type="button" class="btn secondary small" data-v="menu">' + L("← Назад", "← Back") + "</button></div>";
+        } else if (pv.view === "ren" && mk) {   // название метки: пусто — как было («Зона внимания 2»)
+            const mm = mkOf(i);
+            h += '<input class="al-in" id="rwRN" maxlength="40" placeholder="' + esc(L("Например: Сбор у моста", "E.g. Rally at the bridge")) + '" value="' + esc(mm.n || "") + '">' +
+                '<div class="al-note">' + L("Пустое поле — название по виду метки.", "Leave empty to use the mark type name.") + "</div>" +
+                '<div class="rw-pb"><button type="button" class="btn small" id="rwRS">' + L("Сохранить", "Save") + '</button><button type="button" class="btn secondary small" data-v="menu">' + L("← Назад", "← Back") + "</button></div>";
         } else if (pv.view === "note") {
             h += '<textarea class="al-in rw-ta" id="rwNT" maxlength="500" placeholder="' + esc(L("Текст заметки", "Note text")) + '">' + esc(e.note || "") + "</textarea>" +
                 '<div class="rw-pb"><button type="button" class="btn small" id="rwNS">' + L("Сохранить", "Save") + "</button>" + (e.note ? '<button type="button" class="btn secondary small" id="rwND">' + L("Удалить заметку", "Delete note") + "</button>" : "") +
@@ -16983,10 +16994,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const nick = $("rwMN").value.trim(); if (!nick) { $("rwMN").focus(); return; }
             return tgSave(i, withA(i, { nick, ty: $("rwMT").value, fly: $("rwMF").checked }));
         }
+        if (t.id === "rwRS") { const m = mkOf(i); if (!m) return; const v = Object.assign({}, m), nm = $("rwRN").value.trim().slice(0, 40); if (nm) v.n = nm; else delete v.n; tacSave("k", String(i).slice(2), v); pv.view = "menu"; popDraw(); return paint(); }
         if (t.id === "rwNS") { const e = Object.assign({}, tgEntry(i)); e.note = $("rwNT").value.trim(); return tgSave(i, e); }
         if (t.id === "rwND") { const e = Object.assign({}, tgEntry(i)); delete e.note; return tgSave(i, e); }
     });
-    pop.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && ev.target.id === "rwMN") { ev.preventDefault(); $("rwMAdd").click(); } });
+    pop.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && ev.target.id === "rwMN") { ev.preventDefault(); $("rwMAdd").click(); } if (ev.key === "Enter" && ev.target.id === "rwRN") { ev.preventDefault(); $("rwRS").click(); } });
     document.addEventListener("click", (ev) => { if (!pop.hidden && Date.now() - (pv.at || 0) > 400 && !pop.contains(ev.target) && !ev.target.closest(".rw-bd") && !ev.target.closest(".rw-mk")) popClose(); });
     document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !pop.hidden) popClose(); });
     window.addEventListener("resize", () => { if (!pop.hidden) place(); });
@@ -17031,7 +17043,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
 
     /* ---- «Кто куда»: выпадающая табличка — здания и метки с назначенными участниками и их маршами ---- */
     const whoEl = document.createElement("div"); whoEl.className = "rw-who"; whoEl.hidden = true; stage.appendChild(whoEl);
-    const who = { open: false, all: false, q: "" };
+    const who = { open: false, all: false, q: "", nt: new Set() };   // nt — открытые заметки «Важно»
     const whoItems = () => {   // [ключ, название, значок, запись]
         const out = bList().map((i) => [i, esc(bName(i)), "", tgEntry(i)]);
         const K = pdata().k || {};
@@ -17052,15 +17064,19 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         let rows = "", shown = 0;
         its.forEach(([key, nm, ico, e]) => {
             let a = e.a || []; if (q) a = a.filter((x) => String(x.nick || "").toLowerCase().includes(q));
-            if (!a.length && (q || !who.all)) return;
+            if (!a.length && (q || (!who.all && !e.note))) return;   // по умолчанию: где есть марши или заметка
             shown++;
-            const head = '<td class="rw-wc-o" rowspan="' + Math.max(1, a.length) + '"><button type="button" class="rw-wo" data-wo="' + esc(String(key)) + '">' + ico + "<span>" + nm + "</span>" + (e.note ? ' <i class="rw-wnt" title="' + esc(e.note) + '">✎</i>' : "") + "</button></td>";
-            if (!a.length) { rows += '<tr data-wk="' + esc(String(key)) + '" class="rw-wr0">' + head + '<td colspan="4" class="rw-wnone">' + L("никто не назначен", "nobody assigned") + "</td></tr>"; return; }
+            const nOpen = !!(e.note && who.nt.has(String(key)));
+            const head = '<td class="rw-wc-o" rowspan="' + Math.max(1, a.length) + '"><button type="button" class="rw-wo" data-wo="' + esc(String(key)) + '">' + ico + "<span>" + nm + "</span></button>" +
+                (e.note ? '<button type="button" class="rw-wimp' + (nOpen ? " on" : "") + '" data-wn="' + esc(String(key)) + '">❗ ' + L("Важно", "Important") + "</button>" : "") + "</td>";
+            const noteRow = nOpen ? '<tr class="rw-wnr" data-wk="' + esc(String(key)) + '"><td colspan="5">' + noteHtml(e.note) + "</td></tr>" : "";
+            if (!a.length) { rows += '<tr data-wk="' + esc(String(key)) + '" class="rw-wr0">' + head + '<td colspan="4" class="rw-wnone">' + L("никто не назначен", "nobody assigned") + "</td></tr>" + noteRow; return; }
             a.forEach((x, k) => {
                 rows += '<tr data-wk="' + esc(String(key)) + '"' + (k === a.length - 1 ? ' class="rw-wl"' : "") + ">" + (k ? "" : head) +
                     '<td class="rw-wc-n"><b translate="no">' + esc(x.nick) + "</b></td>" +
                     '<td class="rw-wc-m">' + (x.m != null && x.mid ? L("Марш ", "March ") + (x.m + 1) : "") + "</td>" + whoMarch(x) + "</tr>";
             });
+            rows += noteRow;
         });
         whoEl.innerHTML = '<div class="rw-wh"><b>📋 ' + L("Кто куда", "Who goes where") + " · " + esc(EN() ? PLN[st.plan.pl || "A"][1] : PLN[st.plan.pl || "A"][0]) + "</b>" +
             '<input class="al-in rw-wq2" type="search" placeholder="' + esc(L("Найти ник", "Find a nickname")) + '" value="' + esc(who.q) + '">' +
@@ -17075,6 +17091,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         ev.stopPropagation();
         if (ev.target.closest("[data-wx]")) { who.open = false; plansDraw(); whoDraw(); return; }
         const w = ev.target.closest("[data-wall]"); if (w) { who.all = w.checked; whoDraw(); return; }
+        const n = ev.target.closest("[data-wn]"); if (n) { const k = n.dataset.wn; if (who.nt.has(k)) who.nt.delete(k); else who.nt.add(k); whoDraw(); return; }
         const o = ev.target.closest("[data-wo]"); if (o) { const k = o.dataset.wo, i = isMk(k) ? k : +k; who.open = false; plansDraw(); whoDraw(); popOpen(i); }
     });
     ["pointerdown", "wheel", "keydown"].forEach((e) => whoEl.addEventListener(e, (ev) => ev.stopPropagation()));
