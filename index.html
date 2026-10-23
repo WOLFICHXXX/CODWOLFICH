@@ -15702,7 +15702,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         '<rect x="7.6" y="28" width="28.8" height="3.4" rx="1.4" fill="url(#alBg)"/><rect x="7.2" y="38.5" width="29.6" height="3.4" rx="1.4" fill="url(#alBg)"/><rect x="7.6" y="49" width="28.8" height="3.4" rx="1.4" fill="url(#alBg)"/>' +
         '<ellipse cx="22" cy="24.6" rx="13" ry="2.8" fill="#6b4220" stroke="#2c1608" stroke-width="1"/></svg>';
     async function showLoad() {
-        try { const j = await call({ op: "all" }); if (!j.ok) return; st.adm = !!j.adm; st.show = st.adm ? j.list || [] : []; showDraw();   // только владельцу сайта } catch (e) { /* нет связи — витрина появится позже */ }
+        try { const j = await call({ op: "all" }); if (!j.ok) return; st.adm = !!j.adm; st.show = st.adm ? j.list || [] : []; showDraw(); } catch (e) { /* нет связи — витрина появится позже */ }
     }
     function showDraw() {
         const box = $("alShow"); if (!box) return;
