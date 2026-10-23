@@ -519,7 +519,7 @@ function rowMark(data, kind, id, v) {   // тактика: data.k — метки
   const pc = (n) => Math.round(Math.max(-5, Math.min(105, +n || 0)) * 100) / 100;
   if (!v || typeof v !== "object") delete data[K][id];
   else if (Object.keys(data[K]).length < 150 || data[K][id]) {
-    if (K === "k") { const o = { t: ["warn", "mana", "rally", "note"].includes(v.t) ? v.t : "warn", x: pc(v.x), y: pc(v.y) }, ce = rowEntry({ a: v.a, note: v.note }); if (ce.a) o.a = ce.a; if (ce.note) o.note = ce.note; const sz = Math.round(Math.max(0.5, Math.min(3, +v.s || 1)) * 10) / 10; if (sz !== 1) o.s = sz; data.k[id] = o; }   // s — размер метки (0.5–3)   // метка: участники с маршами и заметка
+    if (K === "k") { const o = { t: ["warn", "mana", "rally", "note"].includes(v.t) ? v.t : "warn", x: pc(v.x), y: pc(v.y) }, ce = rowEntry({ a: v.a, note: v.note }); if (ce.a) o.a = ce.a; if (ce.note) o.note = ce.note; const sz = Math.round(Math.max(0.5, Math.min(3, +v.s || 1)) * 10) / 10; if (sz !== 1) o.s = sz; const nm = alStr(v.n, 40); if (nm) o.n = nm; data.k[id] = o; }   // s — размер метки (0.5–3)   // метка: участники с маршами и заметка
     else data.r[id] = { x1: pc(v.x1), y1: pc(v.y1), x2: pc(v.x2), y2: pc(v.y2), c: ["r", "b", "g"].includes(v.c) ? v.c : "r", bend: Math.round(Math.max(-0.5, Math.min(0.5, +v.bend || 0)) * 100) / 100 };
   }
   data.ts = Date.now(); return data;
