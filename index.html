@@ -17071,7 +17071,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             Object.keys(R).map((id) => arrowSvg(id, R[id])).join("") + (tac.draw ? arrowSvg("tmp", tac.draw, true) : "") + "</g>";
         svg.classList.toggle("ed", ed && tac.mode === "cur");
         mks.innerHTML = Object.keys(K).map((id) => { const m = K[id];
-            return '<button type="button" class="rw-mk' + (ed ? " ed" : "") + (sOpen.has("k:" + id) || (pv.i === "k:" + id && !pop.hidden) ? " pin" : "") + '" data-mk="' + id + '" style="left:' + m.x + "%;top:" + m.y + "%;--s:" + (m.s || 1) + '" title="' + esc(mkLabel(id) + (m.note ? " — " + m.note : "")) + '"><img src="img/row-m-' + m.t + '.webp" alt="" draggable="false">' + '<span class="rw-mkb">' + ((m.a || []).length ? "<i>" + m.a.length + "</i>" : "") + (m.note ? '<i class="nt">✎</i>' : "") + "</span></button>"; }).join("");
+            return '<button type="button" class="rw-mk' + (ed ? " ed" : "") + (sOpen.has("k:" + id) || (pv.i === "k:" + id && !pop.hidden) ? " pin" : "") + '" data-mk="' + id + '" style="left:' + m.x + "%;top:" + m.y + "%;--s:" + (m.s || 1) + '" title="' + esc(mkLabel(id) + (m.note ? " — " + m.note + trTitle(m.note) : "")) + '"><img src="img/row-m-' + m.t + '.webp" alt="" draggable="false">' + '<span class="rw-mkb">' + ((m.a || []).length ? "<i>" + m.a.length + "</i>" : "") + (m.note ? '<i class="nt">✎</i>' : "") + "</span></button>"; }).join("");
         const bt = (m, ico, tip) => '<button type="button" class="rw-tb' + (tac.mode === m ? " on" : "") + '" data-tm="' + m + '" title="' + esc(tip) + '">' + ico + "</button>";
         let h = "";
         if (ed && st.plan) {
@@ -17257,7 +17257,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const LST = "wolfich_trto"; let TRTO = ""; try { TRTO = localStorage.getItem(LST) || ""; } catch (e) {}
     let TO = TRTO || DEV;   // язык перевода: по умолчанию — язык устройства, в чате можно выбрать другой
     const trBase = (x) => String(x || "").toLowerCase().split("-")[0];
-    let TRC = new Map(), trIds = new Map(), trWait = new Set(), trTimer = 0, trSeq = 0, trBad = 0;
+    let TRC = new Map(), trIds = new Map(), trWait = new Set(), trTimer = 0, trSeq = 0, trBad = 0; const trFail = new Map();
     try { const o = JSON.parse(sessionStorage.getItem("wolfich_trc") || "{}"); if (o.to === TO) Object.keys(o.m || {}).forEach((k) => TRC.set(k, o.m[k])); } catch (e) {}
     const trShow = (txt, r) => !!(r && r.t && trBase(r.src) !== trBase(TO) && r.t.trim().toLowerCase() !== String(txt).trim().toLowerCase());
     const TRW = { ru: "перевод", uk: "переклад", be: "пераклад", en: "translation", de: "Übersetzung", fr: "traduction", es: "traducción", it: "traduzione", pt: "tradução", pl: "tłumaczenie", tr: "çeviri", kk: "аударма", zh: "翻译", ja: "翻訳", ko: "번역", ar: "ترجمة", vi: "bản dịch", id: "terjemahan", th: "แปล" };
@@ -17266,6 +17266,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         txt = String(txt || "").trim(); if (!txt || !/\p{L}/u.test(txt)) return "";
         const r = TRC.get(txt);
         if (r) return trShow(txt, r) ? '<div class="rw-tr" translate="no">' + trInner(r) + "</div>" : "";
+        if (Date.now() - (trFail.get(txt) || 0) < 60000) return "";
         if (!trIds.has(txt)) trIds.set(txt, ++trSeq);
         trWait.add(txt); clearTimeout(trTimer); trTimer = setTimeout(trFlush, 120);
         return '<div class="rw-tr" translate="no" data-trk="' + trIds.get(txt) + '" hidden></div>';
@@ -17287,36 +17288,38 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         } catch (e) { /* недоступно — через сервер */ }
         return null;
     }
-    async function trFlush() {
+    function trApply(t, r) {   // перевод готов: в кэш и во все места, где ждёт этот текст (заметки, чат, подсказки меток)
+        TRC.set(t, r);
+        document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, r)) { el.innerHTML = trInner(r); el.hidden = false; } });
+    }
+    async function trFlush() {   // сначала сервер (Google / Workers AI), что не перевелось — из браузера игрока
         const to = TO, all = Array.from(trWait).filter((t) => !TRC.has(t)).slice(0, 30); trWait.clear(); if (!all.length) return;
-        const got = await Promise.all(all.map((t) => trBrowser(t, to)));
-        const list = [], done = {}; all.forEach((t, i) => { if (got[i]) done[t] = got[i]; else list.push(t); });
-        let j = { ok: true, list: [] };
-        if (list.length) j = await ntCall("tr", { texts: list, to });
+        const j = await ntCall("tr", { texts: all, to });
         if (to !== TO) return;
-        Object.keys(done).forEach((t) => {
-            TRC.set(t, done[t]);
-            document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, TRC.get(t))) { el.innerHTML = trInner(TRC.get(t)); el.hidden = false; } });
-        });
-        if (!list.length) { trBad = 0; try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {} if (chat.open) { chatDraw(); chatScroll(false); } return; }
-        const was = trBad;
-        if (!j || !j.ok || !Array.isArray(j.list)) trBad = Date.now();
-        else {
-            let bad = 0;
-            list.forEach((t, i) => {
-                const r = j.list[i]; if (!r || r.err) { bad++; return; }
-                TRC.set(t, { t: r.t || "", src: r.src || "" });
-                document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, TRC.get(t))) { el.innerHTML = trInner(TRC.get(t)); el.hidden = false; } });
-            });
-            trBad = bad && bad === list.length ? Date.now() : 0;
-            try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {}
+        const rest = [];
+        all.forEach((t, i) => { const r = j && j.ok && Array.isArray(j.list) ? j.list[i] : null; if (r && !r.err) trApply(t, { t: r.t || "", src: r.src || "" }); else rest.push(t); });
+        if (rest.length) {
+            const got = await Promise.all(rest.map((t) => trBrowser(t, to)));
+            if (to !== TO) return;
+            rest.forEach((t, i) => { if (got[i]) trApply(t, got[i]); });
         }
+        all.forEach((t) => { if (!TRC.has(t)) trFail.set(t, Date.now()); });   // не перевелось — не спрашивать снова минуту
+        const was = trBad; trBad = all.every((t) => !TRC.has(t)) ? Date.now() : 0;
+        try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {}
+        if (typeof tacDraw === "function" && st.plan) tacDraw();   // подсказки меток с переводом
         if (!!was !== !!trBad && chat.open) chatDraw();
         if (chat.open) chatScroll(false);
     }
+    function trTitle(txt) {   // перевод для подсказки (title) метки: из кэша или поставить в очередь
+        txt = String(txt || "").trim(); if (!txt || !/\p{L}/u.test(txt)) return "";
+        const r = TRC.get(txt); if (r) return trShow(txt, r) ? "\n🌐 " + r.t : "";
+        if (Date.now() - (trFail.get(txt) || 0) < 60000) return "";
+        if (!trIds.has(txt)) trIds.set(txt, ++trSeq);
+        trWait.add(txt); clearTimeout(trTimer); trTimer = setTimeout(trFlush, 120); return "";
+    }
     function trSetLang(v) {   // другой язык перевода: кэш и подписи — заново
         TRTO = v; TO = v || DEV; try { if (v) localStorage.setItem(LST, v); else localStorage.removeItem(LST); } catch (e) {}
-        TRC = new Map(); trIds = new Map(); trWait = new Set(); trBad = 0; try { sessionStorage.removeItem("wolfich_trc"); } catch (e) {}
+        TRC = new Map(); trIds = new Map(); trWait = new Set(); trBad = 0; trFail.clear(); try { sessionStorage.removeItem("wolfich_trc"); } catch (e) {}
         chatDraw(); paint(); if (!pop.hidden && typeof popDraw === "function" && !pop.querySelector("textarea")) popDraw(); if (!mp.hidden && typeof mpDraw === "function" && !mp.querySelector("textarea")) mpDraw();
     }
     const noteHtml = (txt) => '<div class="rw-nt"><span>✎</span><div>' + esc(txt) + trHtml(txt) + "</div></div>";
