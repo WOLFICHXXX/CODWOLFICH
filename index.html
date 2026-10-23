@@ -16781,6 +16781,17 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const BLD = [[1, 22.26, 10.14, 10.55], [1, 31.57, 8.42, 10.55], [3, 56.3, 4.56, 9.43], [2, 71.72, 7.2, 10.45], [2, 52.7, 14.91, 10.45], [4, 49.28, 29.31, 11.87], [3, 22.13, 35.09, 9.43],
         [3, 79.03, 34.48, 9.43], [2, 45.02, 47.57, 10.45], [2, 18.81, 57.51, 10.45], [3, 40.6, 66.43, 9.43], [1, 72.35, 58.62, 10.55], [1, 83.07, 53.55, 10.55]];
     const AR = 986 / 1595;
+    /* «Отзеркалить»: карта RoW симметрична относительно центра — здание ↔ здание напротив, точка ↔ точка напротив */
+    const MIR = { 0: 12, 12: 0, 1: 11, 11: 1, 3: 9, 9: 3, 4: 8, 8: 4, 2: 10, 10: 2, 6: 7, 7: 6, 5: 5 };
+    const MC = (() => { const c = (i) => [BLD[i][1], BLD[i][2] + BLD[i][3] / 2]; let x = 0, y = 0, n = 0; Object.keys(MIR).forEach((i) => { const a = c(+i), b = c(MIR[i]); x += (a[0] + b[0]) / 2; y += (a[1] + b[1]) / 2; n++; }); return [x / n, y / n]; })();
+    const mirP = (x, y) => [Math.round(Math.max(1, Math.min(99, 2 * MC[0] - x)) * 100) / 100, Math.round(Math.max(1, Math.min(99, 2 * MC[1] - y)) * 100) / 100];   // за краем карты — к краю
+    function mirrorPlan(d) {
+        d = d || {}; const o = {};
+        if (d.b) { o.b = {}; Object.keys(d.b).forEach((i) => { const j = MIR[i] != null ? MIR[i] : +i; o.b[j] = JSON.parse(JSON.stringify(d.b[i])); }); }
+        if (d.k) { o.k = {}; Object.keys(d.k).forEach((id) => { const m = JSON.parse(JSON.stringify(d.k[id])), p = mirP(m.x, m.y); m.x = p[0]; m.y = p[1]; o.k[id] = m; }); }
+        if (d.r) { o.r = {}; Object.keys(d.r).forEach((id) => { const r = JSON.parse(JSON.stringify(d.r[id])), a = mirP(r.x1, r.y1), b = mirP(r.x2, r.y2); r.x1 = a[0]; r.y1 = a[1]; r.x2 = b[0]; r.y2 = b[1]; o.r[id] = r; }); }   // поворот на 180°: изгиб стрелки сохраняет сторону
+        return o;
+    }
     // названия: [ключ, №]; ключи — виды зданий RoW (деревья вида 3: красная рамка — мужества, зелёная — исцеления)
     const BNM = { 0: ["op", 1], 1: ["op", 2], 11: ["op", 3], 12: ["op", 4], 4: ["hall", 1], 3: ["hall", 2], 8: ["hall", 3], 9: ["hall", 4], 2: ["cour", 1], 10: ["cour", 2], 6: ["heal", 1], 7: ["heal", 2], 5: ["life", 0] };
     const BKN = { op: ["Аванпост", "Outpost"], hall: ["Зал", "Hall"], cour: ["Дерево мужества", "Tree of Courage"], heal: ["Дерево исцеления", "Tree of Healing"], life: ["Камень жизни", "Life Stone"] };
@@ -17256,6 +17267,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const H = hist();
             h += '<button type="button" class="rw-tb" data-hu="1"' + (H.u.length ? "" : " disabled") + ' title="' + esc(L("Отменить (Ctrl+Z)", "Undo (Ctrl+Z)")) + '"><svg viewBox="0 0 24 24"><path d="M9 5L3 10l6 5v-3.2c5 0 8.4 1.4 10.6 5.2C18.8 11.6 15.6 8.4 9 8.2z" fill="currentColor"/></svg></button>' +
                 '<button type="button" class="rw-tb" data-hr="1"' + (H.r.length ? "" : " disabled") + ' title="' + esc(L("Вернуть (Ctrl+Y)", "Redo (Ctrl+Y)")) + '"><svg viewBox="0 0 24 24"><path d="M15 5l6 5-6 5v-3.2c-5 0-8.4 1.4-10.6 5.2C5.2 11.6 8.4 8.4 15 8.2z" fill="currentColor"/></svg></button>' +
+                '<button type="button" class="rw-tb" data-mir="1"' + (hasData(pdata()) ? "" : " disabled") + ' title="' + esc(L("Отзеркалить план — для команды с другой стороны карты", "Mirror the plan — for the team on the other side of the map")) + '"><svg viewBox="0 0 24 24"><path d="M12 2v20" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 2"/><path d="M10 5 3 12l7 7z" fill="currentColor"/><path d="M14 5l7 7-7 7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>' +
                 '<button type="button" class="rw-tb rw-clr" data-clr="1"' + (hasData(pdata()) ? "" : " disabled") + ' title="' + esc(L("Очистить карту", "Clear the map")) + '"><svg viewBox="0 0 24 24"><path d="M9 3h6l1 2h4v2H4V5h4zm-3 6h12l-1 12H7z" fill="currentColor"/></svg></button><span class="rw-tsep"></span>';
         }
         h += '<button type="button" class="rw-tb" data-big="1" title="' + esc(heroBox.classList.contains("big") ? L("Обычный вид", "Normal view") : L("Увеличить карту", "Enlarge the map")) + '">' + (heroBox.classList.contains("big") ? "⤡" : "⤢") + "</button>";
@@ -17281,6 +17293,12 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             if (!confirm(L("Очистить карту — " + pn + "?\nУдалятся назначения на зданиях, метки, стрелки и заметки этого плана. Другие планы не изменятся. Отменить можно кнопкой «Отменить».",
                 "Clear the map — " + pn + "?\nAssignments, marks, arrows and notes of this plan will be removed. Other plans stay as they are. You can undo it with “Undo”."))) return;
             return saveAll({});
+        }
+        if (b.dataset.mir) {
+            const pn = EN() ? PLN[st.plan.pl || "A"][1] : PLN[st.plan.pl || "A"][0];
+            if (!confirm(L("Отзеркалить " + pn + "?\nНазначения переедут на здания с другой стороны карты, метки и стрелки — в зеркальные места. Отменить можно кнопкой «Отменить». У всех изменится после «Сохранить».",
+                "Mirror " + pn + "?\nAssignments move to the buildings on the other side of the map, marks and arrows to mirrored places. You can undo it with “Undo”. Others see it after “Save”."))) return;
+            return saveAll(mirrorPlan(pdata()));
         }
         if (b.dataset.hu) return histGo(true);
         if (b.dataset.hr) return histGo(false);
