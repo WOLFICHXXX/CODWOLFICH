@@ -17270,10 +17270,35 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         trWait.add(txt); clearTimeout(trTimer); trTimer = setTimeout(trFlush, 120);
         return '<div class="rw-tr" translate="no" data-trk="' + trIds.get(txt) + '" hidden></div>';
     }
+    /* перевод прямо из браузера игрока (у каждого свой адрес — Google не ограничивает, как сервер Cloudflare); не вышло — через сервер */
+    async function trBrowser(text, to) {
+        const q = "&tl=" + encodeURIComponent(to) + "&q=" + encodeURIComponent(text);
+        try {
+            const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto" + q);
+            if (r.ok) { const j = await r.json(); const out = (j[0] || []).map((x) => (x && x[0]) || "").join(""); if (out) return { t: out, src: String(j[2] || "") }; }
+        } catch (e) { /* недоступно — следующий способ */ }
+        try {
+            const r = await fetch("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto" + q);
+            if (r.ok) {
+                const j = await r.json();
+                if (Array.isArray(j)) { const x = j[0]; if (Array.isArray(x) && x[0]) return { t: String(x[0]), src: String(x[1] || "") }; if (typeof x === "string" && x) return { t: x, src: "" }; }
+                if (j && j.sentences) { const out = j.sentences.map((x) => x.trans || "").join(""); if (out) return { t: out, src: String(j.src || "") }; }
+            }
+        } catch (e) { /* недоступно — через сервер */ }
+        return null;
+    }
     async function trFlush() {
-        const to = TO, list = Array.from(trWait).filter((t) => !TRC.has(t)).slice(0, 30); trWait.clear(); if (!list.length) return;
-        const j = await ntCall("tr", { texts: list, to });
+        const to = TO, all = Array.from(trWait).filter((t) => !TRC.has(t)).slice(0, 30); trWait.clear(); if (!all.length) return;
+        const got = await Promise.all(all.map((t) => trBrowser(t, to)));
+        const list = [], done = {}; all.forEach((t, i) => { if (got[i]) done[t] = got[i]; else list.push(t); });
+        let j = { ok: true, list: [] };
+        if (list.length) j = await ntCall("tr", { texts: list, to });
         if (to !== TO) return;
+        Object.keys(done).forEach((t) => {
+            TRC.set(t, done[t]);
+            document.querySelectorAll('.rw-tr[data-trk="' + trIds.get(t) + '"]').forEach((el) => { if (trShow(t, TRC.get(t))) { el.innerHTML = trInner(TRC.get(t)); el.hidden = false; } });
+        });
+        if (!list.length) { trBad = 0; try { const m = {}; Array.from(TRC.keys()).slice(-300).forEach((k) => { m[k] = TRC.get(k); }); sessionStorage.setItem("wolfich_trc", JSON.stringify({ to: TO, m })); } catch (e) {} if (chat.open) { chatDraw(); chatScroll(false); } return; }
         const was = trBad;
         if (!j || !j.ok || !Array.isArray(j.list)) trBad = Date.now();
         else {
