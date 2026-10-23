@@ -16826,6 +16826,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const heroName = (n) => (EN() && window.WI18N && window.WI18N.tr ? window.WI18N.tr(n) : n);
     const trTxt = (x) => (x.tier ? "T" + x.tier + " " : "") + tyName(x.type) + (x.fly ? " ✈" : "") + (x.n ? " · " + fmt(x.n) : "");
     const pdata = () => (st.plan && st.plan.data && st.plan.data.data) || {};
+    const bossP = () => !!(st.plan && (st.plan.kind === "a" ? st.plan.data.boss : st.plan.data.role === "edit"));   // офицеры и создатель (в личном планере — по офицерской ссылке)
     const canEdit = () => !!(st.plan && (st.plan.kind === "a" ? st.plan.data.edit : st.plan.data.role === "edit"));
     const entry = (i) => ((pdata().b || {})[i]) || {};
     const pop = document.createElement("div"); pop.className = "rw-pop"; pop.hidden = true; stage.appendChild(pop);
@@ -17277,7 +17278,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const H = hist();
             h += '<button type="button" class="rw-tb" data-hu="1"' + (H.u.length ? "" : " disabled") + ' title="' + esc(L("Отменить (Ctrl+Z)", "Undo (Ctrl+Z)")) + '"><svg viewBox="0 0 24 24"><path d="M9 5L3 10l6 5v-3.2c5 0 8.4 1.4 10.6 5.2C18.8 11.6 15.6 8.4 9 8.2z" fill="currentColor"/></svg></button>' +
                 '<button type="button" class="rw-tb" data-hr="1"' + (H.r.length ? "" : " disabled") + ' title="' + esc(L("Вернуть (Ctrl+Y)", "Redo (Ctrl+Y)")) + '"><svg viewBox="0 0 24 24"><path d="M15 5l6 5-6 5v-3.2c-5 0-8.4 1.4-10.6 5.2C5.2 11.6 8.4 8.4 15 8.2z" fill="currentColor"/></svg></button>' +
-                '<button type="button" class="rw-tb" data-mir="1"' + (hasData(pdata()) ? "" : " disabled") + ' title="' + esc(L("Отзеркалить план — для команды с другой стороны карты", "Mirror the plan — for the team on the other side of the map")) + '"><svg viewBox="0 0 24 24"><path d="M12 2v20" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 2"/><path d="M10 5 3 12l7 7z" fill="currentColor"/><path d="M14 5l7 7-7 7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>' +
+                (bossP() ? '<button type="button" class="rw-tb" data-mir="1"' + (hasData(pdata()) ? "" : " disabled") + ' title="' + esc(L("Отзеркалить план — для команды с другой стороны карты", "Mirror the plan — for the team on the other side of the map")) + '"><svg viewBox="0 0 24 24"><path d="M12 2v20" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 2"/><path d="M10 5 3 12l7 7z" fill="currentColor"/><path d="M14 5l7 7-7 7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>' : "") +
                 '<button type="button" class="rw-tb rw-clr" data-clr="1"' + (hasData(pdata()) ? "" : " disabled") + ' title="' + esc(L("Очистить карту", "Clear the map")) + '"><svg viewBox="0 0 24 24"><path d="M9 3h6l1 2h4v2H4V5h4zm-3 6h12l-1 12H7z" fill="currentColor"/></svg></button><span class="rw-tsep"></span>';
         }
         h += '<button type="button" class="rw-tb" data-big="1" title="' + esc(heroBox.classList.contains("big") ? L("Обычный вид", "Normal view") : L("Увеличить карту", "Enlarge the map")) + '">' + (heroBox.classList.contains("big") ? "⤡" : "⤢") + "</button>";
@@ -17304,7 +17305,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 "Clear the map — " + pn + "?\nAssignments, marks, arrows and notes of this plan will be removed. Other plans stay as they are. You can undo it with “Undo”."))) return;
             return saveAll({});
         }
-        if (b.dataset.mir) {
+        if (b.dataset.mir && bossP()) {
             const pn = EN() ? PLN[st.plan.pl || "A"][1] : PLN[st.plan.pl || "A"][0];
             if (!confirm(L("Отзеркалить " + pn + " для команды с другой стороны?\nМарши и заметки переедут на здания-пары, метки и стрелки — в такие же места на другой стороне. Отменить можно кнопкой «Отменить». У всех изменится после «Сохранить».",
                 "Mirror " + pn + " for the team on the other side?\nMarches and notes move to the paired buildings, marks and arrows to the same places on the other side. You can undo it with “Undo”. Others see it after “Save”."))) return;
