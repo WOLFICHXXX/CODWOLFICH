@@ -3,11 +3,17 @@ on: { push: { branches: [bot], paths: [".github/workflows/check.yml"] } }
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
+      AWS_DEFAULT_REGION: ru-central1
+      BUCKET: ${{ secrets.YC_BUCKET }}
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
     steps:
       - run: |
-          M=https://functions.yandexcloud.net/d4efk5gct1uv86m11gui
-          python3 -c "import json,base64,os;print(json.dumps({'key':'WLF-test-invalid','msg':'t','imgs':[{'img':'data:image/jpeg;base64,'+base64.b64encode(os.urandom(150000)).decode(),'cap':'x'} for i in range(3)]}))" > big.json
-          ls -la big.json
-          for i in 1 2; do sleep 2;
-            a=$(curl -s -m 70 -o /tmp/a -w "%{http_code} %{time_total}s" -X POST -H 'content-type: application/json' --data @big.json "$M?p=rcnote"); echo "::notice::mirror rcnote 600KB $i: $a $(head -c 160 /tmp/a)"
-          done
+          export AWS_ACCESS_KEY_ID="$(printf %s "$AWS_ACCESS_KEY_ID" | tr -d '[:space:]')" AWS_SECRET_ACCESS_KEY="$(printf %s "$AWS_SECRET_ACCESS_KEY" | tr -d '[:space:]')"; BUCKET="$(printf %s "$BUCKET" | tr -d '[:space:]')"
+          K=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | sort | tail -1 | awk '{print $NF}')
+          N=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | wc -l)
+          R=$(curl -s -o /tmp/x -w "%{http_code} %{size_download} %{content_type}" "https://storage.yandexcloud.net/$BUCKET/shots/$K")
+          echo "::notice::shots: $N files, last $K → public GET $R"
