@@ -5456,13 +5456,6 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
                     <div class="al-db"><button class="btn small" type="button" data-pick="1">Выбрать файл</button><button class="btn secondary small" type="button" data-paste="1">Вставить из буфера</button></div>
                     <em id="alMarchState"></em></div>
             </div>
-            <h3 class="al-rh">Подтвердить ранг</h3>
-            <div class="al-shots al-shots1">
-                <div class="al-drop al-drop-r" id="alDropRank"><input type="file" accept="image/*" id="alFileRank" hidden>
-                    <b>Скриншот альянса (участники) <span class="help-q al-hq" tabindex="0" role="button" aria-label="Пример скриншота" data-help="alRank">?</span></b><span>ранги <i class="al-dia r4">R4</i> офицер и <i class="al-dia r5">R5</i> глава</span>
-                    <div class="al-db"><button class="btn small" type="button" data-pick="1">Выбрать файл</button><button class="btn secondary small" type="button" data-paste="1">Вставить из буфера</button></div>
-                    <em id="alRankState"></em></div>
-            </div>
             <div class="al-note">Скриншот можно выбрать файлом, перетащить на нужный блок или вставить из буфера: кнопкой «Вставить из буфера» или <b>Ctrl+V</b> — картинка попадёт в блок, на который наведена мышь (подсвечен). Данные подставляются в поля ниже — проверьте и при необходимости поправьте перед сохранением. Сами скриншоты на сервер не отправляются.</div>
             <div id="alForm"></div>
             <button class="btn" id="alSave" type="button">Сохранить мои данные</button>
@@ -15947,7 +15940,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const isBoss = () => st.data && (st.data.role === "own" || st.data.role === "off");
     function rankRow(r) {   // ранг в форме: только по скриншоту альянса, вручную не выбирается
         r = +r || 0;
-        return '<div class="al-rk" id="alRk">Ранг: <input type="hidden" data-f="rank" value="' + r + '">' + (r ? dia(r) + (r === 5 ? " глава" : " офицер") : "не подтверждён — загрузите скриншот альянса") + "</div>";
+        return '<div class="al-rk" id="alRk">Ранг: <input type="hidden" data-f="rank" value="' + r + '">' + (r ? dia(r) + (r === 5 ? " глава" : " офицер") : "не указан — ставит офицер или создатель в списке участников") + "</div>";
     }
     function mineFold(open) {   // «Мои данные» — шторка, по умолчанию свёрнута
         const b = $("alMineBody"), h = $("alMineH"); if (!b || !h) return;
@@ -16300,7 +16293,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             $(SID[kind]).textContent = L("В буфере нет картинки — скопируйте скриншот (Win+Shift+S) и нажмите ещё раз", "No image in the clipboard — copy a screenshot (Win+Shift+S) and press again");
         } catch (e) { $(SID[kind]).textContent = L("Браузер не дал доступ к буферу — нажмите на этот блок и Ctrl+V", "The browser blocked clipboard access — click this block and press Ctrl+V"); pick(kind); }
     };
-    const pick = (kind) => { pasteTo = kind; $("alDropProf").classList.toggle("sel", kind === "prof"); $("alDropMarch").classList.toggle("sel", kind === "march"); $("alDropRank").classList.toggle("sel", kind === "rank"); };
+    const pick = (kind) => { pasteTo = kind; $("alDropProf").classList.toggle("sel", kind === "prof"); $("alDropMarch").classList.toggle("sel", kind === "march"); const dr = $("alDropRank"); if (dr) dr.classList.toggle("sel", kind === "rank"); };
     const shot = (inp, drop, kind) => {
         inp.addEventListener("change", () => { runShot(inp.files[0], kind); inp.value = ""; });
         drop.querySelector("[data-pick]").addEventListener("click", (e) => { e.stopPropagation(); pick(kind); inp.click(); });
@@ -16313,7 +16306,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     };
     shot($("alFileProf"), $("alDropProf"), "prof");
     shot($("alFileMarch"), $("alDropMarch"), "march");
-    shot($("alFileRank"), $("alDropRank"), "rank");
+    if ($("alDropRank")) shot($("alFileRank"), $("alDropRank"), "rank");
     document.querySelectorAll("#page-ally .al-q").forEach(q => q.addEventListener("click", (e) => { e.stopPropagation(); q.classList.toggle("on"); }));   // подсказка «?» — на телефоне по тапу
     document.addEventListener("paste", (e) => {   // Ctrl+V: в выбранный блок (последний, на который навели или нажали); если не выбран — определяем сами
         if (!$("page-ally").classList.contains("active") || $("alMine").style.display === "none" || $("alView").style.display === "none") return;
