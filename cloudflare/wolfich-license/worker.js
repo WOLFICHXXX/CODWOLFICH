@@ -484,6 +484,11 @@ function alClean(d) {   // данные участника: только изв�
   if (Array.isArray(d.troops)) o.troops = d.troops.slice(0, 8).map((t) => ({ type: alStr(t.type, 16), fly: !!t.fly, tier: Math.max(0, Math.min(9, Math.floor(+t.tier || 0))), n: Math.max(0, Math.min(1e9, Math.floor(+t.n || 0))) }));
   if (Array.isArray(d.heroes)) o.heroes = d.heroes.slice(0, 2).map((h) => ({ name: alStr(h.name, 32), lvl: Math.max(0, Math.min(99, Math.floor(+h.lvl || 0))), skills: alStr(h.skills, 24).replace(/[^0-5/]/g, "") }));
   if (d.note != null) o.note = alStr(d.note, 300);
+  if (d.pt !== undefined) {   // прайм-тайм в UTC: минуты от полуночи (a — начало, b — конец; через полночь b < a)
+    const a0 = Math.floor(+(d.pt && d.pt.a)), b0 = Math.floor(+(d.pt && d.pt.b));
+    o.pt = d.pt && a0 >= 0 && a0 < 1440 && b0 >= 0 && b0 < 1440 && a0 !== b0 ? { a: a0, b: b0 } : null;
+  }
+  if (d.hrs != null) o.hrs = Math.max(0, Math.min(24, Math.round((+d.hrs || 0) * 2) / 2));   // часов в игре в день
   if (d.rank != null) o.rank = [4, 5].includes(+d.rank) ? +d.rank : 0;   // R4/R5 — подтверждён скриншотом вкладки «Участники»
   if (Array.isArray(d.marches)) o.marches = d.marches.slice(0, 5).map((x) => { const c = alClean({ heroes: (x && x.heroes) || [], troops: (x && x.troops) || [] }); return { heroes: c.heroes, troops: c.troops }; });   // до 5 маршей
   return o;
@@ -709,7 +714,7 @@ async function alApi(req, env) {
   if (op === "clear") {   // удалить данные карточки (ник и место в альянсе остаются): свою — любой участник, любую — офицер и создатель
     const mid = String(b.mid || ""); if (!a.m[mid]) return json({ ok: false, err: "участник не найден" });
     if (!(boss || mid === me)) return json({ ok: false, err: "можно очистить только свою карточку" });
-    ["power", "merit", "troops", "heroes", "marches", "rank"].forEach((k) => { delete a.m[mid][k]; }); a.m[mid].ts = Date.now();   // пометка остаётся (она за аккаунтом)
+    ["power", "merit", "troops", "heroes", "marches", "rank", "pt", "hrs"].forEach((k) => { delete a.m[mid][k]; }); a.m[mid].ts = Date.now();   // пометка остаётся (она за аккаунтом)
     await save(); return view();
   }
   if (op === "rwteam") {   // команда RoW в карточке участника (1–3, 0 — без команды): офицеры и создатель — любому, участник — себе

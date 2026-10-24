@@ -3021,6 +3021,13 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .al-skin{position:absolute;right:-5px;bottom:-5px;width:20px!important;height:20px!important;min-width:0!important;padding:0!important;text-align:center;font-size:.72rem!important;font-weight:700;border-radius:50%!important;border:1px solid var(--gold)!important;background:#000d!important;color:#fff!important;box-shadow:none!important}
 .al-tre{display:grid;grid-template-columns:2fr 1fr 1.4fr auto;gap:8px;align-items:center;border:1px solid var(--tc);border-radius:12px;padding:8px;background:color-mix(in srgb,var(--tc) 10%,transparent)}
 .al-trp{margin:8px 0 4px;min-height:4px}
+.al-ptf{grid-template-columns:1fr 1fr 1.3fr}
+@media (max-width:720px){.al-ptf{grid-template-columns:1fr 1fr}.al-ptf label:last-child{grid-column:1/-1}}
+.al-ptn{margin:-2px 0 8px}
+.al-pt{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:6px 0 2px;font-size:.84rem;color:var(--text)}
+.al-pt b{color:var(--gold-light)}
+.al-pt small{color:var(--muted)}
+.al-hrs{border:1px solid var(--border);border-radius:999px;padding:1px 9px;font-size:.78rem;color:var(--gold-light);background:rgba(255,255,255,.04)}
 .al-tre .al-fly{display:flex;align-items:center;gap:6px;margin:0;font-size:.85rem}
 .al-tre .al-fly input{min-height:0!important;height:16px!important;max-height:16px!important;box-shadow:none!important;border:0!important;background:none!important}
 .al-he .al-hlv,.al-he .al-skin{margin:0!important;min-height:0!important;max-height:none!important;line-height:18px!important;box-sizing:border-box}
@@ -15958,9 +15965,16 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             '<datalist id="alHeroList">' + names.map(n => '<option value="' + esc(n) + '">').join("") + "</datalist>" +
             '<div class="al-f"><label>Ник<input class="al-in" data-f="nick" maxlength="32" value="' + esc(m.nick) + '"></label>' +
             '<label>Мощь<input class="al-in" data-f="power" inputmode="numeric" value="' + esc(m.power || "") + '"></label>' +
-            '<label>Заслуги<input class="al-in" data-f="merit" inputmode="numeric" value="' + esc(m.merit != null ? m.merit : "") + '"></label></div>' + rankRow(m.rank) +
+            '<label>Заслуги<input class="al-in" data-f="merit" inputmode="numeric" value="' + esc(m.merit != null ? m.merit : "") + '"></label></div>' +
+            '<div class="al-f al-ptf"><label>' + L("Прайм-тайм с", "Prime time from") + '<input class="al-in" type="time" data-p="a" value="' + (ptOk(m.pt) ? hm(mod(m.pt.a - TZO())) : "") + '"></label>' +
+            '<label>' + L("до", "to") + '<input class="al-in" type="time" data-p="b" value="' + (ptOk(m.pt) ? hm(mod(m.pt.b - TZO())) : "") + '"></label>' +
+            '<label>' + L("В игре, часов в день", "Hours in game per day") + '<input class="al-in" data-p="hrs" inputmode="decimal" placeholder="напр. 4" value="' + esc(m.hrs || "") + '"></label></div>' +
+            '<div class="al-note al-ptn" id="alPtN"></div>' + rankRow(m.rank) +
             '<div class="al-mtabs" id="alMTabs"></div><div id="alMarch"></div>';
         drawMarch();
+        const ptn = () => { const a = toMin($("alForm").querySelector('[data-p="a"]').value), b = toMin($("alForm").querySelector('[data-p="b"]').value);
+            $("alPtN").textContent = a != null && b != null && a !== b ? L("Время вашего устройства. В карточке: ", "Your device time. On the card: ") + hm(mod(a + TZO())) + "–" + hm(mod(b + TZO())) + " UTC" : L("Время вашего устройства — на карточке будет показано и в UTC (для ивентов).", "Your device time — the card also shows UTC (for events)."); };
+        $("alForm").querySelectorAll("[data-p]").forEach((el) => el.addEventListener("input", ptn)); ptn();
     }
     function drawMarch() {
         const fm = st.fm, x = fm.marches[fm.mi] || {}, tr = (x.troops || []).concat([{}, {}, {}, {}]).slice(0, 4), hr = (x.heroes || []).concat([{}, {}]).slice(0, 2);
@@ -16010,6 +16024,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     function readForm() {
         const f = $("alForm"), d = {};
         f.querySelectorAll("[data-f]").forEach((el) => { d[el.dataset.f] = el.dataset.f === "nick" ? el.value.trim() : numv(el.value); });
+        const pa = toMin(f.querySelector('[data-p="a"]').value), pb = toMin(f.querySelector('[data-p="b"]').value);
+        d.pt = pa != null && pb != null && pa !== pb ? { a: mod(pa + TZO()), b: mod(pb + TZO()) } : null;
+        d.hrs = Math.max(0, Math.min(24, Math.round((+String(f.querySelector('[data-p="hrs"]').value || "").replace(",", ".") || 0) * 2) / 2));
         saveMarch();
         d.marches = st.fm.marches.map(x => ({ heroes: (x.heroes || []).filter(h => h.name), troops: x.troops || [] })).filter(x => x.heroes.length || x.troops.length);
         d.heroes = d.marches[0] ? d.marches[0].heroes : []; d.troops = d.marches[0] ? d.marches[0].troops : [];
@@ -16030,25 +16047,46 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         return '<span class="al-tc" style="--tc:' + TIERC[+t.tier || 0] + '"><b>' + (t.tier ? "Т" + t.tier : "—") + "</b>" + esc(TN[t.type] || t.type) + (t.fly ? " · летающие" : "") + (t.n ? "<em>" + fmt(t.n) + "</em>" : "") + "</span>";
     }
 
+    /* прайм-тайм: хранится в UTC (минуты 0…1439, a — начало, b — конец, через полночь — b < a); в форме — время устройства */
+    const TZO = () => new Date().getTimezoneOffset();   // минут: UTC = местное + TZO
+    const hm = (x) => ("0" + Math.floor(x / 60)).slice(-2) + ":" + ("0" + (x % 60)).slice(-2);
+    const toMin = (v) => { const r = /^(\d{1,2}):(\d{2})/.exec(v || ""); return r ? (+r[1] % 24) * 60 + Math.min(59, +r[2]) : null; };
+    const mod = (x) => ((x % 1440) + 1440) % 1440;
+    const ptOk = (pt) => pt && pt.a != null && pt.b != null && pt.a !== pt.b;
+    const ptHas = (pt, s0, s1) => {   // пересекается ли прайм-тайм с окном [s0, s1) UTC
+        if (!ptOk(pt)) return false;
+        const segs = pt.b > pt.a ? [[pt.a, pt.b]] : [[pt.a, 1440], [0, pt.b]];
+        return segs.some(([x, y]) => x < s1 && y > s0);
+    };
+    const ptTxt = (m) => {
+        if (!ptOk(m.pt) && !m.hrs) return "";
+        const loc = ptOk(m.pt) ? hm(mod(m.pt.a - TZO())) + "–" + hm(mod(m.pt.b - TZO())) : "";
+        return '<div class="al-pt" title="' + esc(L("Прайм-тайм (основное время в игре) и сколько часов в день играет", "Prime time and hours played per day")) + '">🕒 ' +
+            (ptOk(m.pt) ? "<b>" + hm(m.pt.a) + "–" + hm(m.pt.b) + " UTC</b> <small>(" + L("у вас ", "yours ") + loc + ")</small>" : "") +
+            (m.hrs ? '<span class="al-hrs">' + m.hrs + L(" ч/день", " h/day") + "</span>" : "") + "</div>";
+    };
+    const PTS = [[0, 360], [360, 720], [720, 1080], [1080, 1440]];
     const hasType = (m, t) => marchesOf(m).some((x) => (x.troops || []).some((r) => (t === "fly" ? r.fly : r.type === t)));
     function fltDraw() {   // фильтры участников: вид войск и команда RoW
         const j = st.data, box = $("alFlt"); if (!box || !j) return;
         const chip = (k, v, txt, n) => '<button type="button" class="al-fc' + (st[k] === v ? " on" : "") + '" data-fk="' + k + '" data-fv="' + v + '">' + txt + (n != null ? " <small>" + n + "</small>" : "") + "</button>";
         const cntT = (t) => j.members.filter((m) => hasType(m, t)).length, cntR = (r) => j.members.filter((m) => (r === "0" ? !m.rt : String(m.rt || "") === r)).length;
         box.innerHTML = '<div class="al-fg"><span class="al-fl">' + L("Войска:", "Troops:") + "</span>" + chip("ft", "", L("Все", "All")) + TYPES.map(([k, n]) => chip("ft", k, esc(T(n)), cntT(k))).join("") + chip("ft", "fly", L("Летающие", "Flying"), cntT("fly")) + "</div>" +
-            '<div class="al-fg"><span class="al-fl">' + L("Команда RoW:", "RoW team:") + "</span>" + chip("fr", "", L("Все", "All")) + ["1", "2", "3"].map((r) => chip("fr", r, r, cntR(r))).join("") + chip("fr", "0", L("Без команды", "No team"), cntR("0")) + "</div>";
+            '<div class="al-fg"><span class="al-fl">' + L("Команда RoW:", "RoW team:") + "</span>" + chip("fr", "", L("Все", "All")) + ["1", "2", "3"].map((r) => chip("fr", r, r, cntR(r))).join("") + chip("fr", "0", L("Без команды", "No team"), cntR("0")) + "</div>" +
+            '<div class="al-fg"><span class="al-fl">' + L("Прайм (UTC):", "Prime (UTC):") + "</span>" + chip("fp", "", L("Все", "All")) + PTS.map(([a, b], i) => chip("fp", String(i), hm(a) + "–" + hm(b % 1440 || 1440).replace("24:00", "24:00"), j.members.filter((m) => ptHas(m.pt, a, b)).length)).join("") + chip("fp", "x", L("Не указан", "Not set"), j.members.filter((m) => !ptOk(m.pt)).length) + "</div>";
         box.querySelectorAll("[data-fk]").forEach((b) => b.addEventListener("click", () => { st[b.dataset.fk] = b.dataset.fv; table(); }));
     }
     function table() {
         const j = st.data, boss = j.role === "own" || j.role === "off", key = $("alSort").value;
         fltDraw();
-        const ms = j.members.filter((m) => (!st.ft || hasType(m, st.ft)) && (!st.fr || (st.fr === "0" ? !m.rt : String(m.rt || "") === st.fr)))
+        const fpOk = (m) => !st.fp || (st.fp === "x" ? !ptOk(m.pt) : ptHas(m.pt, PTS[+st.fp][0], PTS[+st.fp][1]));
+        const ms = j.members.filter((m) => (!st.ft || hasType(m, st.ft)) && (!st.fr || (st.fr === "0" ? !m.rt : String(m.rt || "") === st.fr)) && fpOk(m))
             .sort((a, b) => key === "nick" ? String(a.nick).localeCompare(String(b.nick)) : (b[key] || 0) - (a[key] || 0));
         $("alCount").textContent = "· " + (ms.length === j.members.length ? ms.length : ms.length + " / " + j.members.length);
         $("alTbl").innerHTML = ms.map((m) => '<div class="al-mc' + (m.mid === j.me ? " al-me" : "") + '">' +
             '<div class="al-mh"><div><span class="al-mn">' + esc(m.nick) + "</span>" + dia(+m.rank) + (m.role === "own" ? '<span class="al-tag">создатель</span>' : m.role === "off" ? '<span class="al-tag">офицер</span>' : "") + (m.rt ? '<span class="al-tag al-rtb">RoW ' + m.rt + "</span>" : "") +
 '<div class="al-upd">' + (m.ts ? L("обновлено ", "updated ") + ago(m.ts) : "") + "</div></div>" +
-            '<div class="al-st"><span><small>Мощь</small>' + fmt(m.power) + '</span><span><small>Заслуги</small>' + fmt(m.merit) + "</span></div></div>" +
+            '<div class="al-st"><span><small>Мощь</small>' + fmt(m.power) + '</span><span><small>Заслуги</small>' + fmt(m.merit) + "</span></div></div>" + ptTxt(m) +
             '<div class="al-ctl">' +
                 (boss || m.mid === j.me ? '<div class="al-rts" title="' + esc(L("Команда RoW участника — по ней планер предлагает марши", "Member's RoW team — the planner offers marches by it")) + '"><span>RoW</span>' + [0, 1, 2, 3].map((t) => '<button type="button" class="' + ((m.rt || 0) === t ? "on" : "") + '" data-rt="' + m.mid + ":" + t + '">' + (t || "—") + "</button>").join("") + "</div>" : "") +
                 (boss ? '<div class="al-rts al-rks" title="' + esc(L("Ранг в альянсе — поставить или снять вручную", "Alliance rank — set or remove manually")) + '"><span>' + L("Ранг", "Rank") + "</span>" + [0, 4, 5].map((r) => '<button type="button" class="' + ((+m.rank || 0) === r || (r === 0 && ![4, 5].includes(+m.rank)) ? "on" : "") + '" data-rk="' + m.mid + ":" + r + '">' + (r ? "R" + r : "—") + "</button>").join("") + "</div>" : "") + "</div>" +
@@ -16196,7 +16234,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     });
     $("alCsv").addEventListener("click", () => {
         const j = st.data, q = (s) => '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"';
-        const rows = [["Ник", "Роль", "Мощь", "Заслуги", "Войска", "Герои", "Обновлено"].map(T)].concat(j.members.map((m) => [m.nick, T(ROLE[m.role] || "") + (m.rank ? " R" + m.rank : ""), m.power || "", m.merit || "",
+        const rows = [["Ник", "Роль", "Мощь", "Заслуги", "Прайм-тайм UTC", "Часов в день", "Войска", "Герои", "Обновлено"].map(T)].concat(j.members.map((m) => [m.nick, T(ROLE[m.role] || "") + (m.rank ? " R" + m.rank : ""), m.power || "", m.merit || "", ptOk(m.pt) ? hm(m.pt.a) + "–" + hm(m.pt.b) : "", m.hrs || "",
             marchesOf(m).map((x, i) => L("Марш ", "March ") + (i + 1) + ": " + (x.troops || []).map((t) => T(TN[t.type] || t.type) + (t.fly ? L(" летающие", " flying") : "") + " T" + t.tier + " " + (t.n || "")).join(", ")).join("; "),
             marchesOf(m).map((x, i) => L("Марш ", "March ") + (i + 1) + ": " + (x.heroes || []).map((h) => T(h.name) + L(" ур.", " lv.") + h.lvl + L(" навыки ", " skills ") + h.skills).join(", ")).join("; "), m.ts ? new Date(m.ts).toLocaleString("ru-RU") : ""]));
         const blob = new Blob(["﻿" + rows.map((r) => r.map(q).join(";")).join("\n")], { type: "text/csv;charset=utf-8" });
