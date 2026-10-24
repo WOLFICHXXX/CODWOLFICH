@@ -3856,14 +3856,26 @@ window.WOLFICH_TG = { bot: "WOLFICH_COD_BOT", api: "https://wolfich-notify.wolfi
         return null;
     };
     const isApi = (r) => /json/i.test(r.headers.get("content-type") || "");
+    /* ответ читаем ЦЕЛИКОМ в пределах срока: в мобильных сетях России соединение с Cloudflare открывается,
+       а большой ответ (список участников) застревает на середине — без срока страница вечно «Загружаю…» */
+    const full = async (url, init, ms) => {
+        const ac = new AbortController(), t = setTimeout(() => ac.abort(), ms);
+        try {
+            const r = await of(url, Object.assign({}, init, { signal: ac.signal }));
+            if (!isApi(r)) return null;
+            const body = await r.text();
+            return new Response(body, { status: r.status, statusText: r.statusText, headers: { "content-type": r.headers.get("content-type") || "application/json" } });
+        } catch (e) { return null; } finally { clearTimeout(t); }
+    };
     window.fetch = async function (input, init) {
         const u = typeof input === "string" ? input : (input && input.url) || "", m = alt(u);
         if (!m || (init && init.method && init.method !== "POST")) return of(input, init);
-        if (viaM()) { try { const r = await of(m, init); if (isApi(r)) return r; } catch (e) { /* зеркало не ответило — пробуем напрямую */ } setM(false); return of(input, init); }
-        const ac = new AbortController(), t = setTimeout(() => ac.abort(), 9000);
-        try { const r = await of(input, Object.assign({}, init, { signal: ac.signal })); clearTimeout(t); if (isApi(r)) return r; }
-        catch (e) { clearTimeout(t); }
-        setM(true); return of(m, init);
+        const order = viaM() ? [[m, 25000, true], [u, 15000, false]] : [[u, 12000, false], [m, 25000, true]];
+        for (const [url, ms, mir] of order) {
+            const r = await full(url, init, ms);
+            if (r) { setM(mir); return r; }
+        }
+        throw new Error("нет связи с сервером");
     };
 })();
 window.WOLFICH_GOOGLE = { client: "935769507418-12nremjs6snl3l5pvg7lcamtih0hcreb.apps.googleusercontent.com" };   // Client ID из Google Cloud Console (OAuth, Web application)
@@ -15800,7 +15812,10 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const j = await call({ op: "view", id, tok: e.tok, mid: e.mid, k: e.k });
             if (!j.ok) { if (j.gone) { const a = load(); delete a[id]; store(a); } say("alMsg", j.err || "Ошибка", true); return home(); }
             render(j);
-        } catch (err) { $("alTbl").innerHTML = '<tr><td class="al-note">Нет связи с сервером. Обновите страницу позже.</td></tr>'; }
+        } catch (err) {
+            $("alTbl").innerHTML = '<tr><td class="al-note">' + L("Нет связи с сервером (медленный интернет).", "No connection to the server (slow internet).") + ' <button type="button" class="btn small" id="alRetry">' + L("Повторить", "Retry") + "</button></td></tr>";
+            const rb = $("alRetry"); if (rb) rb.addEventListener("click", () => openAlly(id));
+        }
     }
 
     function render(j) {
