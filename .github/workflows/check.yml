@@ -5,11 +5,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          set -x
-          curl -sSI "https://wolfich-test.pages.dev/owner.bin?t=1" | grep -iE "^(HTTP|location)"
-          curl -sSL -o a.bin "https://wolfich-test.pages.dev/owner.bin?t=1"
-          curl -sS -o b.bin "https://wolfich-bot.pages.dev/owner.bin?t=1"
-          curl -sS -o c.bin "https://storage.yandexcloud.net/wolfich-mirror/owner.bin?t=1"
-          curl -sSI "https://wolfich-bot.pages.dev/owner.bin" | grep -iE "^(HTTP|cache-control|content-type)"
-          sha256sum a.bin b.bin c.bin; head -c4 a.bin; echo
-          curl -sSL -o t.html "https://wolfich-test.pages.dev/tg.html"; curl -sS -o y.html "https://storage.yandexcloud.net/wolfich-mirror/tg.html"; sha256sum t.html y.html
+          L=$(curl -sSI "https://wolfich-test.pages.dev/owner.bin?t=2" | grep -iE "^(HTTP|location)" | tr -d '\r' | tr '\n' ' ')
+          echo "::notice::redirect: $L"
+          curl -sSL -o a.bin "https://wolfich-test.pages.dev/owner.bin?t=2"
+          curl -sS -o b.bin "https://wolfich-bot.pages.dev/owner.bin?t=2"
+          curl -sS -o c.bin "https://storage.yandexcloud.net/wolfich-mirror/owner.bin?t=2"
+          H=$(curl -sSI "https://wolfich-bot.pages.dev/owner.bin" | grep -iE "^(HTTP|cache-control|content-type)" | tr -d '\r' | tr '\n' ' ')
+          echo "::notice::bot headers: $H"
+          echo "::notice::sha old=$(sha256sum a.bin|cut -c1-16) bot=$(sha256sum b.bin|cut -c1-16) mirror=$(sha256sum c.bin|cut -c1-16) magic=$(head -c4 a.bin)"
+          curl -sSL -o t.html "https://wolfich-test.pages.dev/tg.html"; curl -sS -o y.html "https://storage.yandexcloud.net/wolfich-mirror/tg.html"
+          echo "::notice::tg old=$(sha256sum t.html|cut -c1-16) mirror=$(sha256sum y.html|cut -c1-16)"
