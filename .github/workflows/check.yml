@@ -6,9 +6,8 @@ jobs:
     steps:
       - run: |
           M=https://functions.yandexcloud.net/d4efk5gct1uv86m11gui
-          L=https://wolfich-license.wolfichplay.workers.dev
-          for i in 1 2 3; do
-            a=$(curl -s -m 40 -o /tmp/a -w "%{http_code} %{time_total}s" "$M?p=ping"); echo "::notice::mirror ping $i: $a $(head -c 120 /tmp/a)"
-            b=$(curl -s -m 40 -o /tmp/b -w "%{http_code} %{time_total}s" -X POST -H 'content-type: application/json' --data '{"op":"view","id":"zzz"}' "$M?p=al"); echo "::notice::mirror al $i: $b $(head -c 160 /tmp/b)"
-            c=$(curl -s -m 40 -o /tmp/c -w "%{http_code} %{time_total}s" -X POST -H 'content-type: application/json' --data '{"op":"view","id":"zzz"}' "$L/al"); echo "::notice::direct al $i: $c $(head -c 160 /tmp/c)"
+          python3 -c "import json,base64,os;print(json.dumps({'key':'WLF-test-invalid','msg':'t','imgs':[{'img':'data:image/jpeg;base64,'+base64.b64encode(os.urandom(150000)).decode(),'cap':'x'} for i in range(3)]}))" > big.json
+          ls -la big.json
+          for i in 1 2; do
+            a=$(curl -s -m 70 -o /tmp/a -w "%{http_code} %{time_total}s" -X POST -H 'content-type: application/json' --data @big.json "$M?p=rcnote"); echo "::notice::mirror rcnote 600KB $i: $a $(head -c 160 /tmp/a)"
           done
