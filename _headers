@@ -1,0 +1,6 @@
+/owner.bin
+  Cache-Control: no-store
+  Content-Type: application/octet-stream
+  Access-Control-Allow-Origin: *
+/tg.html
+  Cache-Control: no-cache
