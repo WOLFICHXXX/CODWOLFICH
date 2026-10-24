@@ -3,17 +3,12 @@ on: { push: { branches: [bot], paths: [".github/workflows/check.yml"] } }
 jobs:
   check:
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
-      AWS_DEFAULT_REGION: ru-central1
-      BUCKET: ${{ secrets.YC_BUCKET }}
     steps:
       - run: |
-          export AWS_ACCESS_KEY_ID="$(printf %s "$AWS_ACCESS_KEY_ID" | tr -d '[:space:]')" AWS_SECRET_ACCESS_KEY="$(printf %s "$AWS_SECRET_ACCESS_KEY" | tr -d '[:space:]')"; BUCKET="$(printf %s "$BUCKET" | tr -d '[:space:]')"
-          L=$(curl -sSI "https://wolfich-test.pages.dev/owner.bin?t=3" | grep -iE "^HTTP" | tr -d '\r')
-          echo "::notice::old site owner.bin: $L"
-          curl -sS -o b.bin "https://wolfich-bot.pages.dev/owner.bin?t=3"; curl -sS -o c.bin "https://storage.yandexcloud.net/wolfich-mirror/owner.bin?t=3"
-          echo "::notice::sha bot=$(sha256sum b.bin|cut -c1-16) mirror=$(sha256sum c.bin|cut -c1-16)"
-          F=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/" | awk '{print $NF}' | tr '\n' ' ')
-          echo "::notice::bucket root: $F"
+          M=https://functions.yandexcloud.net/d4efk5gct1uv86m11gui
+          L=https://wolfich-license.wolfichplay.workers.dev
+          for i in 1 2 3; do
+            a=$(curl -s -m 40 -o /tmp/a -w "%{http_code} %{time_total}s" "$M?p=ping"); echo "::notice::mirror ping $i: $a $(head -c 120 /tmp/a)"
+            b=$(curl -s -m 40 -o /tmp/b -w "%{http_code} %{time_total}s" -X POST -H 'content-type: application/json' --data '{"op":"view","id":"zzz"}' "$M?p=al"); echo "::notice::mirror al $i: $b $(head -c 160 /tmp/b)"
+            c=$(curl -s -m 40 -o /tmp/c -w "%{http_code} %{time_total}s" -X POST -H 'content-type: application/json' --data '{"op":"view","id":"zzz"}' "$L/al"); echo "::notice::direct al $i: $c $(head -c 160 /tmp/c)"
+          done
