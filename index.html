@@ -2984,6 +2984,51 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .al-fly{flex-direction:row!important;align-items:center;gap:5px!important;white-space:nowrap}
 .al-fly input{width:16px!important;height:16px!important;min-width:0!important;margin:0!important;padding:0!important;flex:none;appearance:auto;-webkit-appearance:checkbox}
 
+/* «Мои данные» — шторка */
+.al-foldh{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;margin:0!important}
+.al-foldh:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:6px}
+.al-foldh .al-fhint{font:500 .74rem Inter,system-ui,sans-serif;color:var(--muted);letter-spacing:0}
+.al-foldh.open .al-fhint{display:none}
+.al-chev{margin-left:auto;width:26px;height:26px;border-radius:50%;border:1px solid var(--border);display:grid;place-items:center;flex:none}
+.al-chev::before{content:"";width:8px;height:8px;border-right:2px solid var(--gold-light);border-bottom:2px solid var(--gold-light);transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.al-foldh.open .al-chev::before{transform:translateY(2px) rotate(-135deg)}
+.al-fold{margin-top:14px}
+/* ссылки и команды RoW — столбиками */
+#alLinks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px}
+#alLinks .al-link{margin:0}
+#alRowT .al-links{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+/* редактор марша как карточка героя */
+.al-hes{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.al-he{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(180deg,rgba(28,22,52,.85),rgba(12,10,26,.85));border:1px solid rgba(217,164,65,.35);border-radius:14px;padding:10px 12px}
+.al-he .al-hp{width:66px;height:66px}
+.al-he .al-hp0{display:grid;place-items:center;font-size:1.6rem;color:var(--muted);background:rgba(255,255,255,.04)}
+.al-he.dep{margin-left:34px;padding:8px 10px}
+.al-he.dep .al-hp{width:50px;height:50px}
+.al-he .al-hpw{padding-bottom:8px}
+.al-hlv{position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:44px!important;min-width:0!important;padding:1px 4px!important;text-align:center;font-size:.72rem!important;font-weight:700;border-radius:8px!important;border:1px solid var(--gold)!important;background:#1b1430!important;color:var(--gold-light)!important;height:auto!important}
+.al-he .al-hi{flex:1;min-width:0}
+.al-hen{display:flex;align-items:center;gap:8px}
+.al-hen .al-in{flex:1;min-width:0;font-weight:700;color:var(--gold-light)}
+.al-hen small{color:var(--muted);font-size:.72rem;white-space:nowrap}
+.al-he .al-ht{font-size:.8rem;color:#f1d9a0;margin:3px 0 0}
+.al-ske{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.al-skc{position:relative;width:40px;height:40px;flex:none;cursor:text}
+.al-he.dep .al-skc{width:32px;height:32px}
+.al-skc img,.al-sk0{width:100%;height:100%;border-radius:8px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.25);object-fit:cover;box-sizing:border-box}
+.al-sk0{background:rgba(255,255,255,.06);color:var(--muted);font-size:.8rem}
+.al-skc.off img{filter:grayscale(1) brightness(.55)}
+.al-skin{position:absolute;right:-5px;bottom:-5px;width:20px!important;height:20px!important;min-width:0!important;padding:0!important;text-align:center;font-size:.72rem!important;font-weight:700;border-radius:50%!important;border:1px solid var(--gold)!important;background:#000d!important;color:#fff!important;box-shadow:none!important}
+.al-tre{display:grid;grid-template-columns:2fr 1fr 1.4fr auto;gap:8px;align-items:center;border:1px solid var(--tc);border-radius:12px;padding:8px;background:color-mix(in srgb,var(--tc) 10%,transparent)}
+.al-trp{margin:8px 0 4px;min-height:4px}
+.al-tre .al-fly{display:flex;align-items:center;gap:6px;margin:0;font-size:.85rem}
+.al-tre .al-fly input{min-height:0!important;height:16px!important;max-height:16px!important;box-shadow:none!important;border:0!important;background:none!important}
+.al-he .al-hlv,.al-he .al-skin{margin:0!important;min-height:0!important;max-height:none!important;line-height:18px!important;box-sizing:border-box}
+.al-he .al-hlv{height:20px!important}
+.al-he .al-skin{height:20px!important;width:20px!important}
+.al-hen .al-in,.al-tre .al-in{margin:0!important}
+.al-he.dep .al-skin{width:18px!important;height:18px!important;line-height:16px!important;font-size:.66rem!important}
+@media (max-width:640px){.al-tre{grid-template-columns:1fr 1fr}.al-he.dep{margin-left:16px}.al-foldh .al-fhint{display:none}}
+
 </style>
 </head>
 
@@ -5388,7 +5433,8 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
         </div>
 
         <div class="card al-card" id="alMine">
-            <h2 class="al-h">Мои данные</h2>
+            <h2 class="al-h al-foldh" id="alMineH" role="button" tabindex="0" aria-expanded="false" aria-controls="alMineBody"><span class="al-mtt">Мои данные</span><span class="al-fhint">нажмите, чтобы открыть</span><span class="al-chev" aria-hidden="true"></span></h2>
+            <div class="al-fold" id="alMineBody" hidden>
             <div class="al-note-m" id="alMineNote" style="display:none"><span class="al-nic">✎</span><div><div class="al-nh">Просьба офицеров поправить</div><div class="al-nt"></div><div class="al-nf">Исправьте данные и нажмите «Сохранить» — офицер снимет пометку.</div></div></div>
             <div class="al-langw"><span aria-hidden="true">⚠️</span><b>СКРИНШОТЫ ПРИНИМАЮТСЯ ТОЛЬКО НА РУССКОМ И АНГЛИЙСКОМ ЯЗЫКАХ!</b></div>
             <div class="al-shots">
@@ -5415,6 +5461,7 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
             <div class="al-link al-mylink" id="alMyLink" style="display:none"><b>Ваша личная ссылка</b><span class="al-url"></span>
                 <div class="al-note">Откройте её на другом устройстве (телефон, второй ПК) — там будет эта же карточка с вашими данными. Никому не давайте: по ней можно менять ваши данные.</div>
                 <button class="btn small" type="button" data-mycopy="1">Скопировать</button></div>
+            </div>
         </div>
 
         <div class="card al-card">
@@ -15893,10 +15940,15 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         r = +r || 0;
         return '<div class="al-rk" id="alRk">Ранг: <input type="hidden" data-f="rank" value="' + r + '">' + (r ? dia(r) + (r === 5 ? " глава" : " офицер") : "не подтверждён — загрузите скриншот альянса") + "</div>";
     }
+    function mineFold(open) {   // «Мои данные» — шторка, по умолчанию свёрнута
+        const b = $("alMineBody"), h = $("alMineH"); if (!b || !h) return;
+        b.hidden = !open; h.setAttribute("aria-expanded", open ? "true" : "false"); h.classList.toggle("open", !!open);
+    }
+    { const h = $("alMineH"); if (h) { const tg = () => mineFold($("alMineBody").hidden); h.addEventListener("click", tg); h.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tg(); } }); } }
     function form(m) {
         m = m || {};
         const other = st.data && st.edit !== st.data.me && !(st.data.role === "own" && m.role === "own");
-        $("alMine").querySelector(".al-h").textContent = other ? "Данные участника: " + (m.nick || "") : "Мои данные";
+        $("alMine").querySelector(".al-mtt").textContent = other ? "Данные участника: " + (m.nick || "") : "Мои данные";
         const nb = $("alMineNote"); if (nb) { nb.style.display = m.note && !other ? "" : "none"; nb.querySelector(".al-nt").textContent = m.note || ""; }
         st.fm = { marches: JSON.parse(JSON.stringify(marchesOf(m))), mi: 0 };
         if (!st.fm.marches.length) st.fm.marches.push({ heroes: [], troops: [] });
@@ -15914,18 +15966,34 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         $("alMTabs").innerHTML = fm.marches.map((_, i) => '<button type="button" class="al-mt' + (i === fm.mi ? " on" : "") + '" data-mt="' + i + '">Марш ' + (i + 1) + "</button>").join("") +
             (fm.marches.length < 5 ? '<button type="button" class="al-mt add" data-madd="1">+ Добавить марш</button>' : "") +
             (fm.marches.length > 1 ? '<button type="button" class="al-mt del" data-mdel="1">Удалить марш ' + (fm.mi + 1) + "</button>" : "");
+        const heroEd = (h, i) => {   // как карточка в «Жетонах героя»: портрет, имя, уровень, навыки иконками; заместитель — ниже и мельче
+            const H = HERO(h.name), sk = String(h.skills || "").split("/"), ns = Math.max(5, H ? H.s.length : 0);
+            const port = H && H.i ? '<img class="al-hp" alt="" src="' + H.i + '">' : '<div class="al-hp al-hp0">?</div>';
+            return '<div class="al-he' + (i ? " dep" : "") + '" data-hr="' + i + '"><div class="al-hpw">' + port +
+                '<input class="al-in al-hlv" data-h="lvl" inputmode="numeric" maxlength="2" placeholder="ур." title="Уровень героя" value="' + esc(h.lvl || "") + '"></div>' +
+                '<div class="al-hi"><div class="al-hen"><input class="al-in" data-h="name" list="alHeroList" maxlength="32" placeholder="' + (i ? "Заместитель" : "Командир") + '" value="' + esc(heroIn(h.name)) + '">' +
+                '<small>' + (i ? "заместитель" : "командир") + "</small></div>" +
+                (H ? '<div class="al-ht">' + esc(H.t) + "</div>" : "") +
+                '<div class="al-ske">' + Array.from({ length: ns }, (_, k) => {
+                    const s0 = H && H.s[k], lv = +sk[k] || 0;
+                    return '<label class="al-skc' + (lv ? "" : " off") + '" title="' + esc(s0 ? s0.n : "Навык " + (k + 1)) + '">' + (s0 ? '<img alt="" src="' + (s0.r || s0.i) + '">' : '<span class="al-sk0">' + (k + 1) + "</span>") +
+                        '<input class="al-skin" data-s="' + k + '" inputmode="numeric" maxlength="1" value="' + esc(sk[k] || "") + '"></label>';
+                }).join("") + "</div></div></div>";
+        };
+        const t0 = tr[0] || {};
         $("alMarch").innerHTML =
-            '<div class="al-sub">Марш ' + (fm.mi + 1) + ': герои — командир и заместитель</div><div class="al-rows">' + hr.map((h, i) => {
-                const sk = String(h.skills || "").split("/");
-                return '<div class="al-row al-hr" data-hr="' + i + '"><input class="al-in" data-h="name" list="alHeroList" maxlength="32" placeholder="' + (i ? "Заместитель" : "Командир") + '" value="' + esc(heroIn(h.name)) + '">' +
-                    '<input class="al-in" data-h="lvl" inputmode="numeric" placeholder="уровень" value="' + esc(h.lvl || "") + '">' +
-                    '<span class="al-sk">' + [0, 1, 2, 3, 4].map(k => '<input class="al-in" data-s="' + k + '" inputmode="numeric" maxlength="1" title="Навык ' + (k + 1) + '" value="' + esc(sk[k] || "") + '">').join("") + "</span></div>";
-            }).join("") + '</div><div class="al-note">Навыки — уровни 1–5 по порядку, как на экране марша; 0 — навык не изучен. Скриншот марша попадает в выбранный марш.</div><div class="al-note al-warn">⚠️ Эпические герои не распознаются — впишите имя героя и прокачку навыков вручную. В карточке они сохранятся без портрета и иконок навыков.</div>' +
-            '<div class="al-sub">Марш ' + (fm.mi + 1) + ': войска</div><div class="al-rows">' + tr.map((t, i) =>
-                '<div class="al-row al-r3" data-tr="' + i + '"><select class="al-in" data-t="type"><option value="">—</option>' + TYPES.map(y => '<option value="' + y[0] + '"' + (t.type === y[0] ? " selected" : "") + ">" + y[1] + "</option>").join("") + "</select>" +
-                '<select class="al-in" data-t="tier"><option value="0">тир</option>' + [1, 2, 3, 4, 5].map(n => '<option value="' + n + '"' + (+t.tier === n ? " selected" : "") + ">Т" + n + "</option>").join("") + "</select>" +
-                '<input class="al-in" data-t="n" inputmode="numeric" placeholder="кол-во" value="' + esc(t.n || "") + '">' +
-                '<label class="al-fly"><input type="checkbox" data-t="fly"' + (t.fly ? " checked" : "") + '> летающие</label></div>').join("") + "</div>";
+            '<div class="al-sub">Марш ' + (fm.mi + 1) + ': герои</div><div class="al-hes">' + hr.map(heroEd).join("") + "</div>" +
+            '<div class="al-note">Цифра на иконке — уровень навыка 1–5 (0 — не изучен), как на экране марша. Имя героя — из списка; скриншот марша заполняет всё сам.</div><div class="al-note al-warn">⚠️ Эпические герои не распознаются — впишите имя героя и уровни навыков вручную. В карточке они сохранятся без портрета и иконок навыков.</div>' +
+            '<div class="al-sub">Марш ' + (fm.mi + 1) + ': войска</div><div class="al-tre" data-tr="0" style="--tc:' + TIERC[+t0.tier || 0] + '">' +
+                '<select class="al-in" data-t="type"><option value="">вид войск</option>' + TYPES.map(y => '<option value="' + y[0] + '"' + (t0.type === y[0] ? " selected" : "") + ">" + y[1] + "</option>").join("") + "</select>" +
+                '<select class="al-in" data-t="tier"><option value="0">тир</option>' + [1, 2, 3, 4, 5].map(n => '<option value="' + n + '"' + (+t0.tier === n ? " selected" : "") + ">Т" + n + "</option>").join("") + "</select>" +
+                '<input class="al-in" data-t="n" inputmode="numeric" placeholder="количество" value="' + esc(t0.n || "") + '">' +
+                '<label class="al-fly"><input type="checkbox" data-t="fly"' + (t0.fly ? " checked" : "") + "> летающие</label></div>" +
+            '<div class="al-trp" id="alTrp">' + (t0.type ? troopChip(t0) : "") + "</div>";
+        $("alMarch").querySelectorAll('[data-h="name"]').forEach((el) => el.addEventListener("change", () => { saveMarch(); drawMarch(); }));
+        $("alMarch").querySelectorAll(".al-skin").forEach((el) => el.addEventListener("input", () => { el.value = el.value.replace(/[^0-5]/g, "").slice(0, 1); el.parentNode.classList.toggle("off", !+el.value); }));
+        const trw = $("alMarch").querySelector(".al-tre");
+        trw.addEventListener("input", () => { saveMarch(); const t = (st.fm.marches[st.fm.mi].troops || [])[0] || {}; trw.style.setProperty("--tc", TIERC[+t.tier || 0]); $("alTrp").innerHTML = t.type ? troopChip(t) : ""; });
         $("alMTabs").querySelectorAll("[data-mt]").forEach(b => b.addEventListener("click", () => { saveMarch(); fm.mi = +b.dataset.mt; drawMarch(); }));
         const add = $("alMTabs").querySelector("[data-madd]"); if (add) add.addEventListener("click", () => { saveMarch(); fm.marches.push({ heroes: [], troops: [] }); fm.mi = fm.marches.length - 1; drawMarch(); });
         const del = $("alMTabs").querySelector("[data-mdel]"); if (del) del.addEventListener("click", () => { if (!confirm(L("Удалить марш " + (fm.mi + 1) + "?", "Delete march " + (fm.mi + 1) + "?"))) return; fm.marches.splice(fm.mi, 1); fm.mi = Math.max(0, fm.mi - 1); drawMarch(); });
@@ -16036,7 +16104,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const e = load()[j.id], r = await call({ op: "note", id: j.id, tok: e.tok, mid: b.dataset.unnote, note: "" });
             if (r.ok) render(r); else alert(T(r.err || "Ошибка"));
         }));
-        $("alTbl").querySelectorAll("[data-ed]").forEach((b) => b.addEventListener("click", () => { st.edit = b.dataset.ed; $("alMine").style.display = ""; form(j.members.find((m) => m.mid === st.edit)); $("alMine").scrollIntoView({ behavior: "smooth" }); }));
+        $("alTbl").querySelectorAll("[data-ed]").forEach((b) => b.addEventListener("click", () => { st.edit = b.dataset.ed; $("alMine").style.display = ""; mineFold(true); form(j.members.find((m) => m.mid === st.edit)); $("alMine").scrollIntoView({ behavior: "smooth" }); }));
         $("alTbl").querySelectorAll("[data-clr]").forEach((b) => b.addEventListener("click", async () => {   // данные карточки удаляются, участник остаётся в альянсе
             const m = j.members.find((x) => x.mid === b.dataset.clr); if (!m || !confirm(L("Удалить данные карточки «" + m.nick + "» (мощь, заслуги, марши)? Участник останется в альянсе и сможет загрузить данные заново.", "Delete the card data of “" + m.nick + "” (power, merits, marches)? The member stays in the alliance and can upload data again."))) return;
             const e = load()[j.id], r = await call({ op: "clear", id: j.id, tok: e.tok, mid: m.mid, k: e.k });
@@ -16163,7 +16231,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         } else {
             saveMarch();
             const cur = st.fm.marches[st.fm.mi] || {};
-            st.fm.marches[st.fm.mi] = { heroes: d.heroes && d.heroes.length ? d.heroes : cur.heroes || [], troops: d.troops && d.troops.length ? d.troops : cur.troops || [] };
+            st.fm.marches[st.fm.mi] = { heroes: d.heroes && d.heroes.length ? d.heroes : cur.heroes || [], troops: d.troops && d.troops.length ? d.troops.slice().sort((a, b) => (+b.n || 0) - (+a.n || 0)).slice(0, 1) : cur.troops || [] };   // в марше один вид войск — берём самый многочисленный
             drawMarch();
         }
         const got = kind === "prof" ? [d.nick && L("ник", "nick"), d.power && L("мощь", "power"), d.merit != null && L("заслуги", "merits")].filter(Boolean) : [(d.heroes || []).length && L("герои: ", "heroes: ") + d.heroes.map(h => (h.name ? T(h.name) : "?")).join(", "), (d.troops || []).length && L("войска", "troops")].filter(Boolean);
