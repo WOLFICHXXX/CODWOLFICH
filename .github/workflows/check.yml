@@ -1,0 +1,15 @@
+name: Проверка адресов бота
+on: { push: { branches: [bot], paths: [".github/workflows/check.yml"] } }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          set -x
+          curl -sSI "https://wolfich-test.pages.dev/owner.bin?t=1" | grep -iE "^(HTTP|location)"
+          curl -sSL -o a.bin "https://wolfich-test.pages.dev/owner.bin?t=1"
+          curl -sS -o b.bin "https://wolfich-bot.pages.dev/owner.bin?t=1"
+          curl -sS -o c.bin "https://storage.yandexcloud.net/wolfich-mirror/owner.bin?t=1"
+          curl -sSI "https://wolfich-bot.pages.dev/owner.bin" | grep -iE "^(HTTP|cache-control|content-type)"
+          sha256sum a.bin b.bin c.bin; head -c4 a.bin; echo
+          curl -sSL -o t.html "https://wolfich-test.pages.dev/tg.html"; curl -sS -o y.html "https://storage.yandexcloud.net/wolfich-mirror/tg.html"; sha256sum t.html y.html
