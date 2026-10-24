@@ -257,8 +257,13 @@ async function tgHook(req, env) {
 /* ---------- пульт: мини-приложение в Telegram → команда в очередь → программа забирает (опрос раз в 30 с) ---------- */
 const appUrl = (env) => String(env.APP_URL || "https://storage.yandexcloud.net/wolfich-mirror/tg.html");
 const RESK = ["mana", "ore", "wood", "gold", "gems"];
+const SHOT_URL = /^https:\/\/storage\.yandexcloud\.net\/[a-z0-9-]+\/shots\/[a-z0-9-]+\.(jpg|png|webp)$/;
 async function sayApp(env, chat, text, img) {   // сообщение (или снимок с подписью) с кнопкой «Открыть пульт»
   const kb = JSON.stringify({ inline_keyboard: [[{ text: "🐺 Открыть пульт", web_app: { url: appUrl(env) } }]] });
+  if (img && SHOT_URL.test(img)) {   // снимок, переданный зеркалом ссылкой на хранилище Yandex — Telegram скачает сам
+    const f = new FormData(); f.append("chat_id", chat); f.append("caption", text.slice(0, 1000)); f.append("reply_markup", kb); f.append("photo", img);
+    const r = await tgCall(env, "sendPhoto", f); if (r && r.ok) return r;
+  }
   if (img && /^data:image\/(jpeg|png);base64,/.test(img) && img.length < 4000000) {
     const bin = Uint8Array.from(atob(img.split(",")[1]), (c) => c.charCodeAt(0));
     const f = new FormData(); f.append("chat_id", chat); f.append("caption", text.slice(0, 1000)); f.append("reply_markup", kb); f.append("photo", new Blob([bin], { type: "image/jpeg" }), "game.jpg");
@@ -268,12 +273,12 @@ async function sayApp(env, chat, text, img) {   // сообщение (или с
   return tgCall(env, "sendMessage", f);
 }
 async function sayAlbum(env, chat, text, shots) {   // несколько снимков одним альбомом (подписи у каждого), затем текст с кнопкой пульта
-  const ok = (shots || []).filter((x) => x && /^data:image\/(jpeg|png);base64,/.test(x.img || "") && x.img.length < 4000000).slice(0, 10);
+  const ok = (shots || []).filter((x) => x && ((/^data:image\/(jpeg|png);base64,/.test(x.img || "") && x.img.length < 4000000) || SHOT_URL.test(x.img || ""))).slice(0, 10);
   if (ok.length === 1) return sayApp(env, chat, (ok[0].cap ? ok[0].cap + "\n" : "") + text, ok[0].img);
   if (ok.length > 1) {
     const f = new FormData(); f.append("chat_id", chat);
-    f.append("media", JSON.stringify(ok.map((x, i) => ({ type: "photo", media: "attach://p" + i, caption: String(x.cap || "").slice(0, 200) }))));
-    ok.forEach((x, i) => { const bin = Uint8Array.from(atob(x.img.split(",")[1]), (c) => c.charCodeAt(0)); f.append("p" + i, new Blob([bin], { type: "image/jpeg" }), "p" + i + ".jpg"); });
+    f.append("media", JSON.stringify(ok.map((x, i) => ({ type: "photo", media: SHOT_URL.test(x.img) ? x.img : "attach://p" + i, caption: String(x.cap || "").slice(0, 200) }))));
+    ok.forEach((x, i) => { if (SHOT_URL.test(x.img)) return; const bin = Uint8Array.from(atob(x.img.split(",")[1]), (c) => c.charCodeAt(0)); f.append("p" + i, new Blob([bin], { type: "image/jpeg" }), "p" + i + ".jpg"); });
     await tgCall(env, "sendMediaGroup", f);
   }
   return sayApp(env, chat, text);

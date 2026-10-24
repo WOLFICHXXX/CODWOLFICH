@@ -25,7 +25,43 @@ async function worker(path, method, body) {
   } finally { clearTimeout(tm); }
 }
 
-const E = (k) => String(process.env[k] || "").trim();   // в переменных бывают лишние пробелы и переводы строк
+const E = (k) => String(process.env[k] || "").trim();
+
+/* Снимки: из Yandex Cloud большие запросы до Cloudflare обрываются (ECONNRESET примерно на 16 с — ограничение трафика к Cloudflare).
+   Поэтому картинки из запроса кладём в своё хранилище (бакет зеркала, папка shots/, срок хранения задан в бакете),
+   а на Worker уходит короткая ссылка — Telegram сам скачивает снимок по ней. Ключи: S3_KEY, S3_SECRET, S3_BUCKET. */
+const crypto = require("crypto");
+const sha = (d) => crypto.createHash("sha256").update(d).digest("hex");
+const hm = (k, d) => crypto.createHmac("sha256", k).update(d).digest();
+async function s3put(key, buf, type) {
+  const ak = E("S3_KEY"), sk = E("S3_SECRET"), bk = E("S3_BUCKET"); if (!ak || !sk || !bk) throw new Error("хранилище снимков не настроено");
+  const host = "storage.yandexcloud.net", path = "/" + bk + "/" + key, now = new Date(), amz = now.toISOString().replace(/[-:]/g, "").replace(/\.\d+/, ""), day = amz.slice(0, 8);
+  const ph = sha(buf), hd = { "content-type": type, host, "x-amz-acl": "public-read", "x-amz-content-sha256": ph, "x-amz-date": amz };
+  const names = Object.keys(hd).sort(), signed = names.join(";");
+  const creq = ["PUT", path, "", names.map((n) => n + ":" + hd[n] + "\n").join(""), signed, ph].join("\n");
+  const scope = day + "/ru-central1/s3/aws4_request", sts = ["AWS4-HMAC-SHA256", amz, scope, sha(creq)].join("\n");
+  const kS = hm(hm(hm(hm("AWS4" + sk, day), "ru-central1"), "s3"), "aws4_request");
+  const auth = "AWS4-HMAC-SHA256 Credential=" + ak + "/" + scope + ", SignedHeaders=" + signed + ", Signature=" + crypto.createHmac("sha256", kS).update(sts).digest("hex");
+  const h2 = Object.assign({}, hd, { authorization: auth }); delete h2.host;
+  const r = await fetch("https://" + host + path, { method: "PUT", headers: h2, body: buf });
+  if (!r.ok) throw new Error("хранилище: " + r.status + " " + (await r.text()).slice(0, 200));
+  return "https://" + host + path;
+}
+async function shrink(body) {   // data:image… в запросе → ссылки на снимки в хранилище
+  if (!body || body.length < 20000 || body.indexOf("data:image/") < 0) return body;
+  let o; try { o = JSON.parse(body); } catch (e) { return body; }
+  const walk = async (v) => {
+    if (typeof v === "string") {
+      const m = /^data:image\/(jpeg|png|webp);base64,(.+)$/.exec(v); if (!m || v.length < 2000) return v;
+      const key = "shots/" + Date.now().toString(36) + "-" + crypto.randomBytes(9).toString("hex") + "." + (m[1] === "jpeg" ? "jpg" : m[1]);
+      return s3put(key, Buffer.from(m[2], "base64"), "image/" + m[1]);
+    }
+    if (Array.isArray(v)) { const a = []; for (const x of v) a.push(await walk(x)); return a; }
+    if (v && typeof v === "object") { const r = {}; for (const k of Object.keys(v)) r[k] = await walk(v[k]); return r; }
+    return v;
+  };
+  return JSON.stringify(await walk(o));
+}   // в переменных бывают лишние пробелы и переводы строк
 
 async function report(b) {
   const env = { TG_TOKEN: E("TG_TOKEN"), TG_CHAT: E("TG_CHAT"), MODULE_PASS: E("MODULE_PASS") };
@@ -79,7 +115,7 @@ module.exports.handler = async function (event) {
       return out(d);
     }
     // Telegram из Yandex Cloud не открывается, а Worker на Cloudflare — да: отчёт тоже пересылаем на Worker (он сам шлёт в Telegram)
-    if (["unlock", "status", "push", "report", "tglink", "tgstat", "notify", "tgsetup", "app", "rchello", "rcpoll", "rcack", "rcnote"].indexOf(p) >= 0 && method === "POST") return { statusCode: 200, headers: CORS, body: await worker("/" + p, "POST", body) };
+    if (["unlock", "status", "push", "report", "tglink", "tgstat", "notify", "tgsetup", "app", "rchello", "rcpoll", "rcack", "rcnote"].indexOf(p) >= 0 && method === "POST") return { statusCode: 200, headers: CORS, body: await worker("/" + p, "POST", await shrink(body)) };
     if (p === "cmd") return { statusCode: 200, headers: CORS, body: await worker("/cmd", "GET") };
     // сайт: альянс и планер (wolfich-license /al и /row) — когда Cloudflare из России не открывается
     if ((p === "al" || p === "row") && method === "POST") return { statusCode: 200, headers: CORS, body: await worker("/" + p, "POST", body) };

@@ -55,10 +55,18 @@ jobs:
       - name: Новая версия функции
         if: env.MODE == 'deploy'
         shell: bash
+        env:
+          S3K: ${{ secrets.YC_KEY_ID }}
+          S3S: ${{ secrets.YC_SECRET }}
+          S3B: ${{ secrets.YC_BUCKET }}
         run: |
           set -e
           cd yandex/mirror && zip -q -r "$RUNNER_TEMP/fn.zip" . && cd -
           # настройки и переменные окружения — как у текущей версии (значения в журнал не попадают)
+          # ключи хранилища для снимков (папка shots/ бакета зеркала) — из секретов репозитория, в журнал не попадают
+          S3K="$(printf %s "$S3K" | tr -d '[:space:]')"; S3S="$(printf %s "$S3S" | tr -d '[:space:]')"; S3B="$(printf %s "$S3B" | tr -d '[:space:]')"
+          [ -n "$S3K" ] && echo "::add-mask::$S3K"; [ -n "$S3S" ] && echo "::add-mask::$S3S"
+          jq --arg k "$S3K" --arg s "$S3S" --arg b "$S3B" '.environment = ((.environment // {}) + (if $k != "" then {S3_KEY: $k, S3_SECRET: $s, S3_BUCKET: $b} else {} end))' "$RUNNER_TEMP/v.json" > "$RUNNER_TEMP/v2.json" && mv "$RUNNER_TEMP/v2.json" "$RUNNER_TEMP/v.json"
           jq --arg fn "$FN" --rawfile zip <(base64 -w0 "$RUNNER_TEMP/fn.zip") '{functionId: $fn, runtime, entrypoint, resources: {memory: (.resources.memory | tostring)}, executionTimeout: (if ((.execution_timeout // "10s") | rtrimstr("s") | tonumber) < 60 then "60s" else .execution_timeout end), environment: (.environment // {}), content: $zip}
             + (if .service_account_id then {serviceAccountId: .service_account_id} else {} end)' "$RUNNER_TEMP/v.json" > "$RUNNER_TEMP/req.json"
           TOKEN=$(yc iam create-token); echo "::add-mask::$TOKEN"
