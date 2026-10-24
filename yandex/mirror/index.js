@@ -12,9 +12,13 @@
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json; charset=utf-8" };
 const out = (o, st) => ({ statusCode: st || 200, headers: CORS, body: JSON.stringify(o) });
 
+/* срок ожидания Worker: снимки в Telegram (rcnote, отчёты, альбом обхода альянса) идут дольше 15 с —
+   раньше зеркало обрывало их («This operation was aborted») и снимок не доходил */
+const HEAVY = ["/rcnote", "/report", "/app"];
 async function worker(path, method, body) {
   const base = E("WORKER_URL").replace(/\/+$/, "");
-  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 15000);
+  const ms = HEAVY.indexOf(path) >= 0 || (body && body.length > 20000) ? 55000 : 15000;
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), ms);
   try {
     const r = await fetch(base + path, { method, headers: { "content-type": "application/json" }, body: method === "POST" ? body : undefined, signal: ac.signal });
     return await r.text();

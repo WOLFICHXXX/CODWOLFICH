@@ -51,7 +51,7 @@ jobs:
           jq -c '{name, status, folder_id}' "$RUNNER_TEMP/f.json"
           yc serverless function version get-by-tag --function-id "$FN" --tag '$latest' --format json > "$RUNNER_TEMP/v.json"
           jq -c '{version: .id, created: .created_at, runtime, entrypoint, memory: .resources.memory, timeout: .execution_timeout, service_account: (.service_account_id != null), env: (.environment // {} | keys)}' "$RUNNER_TEMP/v.json"
-          echo "::notice::Доступ к функции есть, текущая версия $(jq -r .id "$RUNNER_TEMP/v.json")"
+          echo "::notice::Доступ к функции есть, текущая версия $(jq -r .id "$RUNNER_TEMP/v.json"), таймаут $(jq -r .execution_timeout "$RUNNER_TEMP/v.json"), память $(jq -r .resources.memory "$RUNNER_TEMP/v.json")"
       - name: Новая версия функции
         if: env.MODE == 'deploy'
         shell: bash
@@ -59,7 +59,7 @@ jobs:
           set -e
           cd yandex/mirror && zip -q -r "$RUNNER_TEMP/fn.zip" . && cd -
           # настройки и переменные окружения — как у текущей версии (значения в журнал не попадают)
-          jq --arg fn "$FN" --rawfile zip <(base64 -w0 "$RUNNER_TEMP/fn.zip") '{functionId: $fn, runtime, entrypoint, resources: {memory: (.resources.memory | tostring)}, executionTimeout: .execution_timeout, environment: (.environment // {}), content: $zip}
+          jq --arg fn "$FN" --rawfile zip <(base64 -w0 "$RUNNER_TEMP/fn.zip") '{functionId: $fn, runtime, entrypoint, resources: {memory: (.resources.memory | tostring)}, executionTimeout: (if ((.execution_timeout // "10s") | rtrimstr("s") | tonumber) < 60 then "60s" else .execution_timeout end), environment: (.environment // {}), content: $zip}
             + (if .service_account_id then {serviceAccountId: .service_account_id} else {} end)' "$RUNNER_TEMP/v.json" > "$RUNNER_TEMP/req.json"
           TOKEN=$(yc iam create-token); echo "::add-mask::$TOKEN"
           curl -sS -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" --data @"$RUNNER_TEMP/req.json" https://serverless-functions.api.cloud.yandex.net/functions/v1/versions > "$RUNNER_TEMP/op.json"
