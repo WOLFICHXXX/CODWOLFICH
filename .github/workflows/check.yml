@@ -17,3 +17,5 @@ jobs:
           N=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | wc -l)
           R=$(curl -s -o /tmp/x -w "%{http_code} %{size_download} %{content_type}" "https://storage.yandexcloud.net/$BUCKET/shots/$K")
           echo "::notice::shots: $N files, last $K → public GET $R"
+          echo "::notice::recent: $(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | sort | tail -12 | awk '{print $1" "$2" "$3}' | tr '\n' ';')"
+          echo "::notice::diag: $(curl -s -m 30 'https://functions.yandexcloud.net/d4efk5gct1uv86m11gui?p=diag' | head -c 300)"
