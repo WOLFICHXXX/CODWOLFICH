@@ -3,15 +3,17 @@ on: { push: { branches: [bot], paths: [".github/workflows/check.yml"] } }
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
+      AWS_DEFAULT_REGION: ru-central1
+      BUCKET: ${{ secrets.YC_BUCKET }}
     steps:
       - run: |
-          L=$(curl -sSI "https://wolfich-test.pages.dev/owner.bin?t=2" | grep -iE "^(HTTP|location)" | tr -d '\r' | tr '\n' ' ')
-          echo "::notice::redirect: $L"
-          curl -sSL -o a.bin "https://wolfich-test.pages.dev/owner.bin?t=2"
-          curl -sS -o b.bin "https://wolfich-bot.pages.dev/owner.bin?t=2"
-          curl -sS -o c.bin "https://storage.yandexcloud.net/wolfich-mirror/owner.bin?t=2"
-          H=$(curl -sSI "https://wolfich-bot.pages.dev/owner.bin" | grep -iE "^(HTTP|cache-control|content-type)" | tr -d '\r' | tr '\n' ' ')
-          echo "::notice::bot headers: $H"
-          echo "::notice::sha old=$(sha256sum a.bin|cut -c1-16) bot=$(sha256sum b.bin|cut -c1-16) mirror=$(sha256sum c.bin|cut -c1-16) magic=$(head -c4 a.bin)"
-          curl -sSL -o t.html "https://wolfich-test.pages.dev/tg.html"; curl -sS -o y.html "https://storage.yandexcloud.net/wolfich-mirror/tg.html"
-          echo "::notice::tg old=$(sha256sum t.html|cut -c1-16) mirror=$(sha256sum y.html|cut -c1-16)"
+          export AWS_ACCESS_KEY_ID="$(printf %s "$AWS_ACCESS_KEY_ID" | tr -d '[:space:]')" AWS_SECRET_ACCESS_KEY="$(printf %s "$AWS_SECRET_ACCESS_KEY" | tr -d '[:space:]')"; BUCKET="$(printf %s "$BUCKET" | tr -d '[:space:]')"
+          L=$(curl -sSI "https://wolfich-test.pages.dev/owner.bin?t=3" | grep -iE "^HTTP" | tr -d '\r')
+          echo "::notice::old site owner.bin: $L"
+          curl -sS -o b.bin "https://wolfich-bot.pages.dev/owner.bin?t=3"; curl -sS -o c.bin "https://storage.yandexcloud.net/wolfich-mirror/owner.bin?t=3"
+          echo "::notice::sha bot=$(sha256sum b.bin|cut -c1-16) mirror=$(sha256sum c.bin|cut -c1-16)"
+          F=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/" | awk '{print $NF}' | tr '\n' ' ')
+          echo "::notice::bucket root: $F"
