@@ -190,13 +190,15 @@
   document.documentElement.lang = EN ? "en" : "ru";
 
   var WORKER = "https://wolfich-license.wolfichplay.workers.dev/app", MIRROR = "https://functions.yandexcloud.net/d4efk5gct1uv86m11gui?p=app";
-  var tfetch = function (u, o, ms) { var c = new AbortController(), t = setTimeout(function () { c.abort(); }, ms); o.signal = c.signal; return fetch(u, o).finally(function () { clearTimeout(t); }); };
+  // ответ читаем целиком в пределах срока: из России ответ Cloudflare может застрять на середине — тогда идём через зеркало
+  var tfetch = function (u, o, ms) { var c = new AbortController(), t = setTimeout(function () { c.abort(); }, ms); o.signal = c.signal;
+    return fetch(u, o).then(function (r) { return r.text(); }).then(function (x) { clearTimeout(t); return { json: function () { return JSON.parse(x); } }; }, function (e) { clearTimeout(t); throw e; }); };
   var useMirror = false;
   function api(op, extra) {
     var body = JSON.stringify(Object.assign({ initData: TG ? TG.initData : "", op: op }, extra || {}));
     var o = function () { return { method: "POST", headers: { "content-type": "application/json" }, body: body }; };
     var viaW = function () { return tfetch(WORKER, o(), 8000).then(function (r) { return r.json(); }); };
-    var viaM = function () { return tfetch(MIRROR, o(), 15000).then(function (r) { return r.json(); }); };
+    var viaM = function () { return tfetch(MIRROR, o(), 20000).then(function (r) { return r.json(); }); };
     if (useMirror) return viaM().catch(viaW);
     return viaW().catch(function () { useMirror = true; return viaM(); });
   }
