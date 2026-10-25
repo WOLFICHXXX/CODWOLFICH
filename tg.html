@@ -93,6 +93,7 @@
 .atr input:checked + .atr-k{background:#2f9e5b}.atr input:checked + .atr-k::after{transform:translateX(18px);background:#fff}
 .atr input:disabled + .atr-k{opacity:.6}
 .atr-t{display:flex;flex-direction:column;gap:2px}.atr-t small{opacity:.7;font-size:12px}
+.atm{margin:0 0 12px}.atm small{opacity:.7;font-size:12px;min-height:1em}
 </style>
 </head>
 <body>
@@ -151,6 +152,20 @@
 <div class="card">
   <h2 data-t="Обучение войск|Troop training"></h2>
   <label class="atr"><input type="checkbox" id="atrChk"><span class="atr-k"></span><span class="atr-t"><b data-t="Автоматическое обучение|Automatic training"></b><small id="atrSt"></small></span></label>
+  <label class="ttl atm"><span data-t="Повторять обучение каждые|Repeat training every"></span>
+    <select id="atmSel">
+      <option value="15" data-t="15 мин|15 min"></option>
+      <option value="30" data-t="30 мин|30 min"></option>
+      <option value="45" data-t="45 мин|45 min"></option>
+      <option value="60" data-t="1 ч|1 h"></option>
+      <option value="90" data-t="1 ч 30 мин|1 h 30 min"></option>
+      <option value="120" data-t="2 ч|2 h"></option>
+      <option value="180" data-t="3 ч|3 h"></option>
+      <option value="240" data-t="4 ч|4 h"></option>
+      <option value="360" data-t="6 ч|6 h"></option>
+      <option value="480" data-t="8 ч|8 h"></option>
+      <option value="720" data-t="12 ч|12 h"></option>
+    </select><small id="atmSt"></small></label>
   <div class="trs" id="trs"></div>
   <div class="note" style="margin:2px 0 10px" data-t="Тир узнаётся по цвету значка: серый Т1, зелёный Т2, синий Т3, фиолетовый Т4, золотой Т5. «Как в боте» — взять тир из настроек программы (⚙ Настройки → Обучение войск). Количество — сколько предлагает игра, «Мгновенно» за самоцветы бот не нажимает.|Tier is recognised by the badge colour: grey T1, green T2, blue T3, purple T4, gold T5. «As in the bot» uses the tier from the program settings (⚙ Settings → Troop training). Amount is what the game offers; the bot never taps «Instant»."></div>
   <button class="main" id="trainBtn" type="button"><span data-t="🪖 Обучить войска|🪖 Train troops"></span></button>
@@ -300,6 +315,11 @@
   var atrBound = false;
   function atrBind() {
     if (atrBound) return; atrBound = true;
+    $("atmSel").addEventListener("change", function () {   // как часто бот повторяет автообучение (минуты)
+      if (!cur) return; var mn = +$("atmSel").value; $("atmSel").disabled = true;
+      api("atrain", { rid: cur.rid, inst: cur.inst, on: $("atrChk").checked ? 1 : 0, min: mn }).then(function (j) { if (!j || !j.ok) throw new Error(j && j.err || "?"); load(true); })
+        .catch(function (e) { $("atmSel").disabled = false; $("atmSt").textContent = T("Не отправлено: |Not sent: ") + (e && e.message || e); });
+    });
     $("atrChk").addEventListener("change", function () {
       if (!cur) return; var on = $("atrChk").checked; $("atrChk").disabled = true;
       api("atrain", { rid: cur.rid, inst: cur.inst, on: on ? 1 : 0 }).then(function (j) { if (!j || !j.ok) throw new Error(j && j.err || "?"); load(true); })
@@ -328,6 +348,12 @@
     // автоматическое обучение: состояние присылает бот (st.at), пока команда не взята — показываем выбранное и «ждёт программу»
     var atw = b.atrainWait && b.atrainWait.hasOwnProperty(cur.inst), atOn = atw ? !!b.atrainWait[cur.inst] : !!(sv && sv.at), atKnown = atw || !!(sv && sv.at != null);
     $("atrChk").checked = atOn; $("atrChk").disabled = atw;
+    // интервал: ждёт программу — выбранное; иначе — что сообщил бот (st.tm); нестандартное значение добавляем в список
+    var amw = b.atminWait && b.atminWait[cur.inst], tm = amw || (sv && sv.tm) || 0;
+    if (tm && !$("atmSel").querySelector('option[value="' + tm + '"]')) { var op = document.createElement("option"); op.value = tm; op.textContent = tm >= 60 ? Math.floor(tm / 60) + T(" ч| h") + (tm % 60 ? " " + tm % 60 + T(" мин| min") : "") : tm + T(" мин| min"); $("atmSel").appendChild(op); }
+    if (tm && document.activeElement !== $("atmSel")) $("atmSel").value = String(tm);
+    $("atmSel").disabled = !!amw || atw;
+    $("atmSt").textContent = amw ? T("⏳ ждёт программу…|⏳ waiting for the program…") : tm ? "" : T("бот обновлённой версии сообщит свой интервал|an updated bot will report its interval");
     $("atrSt").textContent = atw ? T("⏳ ждёт программу…|⏳ waiting for the program…") : !atKnown ? T("состояние неизвестно — бот обновлённой версии сообщит его сам|state unknown — an updated bot will report it")
       : atOn ? T("бот сам забирает готовые и ставит новые войска по тирам из своих настроек|the bot collects ready troops and queues new ones by its own tiers") : T("выключено — только по кнопке ниже|off — only by the button below");
     $("ttlBtn").disabled = tlw; lbl("ttlBtn", tlw ? T("⏳ Заявка ждёт программу…|⏳ Waiting for the program…") : T("👑 Встать в очередь на титул|👑 Queue for the title"));
