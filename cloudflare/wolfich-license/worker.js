@@ -342,16 +342,16 @@ async function appApi(req, env) {
       try { tabs = JSON.parse((await env.LIC.get("rt:" + rid)) || "{}"); } catch (e) {}
       try { st = JSON.parse((await env.LIC.get("rs:" + rid)) || "null"); } catch (e) {}
       try { ld = JSON.parse((await env.LIC.get("rld:" + rid)) || "null"); } catch (e) {}
-      const pending = {}, shotWait = {}, allyWait = {}, restartWait = {}, closeWait = {}, ldWait = {}, stopWait = {}, trainWait = {}, titleWait = {}, lastTab = {}, state = {}, shotTs = {}, ins = Object.keys(tabs).length ? Object.keys(tabs) : [""];
+      const pending = {}, shotWait = {}, allyWait = {}, restartWait = {}, closeWait = {}, ldWait = {}, stopWait = {}, trainWait = {}, titleWait = {}, atrainWait = {}, lastTab = {}, state = {}, shotTs = {}, ins = Object.keys(tabs).length ? Object.keys(tabs) : [""];
       await Promise.all(ins.map(async (i) => {
         const q = await getQ(env, rid, i);
         if (q.cmd) pending[i] = true; if (q.shot) shotWait[i] = true; if (q.ally) allyWait[i] = true;
-        if (q.restart) restartWait[i] = true; if (q.stop) stopWait[i] = true; if (q.train) trainWait[i] = true; if (q.title) titleWait[i] = true; if (q.close) closeWait[i] = true; if (q.ldc) ldWait[i] = true;
+        if (q.restart) restartWait[i] = true; if (q.stop) stopWait[i] = true; if (q.train) trainWait[i] = true; if (q.title) titleWait[i] = true; if (q.close) closeWait[i] = true; if (q.ldc) ldWait[i] = true; if (q.atrain) atrainWait[i] = q.atrain.on ? 1 : 0;
         const t = await env.LIC.get("sht:" + rid + ":" + i); if (t) shotTs[i] = +t;
         try { const lt = JSON.parse((await env.LIC.get("rs:" + rid + ":" + i)) || "null"); if (lt) lastTab[i] = lt; } catch (e) {}
         try { const sv = JSON.parse((await env.LIC.get("rst:" + rid + ":" + i)) || "null"); if (sv) state[i] = sv; } catch (e) {}
       }));
-      bots.push({ rid, name: rid === "owner" ? "Владелец" : rid.indexOf("own") === 0 ? "Владелец (доп. ключ)" : "Ключ " + rid, tabs, last: st, pending, shotWait, allyWait, restartWait, closeWait, ldWait, stopWait, trainWait, titleWait, shotTs, ld, lastTab, state });
+      bots.push({ rid, name: rid === "owner" ? "Владелец" : rid.indexOf("own") === 0 ? "Владелец (доп. ключ)" : "Ключ " + rid, tabs, last: st, pending, shotWait, allyWait, restartWait, closeWait, ldWait, stopWait, trainWait, titleWait, atrainWait, shotTs, ld, lastTab, state });
     }
     return json({ ok: true, bots });
   }
@@ -387,7 +387,8 @@ async function appApi(req, env) {
     const t = Math.floor(+b.t); if (!(t >= 0 && t <= 3)) return json({ ok: false, err: "выберите титул" });
     await setQ(env, rid, inst, "title", { t, ts: Date.now() }); return json({ ok: true });
   }
-  if (b.op === "stop") { await setQ(env, rid, inst, "stop", { ts: Date.now() }); return json({ ok: true }); }   // остановить бота на этом эмуляторе
+  if (b.op === "stop") { await setQ(env, rid, inst, "stop", { ts: Date.now() }); return json({ ok: true }); }
+  if (b.op === "atrain") { await setQ(env, rid, inst, "atrain", { on: !!b.on, ts: Date.now() }); return json({ ok: true }); }   // переключатель «Автоматическое обучение» в боте   // остановить бота на этом эмуляторе
   if (b.op === "close") { await setQ(env, rid, inst, "close", { ts: Date.now() }); return json({ ok: true }); }   // закрыть игру → рабочий стол LDPlayer
   if (b.op === "restart") { await setQ(env, rid, inst, "restart", { ts: Date.now() }); return json({ ok: true }); }   // перезапуск игры
   if (b.op === "ally") {   // обход альянса: подарки / технологии / территория (без «Помощи»)
@@ -435,15 +436,15 @@ async function rcApi(url, req, env) {
   }
   if (p === "/rcpoll") {
     const q = await getQ(env, w.rid, inst);
-    if (b.st) await env.LIC.put("rst:" + w.rid + ":" + inst, JSON.stringify({ st: String(b.st).slice(0, 12), dev: String(b.dev || "").slice(0, 40), ts: Date.now() }), { expirationTtl: 86400 * 2 });   // состояние вкладки: при смене и раз в 30 мин
+    if (b.st) await env.LIC.put("rst:" + w.rid + ":" + inst, JSON.stringify({ st: String(b.st).slice(0, 12), dev: String(b.dev || "").slice(0, 40), at: b.at == null ? null : !!b.at, ts: Date.now() }), { expirationTtl: 86400 * 2 });   // состояние вкладки: при смене и раз в 30 мин
     if (Array.isArray(b.ld)) await env.LIC.put("rld:" + w.rid, JSON.stringify({ list: b.ld.slice(0, 40).map((x) => ({ i: Math.floor(+x.i || 0), n: String(x.n || "").slice(0, 40), on: !!x.on })), ts: Date.now() }), { expirationTtl: 86400 * 2 });
     const hot = Object.keys(q).length > 0 || Date.now() - (+(await env.LIC.get("hot:" + w.rid)) || 0) < 420000;   // пульт открыт в последние 7 мин (метка пишется раз в 5 мин) или есть команды
-    return json({ ok: true, hot, cmd: q.cmd || null, shot: q.shot || null, ally: q.ally || null, restart: q.restart || null, close: q.close || null, ldc: q.ldc || null, stop: q.stop || null, train: q.train || null, title: q.title || null });
+    return json({ ok: true, hot, cmd: q.cmd || null, shot: q.shot || null, ally: q.ally || null, restart: q.restart || null, close: q.close || null, ldc: q.ldc || null, stop: q.stop || null, train: q.train || null, title: q.title || null, atrain: q.atrain || null });
   }
   const chat = await chatOf(w.rid, env);
   if (p === "/rcack") {   // программа взяла команду
     const msg = String(b.msg || "").slice(0, 500);
-    await ackQ(env, w.rid, inst, b.title ? "title" : b.train ? "train" : b.stop ? "stop" : b.ldc ? "ldc" : b.close ? "close" : b.restart ? "restart" : b.ally ? "ally" : "cmd", b.ts);
+    await ackQ(env, w.rid, inst, b.atrain ? "atrain" : b.title ? "title" : b.train ? "train" : b.stop ? "stop" : b.ldc ? "ldc" : b.close ? "close" : b.restart ? "restart" : b.ally ? "ally" : "cmd", b.ts);
     await env.LIC.put("rs:" + w.rid + ":" + inst, JSON.stringify({ msg, ts: Date.now(), inst }), { expirationTtl: 86400 * 3 });
     if (chat && env.TG_TOKEN) await sayApp(env, chat, msg);
     return json({ ok: true });
