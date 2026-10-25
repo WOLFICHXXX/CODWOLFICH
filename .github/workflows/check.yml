@@ -3,19 +3,9 @@ on: { push: { branches: [bot], paths: [".github/workflows/check.yml"] } }
 jobs:
   check:
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
-      AWS_DEFAULT_REGION: ru-central1
-      BUCKET: ${{ secrets.YC_BUCKET }}
-      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
-      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
     steps:
       - run: |
-          export AWS_ACCESS_KEY_ID="$(printf %s "$AWS_ACCESS_KEY_ID" | tr -d '[:space:]')" AWS_SECRET_ACCESS_KEY="$(printf %s "$AWS_SECRET_ACCESS_KEY" | tr -d '[:space:]')"; BUCKET="$(printf %s "$BUCKET" | tr -d '[:space:]')"
-          K=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | sort | tail -1 | awk '{print $NF}')
-          N=$(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | wc -l)
-          R=$(curl -s -o /tmp/x -w "%{http_code} %{size_download} %{content_type}" "https://storage.yandexcloud.net/$BUCKET/shots/$K")
-          echo "::notice::shots: $N files, last $K → public GET $R"
-          echo "::notice::recent: $(aws --endpoint-url=https://storage.yandexcloud.net s3 ls "s3://$BUCKET/shots/" | sort | tail -12 | awk '{print $1" "$2" "$3}' | tr '\n' ';')"
-          echo "::notice::diag: $(curl -s -m 30 'https://functions.yandexcloud.net/d4efk5gct1uv86m11gui?p=diag' | head -c 300)"
+          for u in "https://wolfich-bot.pages.dev/owner.bin" "https://storage.yandexcloud.net/wolfich-mirror/owner.bin" "https://wolfich-test.pages.dev/owner.bin"; do
+            curl -sS -o x.bin -D h.txt "$u?t=$RANDOM"; echo "::notice::$u → $(sha256sum x.bin | cut -c1-16) $(head -c4 x.bin) $(grep -i '^cache-control\|^age\|^last-modified' h.txt | tr -d '\r' | tr '\n' ' ')"
+            curl -sS -o y.bin "$u"; echo "::notice::$u (без ?t) → $(sha256sum y.bin | cut -c1-16)"
+          done
