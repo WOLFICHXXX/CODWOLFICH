@@ -2787,6 +2787,15 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .rw-ar.ed .rw-arp{pointer-events:visiblePainted;cursor:pointer}
 .rw-ar.ed .rw-arp:hover{stroke:#fff;stroke-width:3.5}
 .rw-mks{position:absolute;inset:0;z-index:3;pointer-events:none}
+.rw-zv{position:absolute;inset:0;z-index:0;pointer-events:none}
+.row-stage.done .rw-zv{overflow:hidden;pointer-events:auto;touch-action:pan-y;border-radius:inherit}
+.row-stage.done.rw-zoomed .rw-zv{touch-action:none;cursor:grab}
+.rw-zl{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+.rw-zb{position:absolute;left:8px;bottom:8px;z-index:7;display:none;flex-direction:column;gap:4px}
+.row-stage.done .rw-zb{display:flex}
+.rw-zb button{width:34px;height:34px;border-radius:10px;border:1px solid rgba(217,164,65,.6);background:rgba(14,10,24,.82);color:#ffe7a8;font:700 18px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.45)}
+.rw-zb button:hover{background:rgba(40,30,60,.92)}
+.row-stage:not(.rw-zoomed) .rw-zb [data-z="0"],.row-stage:not(.rw-zoomed) .rw-zb [data-z="-1"]{opacity:.45}
 .rw-mk{position:absolute;width:calc(4.6% * var(--s,1));min-width:calc(30px * var(--s,1));aspect-ratio:1;padding:0;border:0;background:none;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;transition:transform .18s ease;touch-action:none;-webkit-tap-highlight-color:transparent}
 .rw-mk img{width:100%;height:100%;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6));pointer-events:none;user-select:none}
 .rw-mk:hover{transform:translate(-50%,-50%) scale(1.15);z-index:5}
@@ -17491,6 +17500,64 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const cap = document.createElement("div"); cap.className = "rw-cap"; cap.hidden = true; stage.appendChild(cap);
     const tools = document.createElement("div"); tools.className = "rw-tools"; stage.appendChild(tools);
     const mp = document.createElement("div"); mp.className = "rw-pop rw-mp"; mp.hidden = true; stage.appendChild(mp);
+    /* ---- карта: перемещение и увеличение (щипок двумя пальцами, колесо с Ctrl или на увеличенной карте, двойной тап, кнопки +/−).
+       Масштабируется только сама карта со зданиями, метками и стрелками; меню, панели и кнопки остаются как есть ---- */
+    const zv = document.createElement("div"); zv.className = "rw-zv";
+    const zl = document.createElement("div"); zl.className = "rw-zl"; zv.appendChild(zl);
+    stage.insertBefore(zv, map); [map, $("rwBld"), svg, mks, cap].forEach((el) => el && zl.appendChild(el));
+    const zb = document.createElement("div"); zb.className = "rw-zb"; zb.innerHTML = '<button type="button" data-z="1" aria-label="+">+</button><button type="button" data-z="-1" aria-label="−">−</button><button type="button" data-z="0" aria-label="1:1">⟲</button>'; stage.appendChild(zb);
+    const Z = { s: 1, x: 0, y: 0 }, ZMAX = 4;
+    function zApply(anim) {
+        const W = zv.clientWidth, H = zv.clientHeight;
+        Z.s = Math.max(1, Math.min(ZMAX, Z.s));
+        Z.x = Math.min(0, Math.max(W - W * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - H * Z.s, Z.y));
+        zl.style.transition = anim ? "transform .2s ease" : "none";
+        zl.style.transform = Z.s === 1 ? "" : "translate(" + Z.x + "px," + Z.y + "px) scale(" + Z.s + ")";
+        stage.classList.toggle("rw-zoomed", Z.s > 1);
+        if (!pop.hidden && typeof place === "function") place();
+        if (!mp.hidden) mpPlace();
+    }
+    function zTo(s, cx, cy, anim) {   // масштаб s с неподвижной точкой (cx, cy) в координатах окна карты
+        const k = Math.max(1, Math.min(ZMAX, s)) / Z.s;
+        Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s *= k; zApply(anim);
+    }
+    const zpt = (ev) => { const r = zv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; };
+    zb.addEventListener("click", (ev) => {
+        ev.stopPropagation(); const b = ev.target.closest("[data-z]"); if (!b) return;
+        const W = zv.clientWidth / 2, H = zv.clientHeight / 2, d = +b.dataset.z;
+        if (!d) { Z.s = 1; Z.x = 0; Z.y = 0; zApply(true); } else zTo(Z.s * (d > 0 ? 1.5 : 1 / 1.5), W, H, true);
+    });
+    zv.addEventListener("wheel", (ev) => {
+        if (!stage.classList.contains("done") || !(ev.ctrlKey || ev.metaKey || Z.s > 1)) return;   // обычное колесо листает страницу, пока карта не увеличена
+        ev.preventDefault(); const p = zpt(ev); zTo(Z.s * Math.exp(-ev.deltaY * 0.0022), p.x, p.y, false);
+    }, { passive: false });
+    const ptrs = new Map(); let zg = null, zMoved = false, lastTap = 0;
+    zv.addEventListener("pointerdown", (ev) => {
+        if (!stage.classList.contains("done") || tac.mode !== "cur" || ev.target.closest(".rw-mk")) return;   // рисование стрелок и перетаскивание меток — их жесты
+        ptrs.set(ev.pointerId, zpt(ev)); zMoved = false;
+        if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; zg = { d: Math.hypot(a.x - b.x, a.y - b.y), s: Z.s, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, x: Z.x, y: Z.y }; }
+        else if (ptrs.size === 1) zg = { px: ev.clientX, py: ev.clientY, x: Z.x, y: Z.y };
+        if (ev.pointerType === "touch" && ev.isPrimary) { const t = Date.now(); if (t - lastTap < 300) { const p = zpt(ev); zTo(Z.s > 1.2 ? 1 : 2.2, p.x, p.y, true); zMoved = true; } lastTap = t; }
+    });
+    window.addEventListener("pointermove", (ev) => {
+        if (!zg || !ptrs.has(ev.pointerId)) return;
+        ptrs.set(ev.pointerId, zpt(ev));
+        if (ptrs.size >= 2 && zg.d) {
+            const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+            const s = Math.max(1, Math.min(ZMAX, zg.s * d / Math.max(1, zg.d))), k = s / zg.s;
+            Z.s = s; Z.x = cx - (zg.cx - zg.x) * k; Z.y = cy - (zg.cy - zg.y) * k; zMoved = true; zApply(false);
+        } else if (ptrs.size === 1 && zg.px != null && Z.s > 1) {
+            const dx = ev.clientX - zg.px, dy = ev.clientY - zg.py;
+            if (!zMoved && Math.hypot(dx, dy) < 6) return;
+            zMoved = true; Z.x = zg.x + dx; Z.y = zg.y + dy; zApply(false);
+        }
+    });
+    const zEnd = (ev) => { if (!ptrs.has(ev.pointerId)) return; ptrs.delete(ev.pointerId); if (ptrs.size === 1) { const p = [...ptrs.values()][0], r = zv.getBoundingClientRect(); zg = { px: p.x + r.left, py: p.y + r.top, x: Z.x, y: Z.y }; } else if (!ptrs.size) zg = null; };
+    window.addEventListener("pointerup", zEnd); window.addEventListener("pointercancel", zEnd);
+    zv.addEventListener("click", (ev) => { if (zMoved) { ev.stopPropagation(); ev.preventDefault(); zMoved = false; } }, true);   // после перетаскивания — не нажимать здание
+    zv.addEventListener("dblclick", (ev) => { if (ev.target.closest(".rw-bd,.rw-mk")) return; const p = zpt(ev); zTo(Z.s > 1.2 ? 1 : 2.2, p.x, p.y, true); });
+    window.addEventListener("resize", () => zApply(false));
+    map.draggable = false; zv.addEventListener("dragstart", (ev) => ev.preventDefault());   // иначе браузер тащит картинку карты и жест обрывается
     const tk = (kind) => { const d = pdata(); return (d && d[kind]) || {}; };
     const tacBusy = () => !!(tac.drag || tac.draw || (!mp.hidden && tac.mp && tac.mp.edit));
 
@@ -17549,7 +17616,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         tools.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", b.dataset.tm === m));
         svg.classList.toggle("ed", canEdit() && m === "cur");
     }
-    const pct = (ev) => { const r = stage.getBoundingClientRect(); return { x: Math.round((ev.clientX - r.left) / r.width * 10000) / 100, y: Math.round((ev.clientY - r.top) / r.height * 10000) / 100 }; };
+    const pct = (ev) => { const r = zl.getBoundingClientRect(); return { x: Math.round((ev.clientX - r.left) / r.width * 10000) / 100, y: Math.round((ev.clientY - r.top) / r.height * 10000) / 100 }; };
     async function tacSave(kind, id, v, noHist) {
         const d = st.plan.data.data = st.plan.data.data || {}; d[kind] = d[kind] || {};
         if (!noHist) histPush({ t: "m", kind, id, before: cl(d[kind][id]), after: cl(v) });
@@ -17588,7 +17655,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     cap.addEventListener("pointermove", (ev) => { if (!tac.draw) return; const p = pct(ev); tac.draw.x2 = p.x; tac.draw.y2 = p.y; tacDraw(); });
     const endDraw = () => {
         const a = tac.draw; tac.draw = null; if (!a) return;
-        const r = stage.getBoundingClientRect(), len = Math.hypot((a.x2 - a.x1) * r.width / 100, (a.y2 - a.y1) * r.height / 100);
+        const r = zl.getBoundingClientRect(), len = Math.hypot((a.x2 - a.x1) * r.width / 100, (a.y2 - a.y1) * r.height / 100);
         if (len < 18) { tacDraw(); return; }
         tacSave("r", rid(), a);
     };
@@ -17617,7 +17684,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     function mpPlace() {
         if (matchMedia("(max-width:720px)").matches || !tac.mp) { mp.style.left = mp.style.top = ""; return; }
         const o = (tac.mp.kind === "k" ? tk("k") : tk("r"))[tac.mp.id]; if (!o) return;
-        const sr = stage.getBoundingClientRect(), x = (tac.mp.kind === "k" ? o.x : o.x2) / 100 * sr.width, y = (tac.mp.kind === "k" ? o.y : o.y2) / 100 * sr.height, pw = mp.offsetWidth, ph = mp.offsetHeight;
+        const sr = stage.getBoundingClientRect(), zr = zl.getBoundingClientRect(), x = zr.left - sr.left + (tac.mp.kind === "k" ? o.x : o.x2) / 100 * zr.width, y = zr.top - sr.top + (tac.mp.kind === "k" ? o.y : o.y2) / 100 * zr.height, pw = mp.offsetWidth, ph = mp.offsetHeight;
         mp.style.left = Math.max(4, Math.min(sr.width - pw - 4, x - pw / 2)) + "px";
         mp.style.top = (y > sr.height * 0.55 && y - ph - 28 > 0 ? y - ph - 28 : y + 28) + "px";
     }
