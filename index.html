@@ -3032,8 +3032,8 @@ html.tgapp .side,html.tgapp nav.tabs,html.tgapp .wg,html.tgapp #page-ally>.heade
 html.tgapp .shell{display:block}
 html.tgapp #alHome .al-grid2>div:first-child{display:none}
 .tga-tabs{display:none}
-html.tgapp .tga-tabs{display:flex;gap:2px;position:sticky;top:0;z-index:30;margin:0 0 10px;padding:4px;border-radius:14px;background:rgba(15,12,29,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
-.tga-tabs button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:0;border-radius:10px;background:transparent;color:var(--muted,#b9a9d6);font:inherit;font-size:.62rem;line-height:1.15;text-align:center;cursor:pointer}
+html.tgapp .tga-tabs{display:flex;gap:2px;position:sticky;top:0;z-index:30;margin:0 0 10px;padding:4px;border-radius:14px;background:#14102a;border:1px solid rgba(255,255,255,.12);min-height:64px;box-sizing:border-box}
+.tga-tabs button{flex:1 1 0;min-width:0;opacity:1;visibility:visible;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:0;border-radius:10px;background:transparent;color:var(--muted,#b9a9d6);font:inherit;font-size:.62rem;line-height:1.15;text-align:center;cursor:pointer}
 .tga-tabs button img{width:42px!important;height:42px!important;max-width:42px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));transition:transform .15s}.tga-tabs button.on img{transform:scale(1.12)}.tga-tabs button:not(.on) img{opacity:.8}
 .tga-tabs button.on{background:rgba(217,164,65,.22);color:#ffe7a8}
 #tgaNtf,#tgaRowMsg,#tgaNoCard,#tgaLinks{display:none}
@@ -16405,7 +16405,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             tab = k; root.dataset.tgtab = k; try { sessionStorage.setItem("tga_tab", k); } catch (e) {}
             drawBar();
             if (k === "form") { const b = $("alMineBody"); if (b && b.hidden) { const h = $("alMineH"); if (h) h.click(); } }
-            if (k === "card") cardMsg.textContent = $("alTbl").querySelector(".al-me") ? "" : L("Своей карточки в этом альянсе ещё нет — заполните её во вкладке «Заполнить».", "You have no card in this alliance yet — fill it in on the “Fill in” tab.");
+            if (k === "card" && (st.ft || st.fr || st.fp) && st.data) { st.ft = ""; st.fr = ""; st.fp = ""; table(); }   // фильтры списка не должны прятать свою карточку
+            cardSync();
             if (k === "row") rowMsg.textContent = $("alRowT").style.display === "none" ? L("Планов RoW пока нет — их создают офицеры в планере.", "No RoW plans yet — officers create them in the planner.") : "";
             if (k === "ntf") ntfLoad();
             window.scrollTo(0, 0);
@@ -16435,13 +16436,19 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (W && W.BackButton) W.BackButton.onClick(() => { const act = document.querySelector(".page.active"); if (!act || act.id !== "page-ally") goAlly(); else if ($("alView").style.display !== "none") home(); backSync(); });
         /* шапка: название альянса и ранг участника (вместо описания доступа и кнопки «Все мои альянсы» — их заменяет «назад» Telegram) */
         const badge = document.createElement("div"); badge.className = "tga-rank"; $("alName").after(badge);
+        function cardSync() {   // «нет карточки» — только если данных альянса уже пришли и своей строки действительно нет
+            const j = st.data, has = !!(j && j.me && (j.members || []).some((x) => x.mid === j.me));
+            const t = tab === "card" && j && !has ? L("Своей карточки в этом альянсе ещё нет — заполните её во вкладке «Заполнить».", "You have no card in this alliance yet — fill it in on the “Fill in” tab.") : "";
+            if (cardMsg.textContent !== t) cardMsg.textContent = t;
+            if (tab === "card" && has && !$("alTbl").querySelector(".al-me") && (st.ft || st.fr || st.fp)) { st.ft = ""; st.fr = ""; st.fp = ""; table(); }
+        }
         function badgeSync() {
             const j = st.data, m = j && j.me && (j.members || []).find((x) => x.mid === j.me);
             const role = !j ? "" : j.role === "own" ? L("Создатель", "Creator") : j.role === "off" ? L("Офицер", "Officer") : L("Участник", "Member");
             const t = role + (m && +m.rank ? " · R" + m.rank : "") + (m && m.rt ? " · RoW " + m.rt : "");
             if (badge.textContent !== t) badge.textContent = t;
         }
-        setInterval(() => { backSync(); badgeSync(); }, 700);
+        setInterval(() => { backSync(); badgeSync(); cardSync(); }, 700);
         /* вход по подписи Telegram; потом — сразу во вкладку «Альянс», единственный альянс открываем сам */
         let autoOpened = false;
         function autoOpen() {
