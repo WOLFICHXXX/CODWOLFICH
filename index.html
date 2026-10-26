@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<script>if(/[?&]tgapp=1/.test(location.search)){document.documentElement.className+=" tgapp";document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#070a16">
 <title>Call of Dragons — WOLFICH СМП Калькулятор</title>
@@ -3025,6 +3026,39 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 @media (min-width:900px){.al-hes{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:12px}.al-he.dep{margin-left:0;margin-top:16px}}
 .al-ptf{grid-template-columns:1fr 1fr 1.3fr}
 @media (max-width:720px){.al-ptf{grid-template-columns:1fr 1fr}.al-ptf label:last-child{grid-column:1/-1}}
+
+/* мини-приложение Telegram (?tgapp=1): только «Альянс», функции — вкладками */
+html.tgapp .side,html.tgapp nav.tabs,html.tgapp .wg,html.tgapp #page-ally>.header{display:none!important}
+html.tgapp .shell{display:block}
+html.tgapp #alHome .al-grid2>div:first-child{display:none}
+.tga-tabs{display:none}
+html.tgapp .tga-tabs{display:flex;gap:2px;position:sticky;top:0;z-index:30;margin:0 0 10px;padding:4px;border-radius:14px;background:rgba(15,12,29,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
+.tga-tabs button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:0;border-radius:10px;background:transparent;color:var(--muted,#b9a9d6);font:inherit;font-size:.62rem;line-height:1.15;text-align:center;cursor:pointer}
+.tga-tabs button i{font-style:normal;font-size:1.1rem}
+.tga-tabs button.on{background:rgba(217,164,65,.22);color:#ffe7a8}
+#tgaNtf,#tgaRowMsg,#tgaNoCard,#tgaLinks{display:none}
+html.tgapp[data-tgtab="list"] #tgaLinks:has(#alLinks:not([style*="none"])){display:block}
+html.tgapp[data-tgtab] #alRowT,html.tgapp[data-tgtab] #alAddMe,html.tgapp[data-tgtab] #alMine,html.tgapp[data-tgtab] #alMembers{display:none!important}
+html.tgapp[data-tgtab="list"] #alMembers,html.tgapp[data-tgtab="card"] #alMembers{display:block!important}
+html.tgapp[data-tgtab="card"] #alMembers .al-mc:not(.al-me),html.tgapp[data-tgtab="card"] #alFlt,html.tgapp[data-tgtab="card"] .al-sort,html.tgapp[data-tgtab="card"] #alBoss,html.tgapp[data-tgtab="card"] #alCount,html.tgapp[data-tgtab="card"] #alMembers .al-top{display:none!important}
+html.tgapp[data-tgtab="card"] #tgaNoCard:not(:empty){display:block}
+html.tgapp[data-tgtab="form"] #alMine{display:block!important}
+html.tgapp[data-tgtab="form"] #alMineH{pointer-events:none}
+html.tgapp[data-tgtab="form"] #alMineH .al-fhint,html.tgapp[data-tgtab="form"] #alMineH .al-chev{display:none}
+html.tgapp[data-tgtab="row"] #alRowT{display:block!important}
+html.tgapp[data-tgtab="row"] #alRowT[style*="none"]{display:none!important}
+html.tgapp[data-tgtab="row"] #tgaRowMsg:not(:empty){display:block}
+html.tgapp[data-tgtab="ntf"] #tgaNtf{display:block}
+.tga-sw{display:flex;align-items:center;gap:10px;margin:10px 0;cursor:pointer;font-size:.9rem}
+.tga-sw input{position:absolute;opacity:0;width:1px;height:1px}
+.tga-k{flex:none;width:42px;height:24px;border-radius:12px;background:#3a3550;position:relative;transition:background .2s;border:1px solid rgba(255,255,255,.15)}
+.tga-k::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#cfc8dd;transition:transform .2s}
+.tga-sw input:checked+.tga-k{background:#2f9e5b}.tga-sw input:checked+.tga-k::after{transform:translateX(18px);background:#fff}
+html.tgapp #alRole,html.tgapp #alBack,html.tgapp #tgaLinks .al-url,html.tgapp #tgaLinks [data-relink]{display:none!important}
+.tga-rank{display:none}html.tgapp .tga-rank{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:999px;background:rgba(217,164,65,.18);border:1px solid rgba(217,164,65,.45);color:#ffe7a8;font-size:.82rem;font-weight:700}
+html.tgapp #alView>.card:first-child{padding:8px 14px;margin-bottom:8px}html.tgapp #alView>.card:first-child .al-top{justify-content:center;align-items:center}html.tgapp #alView>.card:first-child .al-top>div{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}html.tgapp #alName{margin:0;font-size:1.15rem}html.tgapp .tga-rank{margin-top:0}
+.tga-hint{display:none}html.tgapp .tga-hint{display:block;margin-top:10px}
+.al-tri{width:26px;height:26px;vertical-align:middle;margin:-4px 0;display:inline-block}.al-trf{border-radius:50%;background:radial-gradient(#3a6fb0,#1d3460);border:2px solid #8fb6e8;color:#fff;font-size:13px;line-height:22px;text-align:center;box-sizing:border-box}.al-fc:has(.al-tri){padding-left:4px}
 .al-pterr{color:#ff6b6b;font-size:.8rem;margin-top:6px}.al-in.al-bad{border-color:#ff5050!important;box-shadow:0 0 0 2px rgba(255,80,80,.25)}.al-ptf label{min-width:0}.al-ptf input[type=time]{min-width:0;width:100%;max-width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none}
 .al-ptn{margin:-2px 0 8px}
 .al-pt{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:6px 0 2px;font-size:.84rem;color:var(--text)}
@@ -16079,7 +16113,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         const j = st.data, box = $("alFlt"); if (!box || !j) return;
         const chip = (k, v, txt, n) => '<button type="button" class="al-fc' + (st[k] === v ? " on" : "") + '" data-fk="' + k + '" data-fv="' + v + '">' + txt + (n != null ? " <small>" + n + "</small>" : "") + "</button>";
         const cntT = (t) => j.members.filter((m) => hasType(m, t)).length, cntR = (r) => j.members.filter((m) => (r === "0" ? !m.rt : String(m.rt || "") === r)).length;
-        box.innerHTML = '<div class="al-fg"><span class="al-fl">' + L("Войска:", "Troops:") + "</span>" + chip("ft", "", L("Все", "All")) + TYPES.map(([k, n]) => chip("ft", k, esc(T(n)), cntT(k))).join("") + chip("ft", "fly", L("Летающие", "Flying"), cntT("fly")) + "</div>" +
+        box.innerHTML = '<div class="al-fg"><span class="al-fl">' + L("Войска:", "Troops:") + "</span>" + chip("ft", "", L("Все", "All")) + TYPES.map(([k, n]) => chip("ft", k, '<img class="al-tri" src="img/tr-' + k + '.png" alt="' + esc(T(n)) + '" title="' + esc(T(n)) + '">', cntT(k))).join("") + chip("ft", "fly", '<span class="al-tri al-trf" title="' + esc(L("Летающие", "Flying")) + '">✈</span>', cntT("fly")) + "</div>" +
             '<div class="al-fg"><span class="al-fl">' + L("Команда RoW:", "RoW team:") + "</span>" + chip("fr", "", L("Все", "All")) + ["1", "2", "3"].map((r) => chip("fr", r, r, cntR(r))).join("") + chip("fr", "0", L("Без команды", "No team"), cntR("0")) + "</div>" +
             '<div class="al-fg"><span class="al-fl">' + L("Прайм (UTC):", "Prime (UTC):") + "</span>" + chip("fp", "", L("Все", "All")) + PTS.map(([a, b], i) => chip("fp", String(i), hm(a) + "–" + hm(b % 1440 || 1440).replace("24:00", "24:00"), j.members.filter((m) => ptHas(m.pt, a, b)).length)).join("") + chip("fp", "x", L("Не указан", "Not set"), j.members.filter((m) => !ptOk(m.pt)).length) + "</div>";
         box.querySelectorAll("[data-fk]").forEach((b) => b.addEventListener("click", () => { st[b.dataset.fk] = b.dataset.fv; table(); }));
@@ -16344,6 +16378,92 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const fromHash = () => { if (/ally=/.test(location.hash)) { const b = document.querySelector('.nav-item[data-page="ally"]'); if (b) b.click(); joinFlow(location.hash); return true; } return false; };
     window.addEventListener("hashchange", fromHash);
     if (!fromHash()) home();
+    /* ---------- мини-приложение Telegram (бот напоминаний → кнопка «Альянс»): сайт с параметром ?tgapp=1 ----------
+       Вход — по подписи Telegram (тот же аккаунт, что на сайте), данные — те же, что на сайте. Каждая функция — своя вкладка. */
+    if (/[?&]tgapp=1/.test(location.search)) (function tgApp() {
+        const W = window.Telegram && window.Telegram.WebApp, NT = "https://wolfich-notify.wolfichplay.workers.dev";
+        const KEY = "wolfich_tg_v1", root = document.documentElement;
+        root.classList.add("tgapp");
+        try { W.ready(); W.expand(); if (W.setHeaderColor) W.setHeaderColor("#0f0c1d"); if (W.setBackgroundColor) W.setBackgroundColor("#0f0c1d"); } catch (e) { /* не в Telegram */ }
+        const TABS = [["list", "👥", "Участники", "Members"], ["card", "🪪", "Моя карточка", "My card"], ["form", "✏️", "Заполнить", "Fill in"], ["row", "🗺", "План RoW", "RoW plan"], ["ntf", "🔔", "Уведомления", "Notifications"]];
+        let tab = "list";
+        try { tab = sessionStorage.getItem("tga_tab") || "list"; } catch (e) {}
+        const bar = document.createElement("div"); bar.className = "tga-tabs"; bar.id = "tgaTabs";
+        const mem = $("alTbl").closest(".card"); if (mem) mem.id = "alMembers";
+        const ntf = document.createElement("div"); ntf.className = "card al-card"; ntf.id = "tgaNtf";
+        const cardMsg = document.createElement("div"); cardMsg.className = "al-note"; cardMsg.id = "tgaNoCard";
+        $("alView").insertBefore(bar, $("alView").children[1] || null); $("alView").appendChild(ntf); if (mem) mem.insertBefore(cardMsg, $("alTbl"));
+        const lk = document.createElement("div"); lk.className = "card al-card"; lk.id = "tgaLinks"; lk.appendChild($("alLinks")); $("alView").appendChild(lk);   // ссылки-приглашения — внизу вкладки «Участники»
+        const rowMsg = document.createElement("div"); rowMsg.className = "card al-card al-note"; rowMsg.id = "tgaRowMsg"; $("alView").insertBefore(rowMsg, $("alRowT"));
+        const hint = document.createElement("div"); hint.className = "al-note tga-hint"; $("alHome").appendChild(hint);
+        function drawBar() {
+            bar.innerHTML = TABS.map((t) => '<button type="button" data-tga="' + t[0] + '" class="' + (t[0] === tab ? "on" : "") + '"><i>' + t[1] + "</i><span>" + esc(L(t[2], t[3])) + "</span></button>").join("");
+            bar.querySelectorAll("[data-tga]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tga)));
+            hint.textContent = L("Здесь те же альянсы, что на сайте. Если на сайт вы входили через Google — привяжите Telegram в профиле сайта, и альянсы появятся здесь.", "These are the same alliances as on the site. If you signed in to the site with Google — link Telegram in the site profile and your alliances will appear here.");
+        }
+        function setTab(k) {
+            tab = k; root.dataset.tgtab = k; try { sessionStorage.setItem("tga_tab", k); } catch (e) {}
+            drawBar();
+            if (k === "form") { const b = $("alMineBody"); if (b && b.hidden) { const h = $("alMineH"); if (h) h.click(); } }
+            if (k === "card") cardMsg.textContent = $("alTbl").querySelector(".al-me") ? "" : L("Своей карточки в этом альянсе ещё нет — заполните её во вкладке «Заполнить».", "You have no card in this alliance yet — fill it in on the “Fill in” tab.");
+            if (k === "row") rowMsg.textContent = $("alRowT").style.display === "none" ? L("Планов RoW пока нет — их создают офицеры в планере.", "No RoW plans yet — officers create them in the planner.") : "";
+            if (k === "ntf") ntfLoad();
+            window.scrollTo(0, 0);
+        }
+        /* уведомления в Telegram: что присылать (настройка общая для всех альянсов аккаунта) */
+        const NK = [["note", "Пометка офицера на моей карточке", "An officer's note on my card"], ["team", "Меня назначили в команду RoW или сняли", "I was assigned to or removed from a RoW team"], ["rank", "Изменился мой ранг (R4 / R5)", "My rank changed (R4 / R5)"], ["role", "Меня сделали офицером или сняли", "I was made an officer or removed"], ["row", "План RoW моей команды открыт или обновлён", "My team's RoW plan was opened or updated"]];
+        let nState = null;
+        function ntfDraw(msg) {
+            ntf.innerHTML = '<h2 class="al-h">' + esc(L("Уведомления в Telegram", "Telegram notifications")) + '</h2><div class="al-note">' + esc(L("Бот пришлёт сообщение с кнопкой «Открыть альянс». Настройка общая для всех ваших альянсов.", "The bot will send a message with an “Open Alliance” button. The setting applies to all your alliances.")) + "</div>" +
+                (nState ? NK.map((k) => '<label class="tga-sw"><input type="checkbox" data-nk="' + k[0] + '"' + (nState[k[0]] ? " checked" : "") + '><span class="tga-k"></span><span>' + esc(L(k[1], k[2])) + "</span></label>").join("") : '<div class="al-note">' + esc(L("Загружаю…", "Loading…")) + "</div>") +
+                '<div class="tk-msg' + (msg ? (msg.bad ? " err" : " ok") : "") + '" style="display:' + (msg ? "block" : "none") + '">' + esc(msg ? msg.t : "") + "</div>";
+            ntf.querySelectorAll("[data-nk]").forEach((c) => c.addEventListener("change", async () => {
+                const want = Object.assign({}, nState); want[c.dataset.nk] = c.checked; c.disabled = true;
+                try { const j = await call({ op: "ntfset", ntf: want }); if (!j.ok) throw new Error(j.err || "?"); nState = j.ntf; ntfDraw({ t: L("Сохранено", "Saved") }); }
+                catch (e) { ntfDraw({ t: L("Не сохранилось — нет связи", "Not saved — no connection"), bad: true }); }
+            }));
+        }
+        async function ntfLoad() { ntfDraw(); try { const j = await call({ op: "ntfget" }); if (j.ok) { nState = j.ntf; ntfDraw(); } } catch (e) { ntfDraw({ t: L("Нет связи с сервером", "No connection to the server"), bad: true }); } }
+        /* «назад» Telegram: из планера — в альянс, из альянса — к списку альянсов */
+        const goAlly = () => { const b = document.querySelector('.nav-item[data-page="ally"]'); if (b) b.click(); };
+        function backSync() {
+            if (!W || !W.BackButton) return;
+            const act = document.querySelector(".page.active"), onAlly = act && act.id === "page-ally", inView = $("alView").style.display !== "none";
+            const many = Object.keys(load()).length > 1;
+            if (!onAlly || (inView && many)) W.BackButton.show(); else W.BackButton.hide();
+        }
+        if (W && W.BackButton) W.BackButton.onClick(() => { const act = document.querySelector(".page.active"); if (!act || act.id !== "page-ally") goAlly(); else if ($("alView").style.display !== "none") home(); backSync(); });
+        /* шапка: название альянса и ранг участника (вместо описания доступа и кнопки «Все мои альянсы» — их заменяет «назад» Telegram) */
+        const badge = document.createElement("div"); badge.className = "tga-rank"; $("alName").after(badge);
+        function badgeSync() {
+            const j = st.data, m = j && j.me && (j.members || []).find((x) => x.mid === j.me);
+            const role = !j ? "" : j.role === "own" ? L("Создатель", "Creator") : j.role === "off" ? L("Офицер", "Officer") : L("Участник", "Member");
+            const t = role + (m && +m.rank ? " · R" + m.rank : "") + (m && m.rt ? " · RoW " + m.rt : "");
+            if (badge.textContent !== t) badge.textContent = t;
+        }
+        setInterval(() => { backSync(); badgeSync(); }, 700);
+        /* вход по подписи Telegram; потом — сразу во вкладку «Альянс», единственный альянс открываем сам */
+        let autoOpened = false;
+        function autoOpen() {
+            if (autoOpened || st.cur) return;
+            const ids = Object.keys(load()); if (ids.length !== 1) return;
+            autoOpened = true; const it = $("alList").querySelector(".al-item"); if (it) it.click();
+        }
+        async function auth() {
+            const init = W && W.initData; if (!init) { hint.textContent = L("Откройте эту страницу из Telegram (бот WOLFICH → «Альянс»).", "Open this page from Telegram (WOLFICH bot → “Alliance”)."); return; }
+            try {
+                const r = await fetch(NT + "?r=tgwa", { method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ initData: init }) });
+                const j = await r.json(); if (!j.token) throw new Error(j.error || "auth");
+                let cur = {}; try { cur = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) {}
+                if (cur.uid !== j.uid || cur.token !== j.token) { localStorage.setItem(KEY, JSON.stringify({ token: j.token, uid: j.uid, name: j.name })); window.dispatchEvent(new Event("wolfich-tg")); }
+            } catch (e) { hint.textContent = L("Не получилось войти через Telegram — закройте и откройте приложение ещё раз.", "Could not sign in with Telegram — close and reopen the app."); return; }
+            goAlly(); await home();
+            for (let i = 0; i < 20 && !autoOpened; i++) { autoOpen(); if (!autoOpened) await new Promise((r) => setTimeout(r, 250)); }
+        }
+        try { const tl = W && W.initDataUnsafe && W.initDataUnsafe.user && W.initDataUnsafe.user.language_code; if (tl && !localStorage.getItem("wolfich_lang") && window.WI18N && window.WI18N.setLang) window.WI18N.setLang(/^(ru|uk|be|kk)/.test(tl) ? "ru" : "en"); } catch (e) {}
+        window.addEventListener("wi18n", () => { drawBar(); if (tab === "ntf") ntfDraw(); if (tab === "card") setTab("card"); });
+        setTab(tab); auth();
+    })();
     window.WALLY = { heroCard, troopChip };   // для планера RoW: миниатюры марша как в карточке участника
 })();
 
