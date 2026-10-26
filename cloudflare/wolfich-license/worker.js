@@ -622,11 +622,32 @@ async function rowApi(req, env) {
   return json({ ok: false, err: "неизвестная команда" });
 }
 
+/* ---------- уведомления альянса в Telegram (бот напоминаний сайта, wolfich-notify) ----------
+   KV ntf:<acc> = { off: { note, team, rank, role, row } } — что участник выключил; по умолчанию всё включено */
+const NTF_KINDS = ["note", "team", "rank", "role", "row"];
+async function ntfGet(env, acc) { let o = {}; try { o = JSON.parse((await env.LIC.get("ntf:" + acc)) || "{}"); } catch (e) {} const r = {}; NTF_KINDS.forEach((k) => { r[k] = !(o.off && o.off[k]); }); return r; }
+async function alPush(env, acc, kind, ru, en, actor, rl) {
+  try {
+    if (!acc || acc === actor || !env.ACC_SECRET) return;
+    if (!(await ntfGet(env, acc))[kind]) return;
+    if (rl) { const k = "ntfl:" + acc + ":" + rl; if (await env.LIC.get(k)) return; await env.LIC.put(k, "1", { expirationTtl: 1800 }); }   // не чаще раза в 30 мин
+    const ts = Date.now(), key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.ACC_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const sig = Array.from(new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode("alpush|" + acc + "|" + ts + "|" + ru + "|" + en))), (x) => x.toString(16).padStart(2, "0")).join("");
+    const req = new Request("https://wolfich-notify.wolfichplay.workers.dev/?r=alpush", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ uid: acc, ts, ru, en, sig }) });
+    await (env.NOTIFY ? env.NOTIFY.fetch(req) : fetch(req));
+  } catch (e) { /* уведомление не критично */ }
+}
 async function alApi(req, env) {
   if (!env.LIC) return json({ ok: false, err: "сервер не настроен" });
   let b = {}; try { b = await req.json(); } catch (e) { return json({ ok: false, err: "неверный запрос" }); }
   const op = String(b.op || ""), acc = await accOf(env, b.acc);
   if (!acc) return NOACC();
+  if (op === "ntfget") return json({ ok: true, ntf: await ntfGet(env, acc) });   // настройки уведомлений альянса (мини-приложение Telegram)
+  if (op === "ntfset") {
+    const n = b.ntf && typeof b.ntf === "object" ? b.ntf : {}, off = {};
+    NTF_KINDS.forEach((k) => { if (n[k] === false || n[k] === 0) off[k] = 1; });
+    await env.LIC.put("ntf:" + acc, JSON.stringify({ off })); return json({ ok: true, ntf: await ntfGet(env, acc) });
+  }
   if (op === "mine") {   // мои альянсы и планеры (с любого устройства)
     let o = {}; try { o = JSON.parse((await env.LIC.get("acc:" + acc)) || "{}"); } catch (e) {}
     const al = {};   // { id: { name, role } } — роль из самого альянса (own / off / inv)
@@ -688,6 +709,11 @@ async function alApi(req, env) {
   }
   const mr = me ? a.m[me].role : "", role = mr === "own" ? "own" : mr === "off" || adm ? "off" : "inv";
   const boss = role === "own" || role === "off";
+  const rowPush = async (t, opened) => {   // план команды открыт или изменён — участникам этой команды (изменения — не чаще раза в 30 мин)
+    if (!a.row || !a.row[t] || !a.row[t].open) return;
+    if (!opened) { const k = "rowp:" + a.id + ":" + t; if (await env.LIC.get(k)) return; await env.LIC.put(k, "1", { expirationTtl: 1800 }); }   // правки карты — одно уведомление на команду за 30 мин
+    for (const mm of Object.values(a.m).filter((x) => +x.rt === +t).slice(0, 60)) await alPush(env, mm.acc, "row", opened ? "🗺 Альянс «" + a.name + "»: план RoW команды " + t + " открыт — посмотрите свою задачу." : "🗺 Альянс «" + a.name + "»: план RoW команды " + t + " обновлён.", opened ? "🗺 Alliance “" + a.name + "”: the RoW plan for team " + t + " is open — check your task." : "🗺 Alliance “" + a.name + "”: the RoW plan for team " + t + " was updated.", acc);
+  };
   a.red = a.red || {};   // редакторы планера RoW (вручную, по аккаунту) — не офицеры альянса, но правят карты команд
   const pEd = boss || !!a.red[acc];
   if (me) await accIdx(env, acc, "al", id, a.name);   // владелец сайта без членства — альянс не попадает в «Мои альянсы»
@@ -721,8 +747,10 @@ async function alApi(req, env) {
   if (op === "rwteam") {   // команда RoW в карточке участника (1–3, 0 — без команды): только офицеры и создатель
     const mid = String(b.mid || ""); if (!a.m[mid]) return json({ ok: false, err: "участник не найден" });
     if (!boss) return json({ ok: false, err: "команду RoW назначают офицеры и создатель" });
-    const t = Math.floor(+b.t || 0); if (t >= 1 && t <= 3) a.m[mid].rt = t; else delete a.m[mid].rt;
-    await save(); return view();
+    const t = Math.floor(+b.t || 0), was = a.m[mid].rt || 0; if (t >= 1 && t <= 3) a.m[mid].rt = t; else delete a.m[mid].rt;
+    await save();
+    if (was !== (a.m[mid].rt || 0)) await alPush(env, a.m[mid].acc, "team", t ? "⚔️ Альянс «" + a.name + "»: вас назначили в команду RoW " + t + "." : "⚔️ Альянс «" + a.name + "»: вас сняли с команды RoW.", t ? "⚔️ Alliance “" + a.name + "”: you were assigned to RoW team " + t + "." : "⚔️ Alliance “" + a.name + "”: you were removed from your RoW team.", acc);
+    return view();
   }
   if (op === "rowack") {   // «Ознакомлен» с планом команды: любой, кому карта открыта; список видят офицеры и создатель
     const t = rowT(b.t), r = a.row && a.row[t], pl = rowPl(b.pl);
@@ -758,7 +786,9 @@ async function alApi(req, env) {
     if (mm.role === "own") return json({ ok: false, err: "роль создателя не меняется" });
     const to = b.role === "off" ? "off" : "mem";
     if (to === "mem" && role !== "own" && !adm) return json({ ok: false, err: "снять офицера может только создатель альянса" });
-    mm.role = to; await save(); return view();
+    const wasR = mm.role; mm.role = to; await save();
+    if (wasR !== to) await alPush(env, mm.acc, "role", to === "off" ? "🎖 Альянс «" + a.name + "»: вы теперь офицер." : "🎖 Альянс «" + a.name + "»: вы больше не офицер.", to === "off" ? "🎖 Alliance “" + a.name + "”: you are now an officer." : "🎖 Alliance “" + a.name + "”: you are no longer an officer.", acc);
+    return view();
   }
   if (op === "red") {   // права на планер вручную: участнику — редактирование карт команд RoW (без офицерских прав в альянсе)
     const mid = String(b.mid || ""), mm = a.m[mid]; if (!mm || !mm.acc) return json({ ok: false, err: "участник не найден" });
@@ -769,19 +799,19 @@ async function alApi(req, env) {
   if (op === "rowall") {   // план команды целиком: очистить карту или вернуть после очистки
     const t = rowT(b.t); if (!a.row || !a.row[t]) return json({ ok: false, err: "команда RoW " + t + " ещё не создана" });
     const data = rowAll(b.data); await env.LIC.put(rwKey(a.id, t, b.pl), JSON.stringify(data));
-    return json({ ok: true, data });
+    await rowPush(t, false); return json({ ok: true, data });
   }
   if (op === "rowmark") {   // метка или стрелка на карте команды
     const t = rowT(b.t); if (!a.row || !a.row[t]) return json({ ok: false, err: "команда RoW " + t + " ещё не создана" });
     let data = {}; try { data = JSON.parse((await env.LIC.get(rwKey(a.id, t, b.pl))) || "{}"); } catch (e) {}
     data = rowMark(data, b.kind, b.mid2, b.v); await env.LIC.put(rwKey(a.id, t, b.pl), JSON.stringify(data));
-    return json({ ok: true, data });
+    await rowPush(t, false); return json({ ok: true, data });
   }
   if (op === "rowsave") {   // здание на карте команды: участники с маршами и заметка
     const t = rowT(b.t); if (!a.row || !a.row[t]) return json({ ok: false, err: "команда RoW " + t + " ещё не создана" });
     let data = {}; try { data = JSON.parse((await env.LIC.get(rwKey(a.id, t, b.pl))) || "{}"); } catch (e) {}
     data = rowPut(data, b.b, b.e); await env.LIC.put(rwKey(a.id, t, b.pl), JSON.stringify(data));
-    return json({ ok: true, data });
+    await rowPush(t, false); return json({ ok: true, data });
   }
   if (op === "rowmk") {   // создать команду RoW 1–3 (закрыта для участников, пока её не откроют)
     const t = rowT(b.t); a.row = a.row || {};
@@ -790,7 +820,9 @@ async function alApi(req, env) {
   }
   if (op === "rowopen") {   // открыть / закрыть команду для участников альянса
     const t = rowT(b.t); if (!a.row || !a.row[t]) return json({ ok: false, err: "команда RoW " + t + " ещё не создана" });
-    a.row[t].open = !!b.open; a.row[t].ots = Date.now(); await save(); return view();
+    const wasO = !!a.row[t].open; a.row[t].open = !!b.open; a.row[t].ots = Date.now(); await save();
+    if (!wasO && a.row[t].open) await rowPush(t, true);
+    return view();
   }
   if (op === "rowdel") {   // удалить команду вместе с её картой
     const t = rowT(b.t); if (a.row && a.row[t]) { delete a.row[t]; for (const x of ["A", "B", "C"]) await env.LIC.delete(rwKey(a.id, t, x)); await save(); }
@@ -805,12 +837,17 @@ async function alApi(req, env) {
     const mid = String(b.mid || ""); if (!a.m[mid]) return json({ ok: false, err: "участник не найден" });
     const t = alStr(b.note, 300), ac = a.m[mid].acc; if (!ac) return json({ ok: false, err: "участник не найден" });
     if (t) a.nt[ac] = { t, ts: Date.now() }; else delete a.nt[ac];
-    await save(); return view();
+    await save();
+    if (t) await alPush(env, ac, "note", "✎ Альянс «" + a.name + "»: офицер просит поправить вашу карточку:\n«" + t + "»", "✎ Alliance “" + a.name + "”: an officer asks you to fix your card:\n“" + t + "”", acc);
+    return view();
   }
   if (op === "ranks") {   // ранги R4/R5 сразу нескольким участникам (по скриншоту альянса): { ranks: { <mid>: 4|5|0 } }
     const rs = b.ranks && typeof b.ranks === "object" ? b.ranks : {}; let n = 0;
-    Object.keys(rs).slice(0, 200).forEach((mid) => { if (a.m[mid]) { a.m[mid].rank = [4, 5].includes(+rs[mid]) ? +rs[mid] : 0; n++; } });
-    if (n) await save(); return view();
+    const chg = [];
+    Object.keys(rs).slice(0, 200).forEach((mid) => { if (a.m[mid]) { const was = +a.m[mid].rank || 0; a.m[mid].rank = [4, 5].includes(+rs[mid]) ? +rs[mid] : 0; n++; if (was !== a.m[mid].rank) chg.push(a.m[mid]); } });
+    if (n) await save();
+    for (const mm of chg.slice(0, 30)) await alPush(env, mm.acc, "rank", mm.rank ? "🏅 Альянс «" + a.name + "»: ваш ранг — R" + mm.rank + "." : "🏅 Альянс «" + a.name + "»: ранг снят.", mm.rank ? "🏅 Alliance “" + a.name + "”: your rank is R" + mm.rank + "." : "🏅 Alliance “" + a.name + "”: your rank was removed.", acc);
+    return view();
   }
   if (op === "rename") { const nm = alStr(b.name, 40); if (!nm) return json({ ok: false, err: "пустое название" }); a.name = nm; await save(); return view(); }
   if (op === "relink") {   // новая ссылка — старая перестаёт работать
