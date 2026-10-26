@@ -2555,6 +2555,7 @@ html[data-lang="en"] #news-look,html[data-lang="en"] #news-guide,html[data-lang=
 .al-rts button{min-width:24px;height:22px;border:0;border-radius:999px;background:transparent;color:#cfc8da;font:inherit;font-size:.76rem;font-weight:700;cursor:pointer;padding:0 6px}
 .al-rts button:hover{background:rgba(255,255,255,.08)}
 .al-rts button.on{background:rgba(61,139,253,.35);color:#fff}
+.al-rts.al-ro button{cursor:default}.al-rts.al-ro button:not(.on):hover{background:transparent}.al-rts.al-ro button:not(.on){opacity:.5}
 .al-ctl{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
 .al-ctl:empty{display:none}
 .al-ctl .al-rts{margin:0}
@@ -16095,8 +16096,8 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
 '<div class="al-upd">' + (m.ts ? L("обновлено ", "updated ") + ago(m.ts) : "") + "</div></div>" +
             '<div class="al-st"><span><small>Мощь</small>' + fmt(m.power) + '</span><span><small>Заслуги</small>' + fmt(m.merit) + "</span></div></div>" + ptTxt(m) +
             '<div class="al-ctl">' +
-                (boss || m.mid === j.me ? '<div class="al-rts" title="' + esc(L("Команда RoW участника — по ней планер предлагает марши", "Member's RoW team — the planner offers marches by it")) + '"><span>RoW</span>' + [0, 1, 2, 3].map((t) => '<button type="button" class="' + ((m.rt || 0) === t ? "on" : "") + '" data-rt="' + m.mid + ":" + t + '">' + (t || "—") + "</button>").join("") + "</div>" : "") +
-                (boss ? '<div class="al-rts al-rks" title="' + esc(L("Ранг в альянсе — поставить или снять вручную", "Alliance rank — set or remove manually")) + '"><span>' + L("Ранг", "Rank") + "</span>" + [0, 4, 5].map((r) => '<button type="button" class="' + ((+m.rank || 0) === r || (r === 0 && ![4, 5].includes(+m.rank)) ? "on" : "") + '" data-rk="' + m.mid + ":" + r + '">' + (r ? "R" + r : "—") + "</button>").join("") + "</div>" : "") + "</div>" +
+                ('<div class="al-rts' + (boss ? "" : " al-ro") + '" title="' + esc(boss ? L("Команда RoW участника — по ней планер предлагает марши", "Member's RoW team — the planner offers marches by it") : L("Команда RoW — назначают офицеры и создатель", "RoW team — set by officers and the creator")) + '"><span>RoW</span>' + [0, 1, 2, 3].map((t) => '<button type="button"' + (boss ? "" : " disabled") + ' class="' + ((m.rt || 0) === t ? "on" : "") + '" data-rt="' + m.mid + ":" + t + '">' + (t || "—") + "</button>").join("") + "</div>") +
+                ('<div class="al-rts al-rks' + (boss ? "" : " al-ro") + '" title="' + esc(boss ? L("Ранг в альянсе — поставить или снять вручную", "Alliance rank — set or remove manually") : L("Ранг — ставят офицеры и создатель", "Rank — set by officers and the creator")) + '"><span>' + L("Ранг", "Rank") + "</span>" + [0, 4, 5].map((r) => '<button type="button"' + (boss ? "" : " disabled") + ' class="' + ((+m.rank || 0) === r || (r === 0 && ![4, 5].includes(+m.rank)) ? "on" : "") + '" data-rk="' + m.mid + ":" + r + '">' + (r ? "R" + r : "—") + "</button>").join("") + "</div>") + "</div>" +
 
             (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">Марш ' + (i + 1) + "</span>" +
                 (x.heroes || []).map(h => { const H = HERO(h.name); return H && H.i ? '<img alt="" title="' + esc(h.name) + '" src="' + H.i + '">' : '<span class="al-mq">?</span>'; }).join("") +

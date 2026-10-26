@@ -718,9 +718,9 @@ async function alApi(req, env) {
     ["power", "merit", "troops", "heroes", "marches", "rank", "pt", "hrs"].forEach((k) => { delete a.m[mid][k]; }); a.m[mid].ts = Date.now();   // пометка остаётся (она за аккаунтом)
     await save(); return view();
   }
-  if (op === "rwteam") {   // команда RoW в карточке участника (1–3, 0 — без команды): офицеры и создатель — любому, участник — себе
+  if (op === "rwteam") {   // команда RoW в карточке участника (1–3, 0 — без команды): только офицеры и создатель
     const mid = String(b.mid || ""); if (!a.m[mid]) return json({ ok: false, err: "участник не найден" });
-    if (!(boss || mid === me)) return json({ ok: false, err: "можно менять только свою команду" });
+    if (!boss) return json({ ok: false, err: "команду RoW назначают офицеры и создатель" });
     const t = Math.floor(+b.t || 0); if (t >= 1 && t <= 3) a.m[mid].rt = t; else delete a.m[mid].rt;
     await save(); return view();
   }
