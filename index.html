@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<script>window.WOLFICH_TGV="202610261239";if(/[?&]tgapp=1/.test(location.search)){document.documentElement.className+=" tgapp";try{fetch("tgver.txt?"+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){t=(t||"").trim();if(!t||t===window.WOLFICH_TGV)return;var q=new URLSearchParams(location.search);if(q.get("v")===t)return;q.set("v",t);location.replace(location.pathname+"?"+q.toString()+location.hash)}).catch(function(){})}catch(e){}document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');}</script>
+<script>window.WOLFICH_TGV="202610261320";if(/[?&]tgapp=1/.test(location.search)){document.documentElement.className+=" tgapp";try{fetch("tgver.txt?"+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){t=(t||"").trim();if(!t||t===window.WOLFICH_TGV)return;var q=new URLSearchParams(location.search);if(q.get("v")===t)return;q.set("v",t);location.replace(location.pathname+"?"+q.toString()+location.hash)}).catch(function(){})}catch(e){}document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#070a16">
 <title>Call of Dragons — WOLFICH СМП Калькулятор</title>
@@ -2570,6 +2570,12 @@ html[data-lang="en"] .ln-en{display:inline}
 .row-logo{margin:6px auto 0;max-width:min(760px,94%);line-height:0}
 .row-logo img{width:100%;height:auto;filter:drop-shadow(0 8px 22px rgba(0,0,0,.55))}
 #page-row .row-logo img.ln-en{display:none}
+.al-ban{margin:0 auto;max-width:min(720px,94%);line-height:0}
+.al-ban img{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.5))}
+#page-ally .al-ban img.ln-en,html[data-lang="en"] #page-ally .al-ban img.ln-ru{display:none}
+html[data-lang="en"] #page-ally .al-ban img.ln-en{display:block}
+.al-botlink{display:inline-flex;align-items:center;gap:9px;margin:6px auto 10px;padding:9px 18px 9px 11px;border-radius:999px;background:linear-gradient(180deg,rgba(42,171,238,.22),rgba(42,171,238,.1));border:1px solid rgba(42,171,238,.55);color:#cfeeff;font-weight:700;font-size:1.02rem;letter-spacing:.01em;text-decoration:none;transition:transform .15s,background .15s}
+.al-botlink:hover{transform:translateY(-1px);background:linear-gradient(180deg,rgba(42,171,238,.34),rgba(42,171,238,.16));color:#fff}
 html[data-lang="en"] #page-row .row-logo img.ln-ru{display:none}
 html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .row-head{padding-bottom:4px}
@@ -5435,7 +5441,8 @@ let _t=0;new MutationObserver(()=>{if(_t)return;_t=setTimeout(()=>{_t=0;run()},6
 
 <div class="app page" id="page-ally">
     <header class="header" style="padding-bottom:14px;">
-        <h1 class="title" style="font-size:clamp(1.8rem,5.5vw,3.2rem);">Альянс</h1>
+        <h1 class="al-ban"><img class="ln-ru" alt="Менеджмент альянса в Телеграме" width="1100" height="798" decoding="async" src="img/ally-ban-ru.webp" srcset="img/ally-ban-ru-640.webp 640w, img/ally-ban-ru.webp 1100w" sizes="(max-width:760px) 94vw, 720px"><img class="ln-en" alt="Alliance Management on Telegram" width="1100" height="799" decoding="async" src="img/ally-ban-en.webp" srcset="img/ally-ban-en-640.webp 640w, img/ally-ban-en.webp 1100w" sizes="(max-width:760px) 94vw, 720px"></h1>
+        <a class="al-botlink" href="https://t.me/WOLFICH_COD_BOT" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#fff" d="M5.4 11.8l11.3-4.4c.5-.2 1 .1.8.9l-1.9 9c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-3 5.4-4.9c.2-.2 0-.3-.3-.1l-6.7 4.2-2.9-.9c-.6-.2-.6-.6.1-.9z"/></svg>@WOLFICH_COD_BOT</a>
         <div class="subtitle">Сбор данных участников: мощь, заслуги, войска и герои</div>
     </header>
 
