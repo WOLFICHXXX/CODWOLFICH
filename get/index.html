@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WOLFICH · Автопоход — скачать</title>
+<meta name="description" content="WOLFICH · Автопоход — программа для Windows. Всегда свежая версия.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0a17">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-1:#060711;--bg-2:#0d0b1c;--card:rgba(17,14,32,.86);--card-2:rgba(27,21,45,.9);--gold:#d9a441;--gold-light:#ffe09a;--gold-dark:#80551c;--purple:#5b3b91;--purple-light:#9c72e0;--text:#f3eee4;--muted:#a9a3b5;--ok:#63c58a;--danger:#e05252;--border:rgba(217,164,65,.38);--radius:16px}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden;
+  background:radial-gradient(circle at 15% 10%,rgba(104,64,159,.2),transparent 30%),radial-gradient(circle at 85% 18%,rgba(173,117,35,.13),transparent 26%),radial-gradient(circle at 50% 92%,rgba(73,42,112,.2),transparent 34%),linear-gradient(145deg,var(--bg-1),var(--bg-2) 48%,#080711)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:42px 42px;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 80%);mask-image:linear-gradient(to bottom,#000,transparent 80%)}
+.ru,.en{font-style:normal}
+html[data-lang="ru"] .en,html[data-lang="en"] .ru{display:none!important}
+.wrap{width:min(1060px,calc(100% - 32px));margin:0 auto;padding:18px 0 56px;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-family:Cinzel,serif;font-weight:800;letter-spacing:.16em;font-size:.95rem;color:#d9cdb8}
+.brand b{color:var(--gold-light)}
+.lang{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:rgba(10,8,22,.7)}
+.lang button{all:unset;cursor:pointer;padding:7px 14px;font:700 .82rem Inter,sans-serif;color:var(--muted);letter-spacing:.06em}
+.lang button[aria-pressed="true"]{background:linear-gradient(180deg,#f7cf72,#c98a2c);color:#2a1806}
+.hero{position:relative;margin:8px auto 0;text-align:center}
+.hero::before{content:"";position:absolute;left:8%;right:8%;top:18%;bottom:6%;background:radial-gradient(ellipse at center,rgba(255,170,60,.28),transparent 66%);filter:blur(30px);z-index:0}
+.ban{position:relative;z-index:1;display:block;width:100%;height:auto;filter:drop-shadow(0 18px 34px rgba(0,0,0,.6));animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.title{margin:6px 0 4px;font-family:"Cinzel Decorative",serif;font-weight:900;font-size:clamp(1.9rem,5.6vw,3.4rem);letter-spacing:.04em;line-height:1.05;color:transparent;background:linear-gradient(180deg,#fff0b2 0%,#f7cf72 27%,#c98a2c 58%,#7d4b16 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:1.2px #2c1b09;text-shadow:0 0 5px rgba(255,205,91,.4),0 0 20px rgba(206,139,40,.22),0 5px 0 rgba(0,0,0,.6)}
+.subtitle{color:#d9cdb8;font-family:Cinzel,serif;font-size:clamp(.8rem,2.4vw,1.05rem);letter-spacing:.14em;text-transform:uppercase}
+/* блок скачивания */
+.dl{position:relative;margin:30px auto 0;max-width:720px;padding:26px 24px 22px;border-radius:22px;text-align:center;background:linear-gradient(180deg,rgba(32,24,52,.92),rgba(14,11,28,.94));border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,230,170,.12)}
+.dl::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:linear-gradient(120deg,rgba(255,224,154,.8),rgba(217,164,65,.15) 30%,rgba(156,114,224,.5) 70%,rgba(255,224,154,.7));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.go{position:relative;display:inline-flex;align-items:center;gap:16px;padding:18px 34px 18px 22px;border:0;border-radius:18px;cursor:pointer;text-decoration:none;color:#2a1604;font:800 clamp(1.05rem,3.4vw,1.4rem) Inter,sans-serif;letter-spacing:.01em;
+  background:linear-gradient(180deg,#fff3c4 0%,#f9d679 22%,#e3a43c 62%,#b97521 100%);box-shadow:0 0 0 1px #7a4a12,0 0 0 4px rgba(255,214,120,.16),0 14px 34px rgba(224,150,40,.38),inset 0 2px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(110,60,10,.45);overflow:hidden;transition:transform .18s ease,box-shadow .18s ease,filter .18s}
+.go::after{content:"";position:absolute;top:0;bottom:0;width:38%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-18deg);animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{0%,55%{left:-60%}85%,100%{left:130%}}
+.go:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:0 0 0 1px #7a4a12,0 0 0 6px rgba(255,214,120,.22),0 20px 44px rgba(224,150,40,.5),inset 0 2px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(110,60,10,.45)}
+.go:active{transform:translateY(1px)}
+.go[disabled]{cursor:progress;filter:saturate(.7)}
+.go .ic{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:13px;background:linear-gradient(180deg,#3a2510,#1f1306);box-shadow:inset 0 1px 0 rgba(255,220,150,.35)}
+.go .ic svg{width:26px;height:26px}
+.go .tx{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;text-align:left}
+.go small{font:700 .78rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#5a3608;opacity:.9;margin-top:3px}
+.bar{height:4px;border-radius:4px;margin:14px auto 0;max-width:340px;background:rgba(255,255,255,.08);overflow:hidden;opacity:0;transition:opacity .2s}
+.bar.on{opacity:1}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f7cf72,#9c72e0);transition:width .2s}
+.meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(217,164,65,.25);color:#e8dcc4;font:600 .84rem Inter,sans-serif}
+.chip .d{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.msg{min-height:1.2em;margin-top:10px;font-size:.9rem;color:var(--muted)}
+.msg.err{color:#ff9b9b}
+.alt{margin-top:12px;font-size:.88rem;color:var(--muted)}
+.alt a{color:var(--gold-light);text-decoration:none;border-bottom:1px dashed rgba(255,224,154,.5)}
+.share{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:16px}
+.url{font:600 .86rem ui-monospace,Consolas,monospace;color:#d8cfff;background:rgba(91,59,145,.22);border:1px solid rgba(156,114,224,.4);border-radius:10px;padding:8px 12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp{all:unset;cursor:pointer;padding:8px 14px;border-radius:10px;font:700 .84rem Inter,sans-serif;color:#e3e7ff;border:1px solid rgba(140,155,225,.4);background:linear-gradient(180deg,#343c68,#181d3b)}
+.cp:hover{filter:brightness(1.15)}
+/* шаги */
+.h2{margin:44px 0 16px;text-align:center;font-family:Cinzel,serif;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-light);font-size:clamp(1rem,2.8vw,1.25rem)}
+.h2::before,.h2::after{content:"";display:inline-block;vertical-align:middle;width:56px;height:1px;margin:0 14px;background:linear-gradient(90deg,transparent,var(--gold))}
+.h2::after{background:linear-gradient(90deg,var(--gold),transparent)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.st{position:relative;padding:22px 18px 18px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.st .n{position:absolute;top:-15px;left:18px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 .95rem Cinzel,serif;color:#2a1806;background:linear-gradient(180deg,#fff0b2,#c98a2c);box-shadow:0 0 0 3px #1a1328,0 4px 12px rgba(0,0,0,.5)}
+.st b{display:block;margin:6px 0 6px;font-size:1rem;color:#fff3d6}
+.st p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.5}
+.st code{font:600 .85em ui-monospace,Consolas,monospace;color:var(--gold-light)}
+.req{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+.note{max-width:760px;margin:16px auto 0;padding:14px 16px;border-radius:14px;background:rgba(237,155,66,.08);border:1px solid rgba(237,155,66,.3);color:#ecd9bd;font-size:.9rem;line-height:1.5}
+.foot{margin-top:40px;text-align:center;color:var(--muted);font-size:.86rem}
+.foot a{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:8px 16px 8px 9px;border-radius:999px;background:linear-gradient(180deg,rgba(42,171,238,.22),rgba(42,171,238,.1));border:1px solid rgba(42,171,238,.55);color:#cfeeff;font-weight:700;text-decoration:none}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr;row-gap:24px}}
+@media (max-width:520px){.wrap{width:calc(100% - 24px)}.steps{grid-template-columns:1fr}.dl{padding:22px 14px 18px}.go{padding:14px 20px 14px 14px;gap:12px}.go .ic{width:40px;height:40px}.h2::before,.h2::after{width:24px;margin:0 8px}}
+@media (prefers-reduced-motion:reduce){.go::after,.ban{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><b>WOLFICH</b> · <span class="ru">Автопоход</span><span class="en">Auto-March</span></div>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-l="ru" aria-pressed="true">RU</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
+  </div>
+
+  <div class="hero">
+    <img class="ban ru" alt="Спасибо за приобретение" width="1400" height="695" decoding="async" fetchpriority="high" src="thanks-ru.webp" srcset="thanks-ru-760.webp 760w, thanks-ru.webp 1400w" sizes="(max-width:1060px) 100vw, 1060px">
+    <img class="ban en" alt="Thank you for your purchase" width="1400" height="695" decoding="async" src="thanks-en.webp" srcset="thanks-en-760.webp 760w, thanks-en.webp 1400w" sizes="(max-width:1060px) 100vw, 1060px">
+    <h1 class="title">WOLFICH</h1>
+    <div class="subtitle"><span class="ru">Автопоход · программа для Windows</span><span class="en">Auto-March · Windows app</span></div>
+  </div>
+
+  <section class="dl" aria-label="Download">
+    <button class="go" id="go" type="button">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd98a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg></span>
+      <span class="tx"><span class="ru">Скачать программу</span><span class="en">Download the app</span><small id="goSub">Windows · ZIP</small></span>
+    </button>
+    <div class="bar" id="bar"><i></i></div>
+    <div class="meta">
+      <span class="chip"><span class="d"></span><span class="ru">Всегда свежая версия</span><span class="en">Always the latest version</span></span>
+      <span class="chip" id="cVer"><span class="ru">Модуль бота</span><span class="en">Bot module</span>&nbsp;<b id="ver">…</b></span>
+      <span class="chip"><span class="ru">Программа</span><span class="en">App</span>&nbsp;<b id="app">1.14.0</b></span>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="alt" id="alt"></div>
+    <div class="share"><span class="url" id="url"></span><button class="cp" id="cp" type="button"><span class="ru">Скопировать ссылку</span><span class="en">Copy link</span></button></div>
+  </section>
+
+  <div class="h2"><span class="ru">Установка</span><span class="en">Setup</span></div>
+  <div class="steps">
+    <div class="st"><span class="n">1</span><b class="ru">Распакуйте архив</b><b class="en">Unzip the archive</b>
+      <p class="ru">В любую папку, например <code>C:\WOLFICH</code>. Прямо из архива программа не запустится.</p>
+      <p class="en">Into any folder, e.g. <code>C:\WOLFICH</code>. The app won't run straight from the archive.</p></div>
+    <div class="st"><span class="n">2</span><b class="ru">Запустите SETUP.bat</b><b class="en">Run SETUP.bat</b>
+      <p class="ru">Он скачает Electron (≈110 МБ), соберёт <code>WOLFICH.exe</code> и положит ярлык на рабочий стол.</p>
+      <p class="en">It downloads Electron (≈110 MB), builds <code>WOLFICH.exe</code> and puts a shortcut on the desktop.</p></div>
+    <div class="st"><span class="n">3</span><b class="ru">Введите ключ</b><b class="en">Enter your key</b>
+      <p class="ru">Ключ доступа вводится один раз — программа его запомнит.</p>
+      <p class="en">The access key is entered once — the app remembers it.</p></div>
+    <div class="st"><span class="n">4</span><b class="ru">Подключите LDPlayer</b><b class="en">Connect LDPlayer</b>
+      <p class="ru">По «Руководству: LDPlayer» внизу окна программы, затем нажмите «Старт».</p>
+      <p class="en">Follow “Guide: LDPlayer” at the bottom of the app window, then press “Start”.</p></div>
+  </div>
+  <div class="req">
+    <span class="chip">Windows 10 / 11 · x64</span>
+    <span class="chip">LDPlayer 9</span>
+    <span class="chip"><span class="ru">Бот обновляется сам при каждом запуске</span><span class="en">The bot updates itself on every launch</span></span>
+  </div>
+  <div class="note ru"><b>Windows может предупредить</b> «Система Windows защитила ваш компьютер» — нажмите «Подробнее» → «Выполнить в любом случае». Программа не подписана сертификатом. <b>Обновление:</b> распакуйте новый архив поверх старой папки и запустите SETUP.bat — заново ничего качать не придётся.</div>
+  <div class="note en"><b>Windows may warn</b> “Windows protected your PC” — click “More info” → “Run anyway”. The app is not code-signed. <b>Updating:</b> unzip the new archive over the old folder and run SETUP.bat — nothing is downloaded again.</div>
+
+  <div class="foot">
+    <div class="ru">Вопросы и пульт — в Telegram</div><div class="en">Questions and remote control — in Telegram</div>
+    <a href="https://t.me/WOLFICH_COD_BOT" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#fff" d="M5.4 11.8l11.3-4.4c.5-.2 1 .1.8.9l-1.9 9c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-3 5.4-4.9c.2-.2 0-.3-.3-.1l-6.7 4.2-2.9-.9c-.6-.2-.6-.6.1-.9z"/></svg>@WOLFICH_COD_BOT</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var MAIN = "https://wolfich-bot.pages.dev/get/", MIRROR = "https://storage.yandexcloud.net/wolfich-mirror/get/index.html";
+  var onMirror = /yandexcloud\.net$/.test(location.hostname);
+  var $ = function (id) { return document.getElementById(id); };
+  var L = "ru";
+  function setLang(l) {
+    L = l === "en" ? "en" : "ru"; document.documentElement.dataset.lang = L; document.documentElement.lang = L;
+    document.querySelectorAll(".lang button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.l === L)); });
+    document.title = L === "en" ? "WOLFICH · Auto-March — download" : "WOLFICH · Автопоход — скачать";
+    try { localStorage.setItem("wolfLang", L); } catch (e) {}
+    alt();
+  }
+  var T = function (ru, en) { return L === "en" ? en : ru; };
+  function alt() {
+    $("alt").innerHTML = onMirror
+      ? T("Основной адрес: ", "Main address: ") + '<a href="' + MAIN + '">wolfich-bot.pages.dev</a>'
+      : T("Не скачивается? ", "Download doesn't start? ") + '<a href="' + MIRROR + '">' + T("Зеркало для России", "Mirror for Russia") + "</a>";
+  }
+  var q = new URLSearchParams(location.search), saved = null;
+  try { saved = localStorage.getItem("wolfLang"); } catch (e) {}
+  setLang(q.get("lang") || saved || (/^ru|^uk|^be|^kk/i.test(navigator.language || "") ? "ru" : "en"));
+  document.querySelectorAll(".lang button").forEach(function (b) { b.onclick = function () { setLang(b.dataset.l); }; });
+  var pageUrl = onMirror ? MIRROR : MAIN; $("url").textContent = pageUrl.replace(/^https:\/\//, "");
+  $("cp").onclick = function () {
+    var done = function () { var s = $("cp").innerHTML; $("cp").textContent = "✓"; setTimeout(function () { $("cp").innerHTML = s; }, 1400); };
+    if (navigator.clipboard) navigator.clipboard.writeText(pageUrl).then(done, function () {}); else { var t = document.createElement("textarea"); t.value = pageUrl; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (e) {} t.remove(); }
+  };
+
+  /* версия модуля (version.json рядом с owner.bin) */
+  var APPV = "1.14.0";
+  fetch("../version.json", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    if (!j) { $("cVer").style.display = "none"; return; }
+    var d = j.date ? new Date(j.date + "T12:00:00Z") : null;
+    $("ver").textContent = j.v + (d ? " · " + d.toLocaleDateString(L === "en" ? "en-GB" : "ru-RU", { day: "numeric", month: "short" }) : "");
+    if (j.app) { APPV = j.app; $("app").textContent = j.app; }
+  }).catch(function () { $("cVer").style.display = "none"; });
+
+  /* архив собирается прямо в браузере: файлы программы + самый свежий owner.bin */
+  var FILES = [["SETUP.bat", "app/SETUP.bat"], ["README.txt", "app/README.txt"], ["README-EN.txt", "app/README-EN.txt"],
+    ["resources/app/main.js", "app/main.js"], ["resources/app/preload.js", "app/preload.js"], ["resources/app/package.json", "app/package.json"],
+    ["resources/app/index.html", "app/app-index.html"], ["resources/app/banner-ru.webp", "app/banner-ru.webp"], ["resources/app/banner-en.webp", "app/banner-en.webp"],
+    ["resources/app/owner.bin", "../owner.bin"]];
+  var CRC = (function () { var t = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u) { var c = 0xFFFFFFFF; for (var i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zip(entries) {   // ZIP без сжатия (store), UTF-8 имена
+    var enc = new TextEncoder(), parts = [], cen = [], off = 0, now = new Date();
+    var dt = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF, dd = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+    entries.forEach(function (e) {
+      var nm = enc.encode(e.name), d = e.data, crc = e.dir ? 0 : crc32(d), sz = e.dir ? 0 : d.length;
+      var h = new DataView(new ArrayBuffer(30)); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint16(10, dt, true); h.setUint16(12, dd, true); h.setUint32(14, crc, true); h.setUint32(18, sz, true); h.setUint32(22, sz, true); h.setUint16(26, nm.length, true); h.setUint16(28, 0, true);
+      parts.push(new Uint8Array(h.buffer), nm); if (!e.dir) parts.push(d);
+      var c = new DataView(new ArrayBuffer(46)); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true); c.setUint16(12, dt, true); c.setUint16(14, dd, true); c.setUint32(16, crc, true); c.setUint32(20, sz, true); c.setUint32(24, sz, true); c.setUint16(28, nm.length, true); c.setUint32(38, e.dir ? 16 : 0, true); c.setUint32(42, off, true);
+      cen.push(new Uint8Array(c.buffer), nm); off += 30 + nm.length + sz;
+    });
+    var cs = cen.reduce(function (a, b) { return a + b.length; }, 0), end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true); end.setUint32(12, cs, true); end.setUint32(16, off, true);
+    return new Blob(parts.concat(cen, [new Uint8Array(end.buffer)]), { type: "application/zip" });
+  }
+  function fmt(n) { return (n / 1048576).toFixed(1).replace(".", L === "en" ? "." : ",") + (L === "en" ? " MB" : " МБ"); }
+  var busy = false;
+  $("go").onclick = function () {
+    if (busy) return; busy = true; $("go").disabled = true; $("bar").classList.add("on"); $("msg").className = "msg"; $("msg").textContent = T("Собираю свежую версию…", "Packing the latest version…");
+    var got = 0, bar = $("bar").firstChild;
+    Promise.all(FILES.map(function (f) {
+      return fetch(f[1], { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(f[1] + " " + r.status); return r.arrayBuffer(); })
+        .then(function (b) { got++; bar.style.width = Math.round(got / FILES.length * 100) + "%"; return { name: "WOLFICH/" + f[0], data: new Uint8Array(b) }; });
+    })).then(function (list) {
+      var own = list[list.length - 1].data;
+      if (own.length < 1000) throw new Error("owner.bin");
+      var dirs = ["WOLFICH/", "WOLFICH/resources/", "WOLFICH/resources/app/"].map(function (n) { return { name: n, dir: true }; });
+      var blob = zip(dirs.concat(list)), a = document.createElement("a"), u = URL.createObjectURL(blob);
+      a.href = u; a.download = "WOLFICH-Avtopohod-" + APPV.replace(/\.0$/, "") + ".zip"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+      $("goSub").textContent = "Windows · ZIP · " + fmt(blob.size);
+      $("msg").textContent = T("Готово — архив сохранён. Дальше — шаги ниже.", "Done — the archive is saved. Next — the steps below.");
+    }).catch(function (e) {
+      $("msg").className = "msg err";
+      $("msg").textContent = T("Не удалось скачать (" + e.message + "). Попробуйте ещё раз или откройте зеркало.", "Download failed (" + e.message + "). Try again or open the mirror.");
+    }).then(function () { busy = false; $("go").disabled = false; setTimeout(function () { $("bar").classList.remove("on"); bar.style.width = "0"; }, 800); });
+  };
+})();
+</script>
+</body>
+</html>

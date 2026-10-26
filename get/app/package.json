@@ -1,0 +1,8 @@
+{
+  "name": "wolfich-autopohod",
+  "productName": "WOLFICH",
+  "version": "1.14.0",
+  "description": "WOLFICH · Auto-Gather for Call of Dragons",
+  "main": "main.js",
+  "author": "WOLFICH"
+}

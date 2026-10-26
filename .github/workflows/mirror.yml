@@ -41,6 +41,13 @@ jobs:
           run aws --endpoint-url=$E s3 cp owner.bin "s3://$BUCKET/owner.bin" --acl public-read --cache-control no-store --content-type application/octet-stream || fail "owner.bin"
           echo "::notice::owner.bin загружен"
           if [ -f tg.html ]; then run aws --endpoint-url=$E s3 cp tg.html "s3://$BUCKET/tg.html" --acl public-read --cache-control no-cache --content-type "text/html; charset=utf-8" || fail "tg.html"; echo "::notice::tg.html (пульт) загружен"; fi
+          # страница скачивания программы (get/) и номер версии — для России та же страница с зеркала
+          if [ -f version.json ]; then run aws --endpoint-url=$E s3 cp version.json "s3://$BUCKET/version.json" --acl public-read --cache-control no-store --content-type application/json || fail "version.json"; fi
+          if [ -d get ]; then
+            run aws --endpoint-url=$E s3 sync get "s3://$BUCKET/get/" --acl public-read --cache-control no-cache --delete || fail "get/"
+            run aws --endpoint-url=$E s3 cp get/index.html "s3://$BUCKET/get/index.html" --acl public-read --cache-control no-cache --content-type "text/html; charset=utf-8" || fail "get/index.html"
+            echo "::notice::страница скачивания загружена"
+          fi
           if aws --endpoint-url=$E s3 ls "s3://$BUCKET/tess/lang/rus.traineddata.gz" >/dev/null 2>&1; then echo "::notice::распознавание текста уже есть"; exit 0; fi
           mkdir t && cd t
           run npm pack tesseract.js@5.1.1 tesseract.js-core@5.1.1 @tesseract.js-data/rus @tesseract.js-data/eng || fail "npm pack"

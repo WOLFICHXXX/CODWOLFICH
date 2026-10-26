@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOLFICH · Автопоход</title>
+<style>
+  :root {
+    --bg: #0b0a14; --card: rgba(17, 14, 32, .92); --gold: #d9a441; --gold-light: #ffe09a; --gold-dark: #80551c;
+    --purple: #5b3b91; --purple-light: #9c72e0; --text: #f3eee4; --muted: #a9a3b5; --danger: #e05252; --success: #63c58a;
+    --border: rgba(217,164,65,.38); --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: radial-gradient(120% 80% at 50% 0%, #1f1736 0%, var(--bg) 60%); color: var(--text); font: 14px/1.45 Inter, "Segoe UI", system-ui, sans-serif; }
+  .wrap { padding: 16px; max-width: 640px; margin: 0 auto; }
+  .brand { display: flex; align-items: baseline; gap: 10px; margin: 2px 0 14px; }
+  .brand b { font-size: 20px; letter-spacing: .04em; color: var(--gold-light); text-shadow: 0 1px 0 #000, 0 0 18px rgba(217,164,65,.35); }
+  .brand span { color: var(--muted); font-size: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 14px 40px rgba(0,0,0,.38); }
+  .card-title { margin: 0 0 10px; font-size: 17px; color: var(--gold-light); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(217,164,65,.55); cursor: pointer; background: linear-gradient(180deg, #3a2a14, #24190c); color: var(--gold-light); font: 700 13px Inter, "Segoe UI", system-ui, sans-serif; }
+  .btn:hover { filter: brightness(1.12); }
+  .btn.secondary { background: #1d1830; color: #cfc8dd; border-color: rgba(156,114,224,.5); }
+  .btn.danger { background: linear-gradient(180deg, #67313b, #351a22); color: #ffd8d8; border-color: rgba(224,82,82,.5); }
+  .btn.small { padding: 8px 12px; font-size: 12px; }
+  input { padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(8,7,18,.7); color: var(--text); font: inherit; }
+  .foot { margin-top: 12px; color: var(--muted); font-size: 12px; }
+  .err { color: #ffb0b0; margin: 0 0 8px; }
+  /* вкладки ботов: «Основной» + по вкладке на каждый эмулятор */
+  #tabs { position: sticky; top: 0; z-index: 5; display: none; gap: 6px; padding: 8px 10px; background: rgba(11,10,20,.96); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  #tabs.on { display: flex; }
+  .tab { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 9px; border: 1px solid rgba(156,114,224,.4); background: #1d1830; color: #cfc8dd; cursor: pointer; font: 600 12px Inter, "Segoe UI", system-ui, sans-serif; white-space: nowrap; }
+  .tab.act { background: linear-gradient(180deg, #3a2a14, #24190c); color: var(--gold-light); border-color: rgba(217,164,65,.6); }
+  .tab .dot { width: 8px; height: 8px; border-radius: 50%; background: #5b556b; }
+  .tab .dot.run { background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .tab .x { margin-left: 2px; opacity: .6; font-weight: 700; } .tab .x:hover { opacity: 1; color: #ffb0b0; }
+  .pane-f { display: none; width: 100%; border: 0; height: calc(100vh - 50px); }
+  .pane-f.act { display: block; }
+  body.embed .brand { display: none; } body.embed .wrap { padding: 10px 12px; }
+  /* язык: RU / EN (бот переводит свои тексты сам; здесь — то, что видно до загрузки бота) */
+  html[data-lang=en] .l-ru { display: none !important; } html:not([data-lang=en]) .l-en { display: none !important; }
+  #langSw { position: fixed; top: 8px; right: 10px; z-index: 20; display: flex; gap: 2px; padding: 2px; border-radius: 9px; border: 1px solid var(--border); background: rgba(11,10,20,.92); }
+  #langSw button { border: 0; border-radius: 7px; padding: 4px 9px; cursor: pointer; background: transparent; color: var(--muted); font: 700 11px Inter, "Segoe UI", system-ui, sans-serif; }
+  #langSw button.on { background: linear-gradient(180deg, #3a2a14, #24190c); color: var(--gold-light); }
+  body.embed #langSw { display: none; } #tabs { padding-right: 96px; }
+  .gb-ban { display: block; margin: 0 0 12px; border-radius: 12px; overflow: hidden; line-height: 0; }
+  .gb-ban img { display: block; width: 100%; height: auto; } .gb-ban:hover img { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+<div id="tabs"></div>
+<div class="wrap" id="paneMain">
+  <div class="brand"><b>WOLFICH</b><span><i class="l-ru" style="font-style:normal">Автопоход · Call of Dragons</i><i class="l-en" style="font-style:normal">Auto-Gather · Call of Dragons</i></span></div>
+  <a id="wolfBanner" class="gb-ban" href="https://wolfichxxx.github.io/CODWOLFICH/" target="_blank" rel="noopener" title="WOLFICH · Call of Dragons"><img class="l-ru" src="banner-ru.webp" alt="WOLFICH — незаменимый помощник по игре Call of Dragons"><img class="l-en" src="banner-en.webp" alt="WOLFICH — an indispensable helper for Call of Dragons"></a>
+  <div id="mount"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<div id="frames"></div>
+<div id="langSw"><button type="button" data-l="ru">RU</button><button type="button" data-l="en">EN</button></div>
+<script>
+(function () {
+  var KEY = "wolfich_own_key", mount = document.getElementById("mount"), foot = document.getElementById("foot");
+  var Q = new URLSearchParams(location.search), INST = Q.get("inst") || "", EMBED = Q.get("embed") === "1";
+  if (EMBED) document.body.classList.add("embed");
+
+  /* ---------- язык RU / EN: общий для всех вкладок (localStorage «wolfich_lang»), бот слушает событие «wi18n» ---------- */
+  function getLang() { try { return localStorage.getItem("wolfich_lang") === "en" ? "en" : "ru"; } catch (e) { return "ru"; } }
+  function showLang() {
+    var l = getLang(); document.documentElement.setAttribute("data-lang", l); document.documentElement.lang = l;
+    document.querySelectorAll("#langSw button").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-l") === l); });
+  }
+  document.getElementById("langSw").addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("button"); if (!b) return;
+    try { localStorage.setItem("wolfich_lang", b.getAttribute("data-l")); } catch (e2) {}
+    showLang(); window.dispatchEvent(new Event("wi18n"));
+  });
+  window.addEventListener("storage", function (e) { if (e.key === "wolfich_lang") showLang(); });
+  window.addEventListener("wi18n", showLang);
+  showLang();
+  var ERR_EN = { "нет связи с сервером ключей — проверьте интернет": "no connection to the key server — check your internet", "ключ не подошёл": "the key didn't work", "Ключ не подошёл": "The key didn't work",
+    "ключ уже используется на другом компьютере": "the key is already used on another computer", "ключ отозван": "the key has been revoked", "неверный ключ": "invalid key",
+    "срок ключа истёк": "the key has expired", "сервер ключей не настроен (нет хранилища LIC)": "the key server is not configured (no LIC storage)" };
+  function both(ru, en) { var e = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }; return '<span class="l-ru">' + e(ru) + '</span><span class="l-en">' + e(en == null ? (ERR_EN[ru] || ru) : en) + '</span>'; }
+
+  /* ---------- вкладки ботов (только в главном окне) ---------- */
+  var TK = "wolfich_tabs", tabs = {}, tabBar = document.getElementById("tabs"), frames = document.getElementById("frames"), mainTab = null;
+  function saveTabs() { try { localStorage.setItem(TK, JSON.stringify(Object.keys(tabs))); } catch (e) {} }
+  function activate(id) {
+    document.getElementById("paneMain").style.display = id ? "none" : "";
+    Object.keys(tabs).forEach(function (k) { tabs[k].btn.classList.toggle("act", k === id); tabs[k].fr.classList.toggle("act", k === id); });
+    if (mainTab) mainTab.classList.toggle("act", !id);
+  }
+  function mkBtn(label, onClick, onClose) {
+    var b = document.createElement("div"); b.className = "tab";
+    b.innerHTML = '<span class="dot"></span><span class="lb"></span>' + (onClose ? '<span class="x" title="Закрыть вкладку">×</span>' : "");
+    b.querySelector(".lb").textContent = label;
+    b.onclick = function (e) { if (e.target.classList.contains("x")) { onClose(); return; } onClick(); };
+    tabBar.appendChild(b); tabBar.classList.add("on");
+    return b;
+  }
+  function openTab(serial) {
+    serial = String(serial || "").trim(); if (!serial) return;
+    if (tabs[serial]) { activate(serial); return; }
+    if (!mainTab) mainTab = mkBtn("Основной", function () { activate(""); }, null);
+    var fr = document.createElement("iframe"); fr.className = "pane-f";
+    fr.src = "index.html?embed=1&inst=" + encodeURIComponent(serial);
+    frames.appendChild(fr);
+    var btn = mkBtn(serial, function () { activate(serial); }, function () { closeTab(serial); });
+    tabs[serial] = { fr: fr, btn: btn };
+    saveTabs(); activate(serial);
+  }
+  function closeTab(serial) {
+    var t = tabs[serial]; if (!t) return;
+    if (!confirm("Закрыть вкладку бота " + serial + "? Бот в ней остановится.")) return;
+    try { t.fr.contentWindow.__wolfClose && t.fr.contentWindow.__wolfClose(); } catch (e) {}
+    t.fr.remove(); t.btn.remove(); delete tabs[serial]; saveTabs(); activate("");
+  }
+  function tabState(serial, running) { var t = tabs[serial]; if (t) t.btn.querySelector(".dot").classList.toggle("run", !!running); else if (!serial && mainTab) mainTab.querySelector(".dot").classList.toggle("run", !!running); }
+  if (!EMBED) { window.__wolfOpenTab = openTab; window.__wolfTabState = tabState; }
+  /* ---------- зеркало в Yandex Cloud: если Cloudflare / jsdelivr недоступны (Россия) ---------- */
+  var MIR = "https://storage.yandexcloud.net/wolfich-mirror", FN = "https://functions.yandexcloud.net/d4efk5gct1uv86m11gui";
+  function tfetch(url, opts, ms) {   // fetch с ограничением по времени: заблокированное соединение часто просто «висит»
+    var ac = new AbortController(), tm = setTimeout(function () { ac.abort(); }, ms || 10000);
+    return fetch(url, Object.assign({}, opts || {}, { signal: ac.signal })).then(function (r) { clearTimeout(tm); return r; }, function (e) { clearTimeout(tm); throw e; });
+  }
+  /* распознавание текста: jsdelivr или зеркало. Проверяем загрузкой файла больше 16 КБ — обрыв на 16 КБ сразу виден */
+  var tessP = null, tessOpts = {};
+  function loadTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (tessP) return tessP;
+    var JS = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/";
+    var useMirror = function () { tessOpts = { workerPath: MIR + "/tess/worker.min.js", corePath: MIR + "/tess/core", langPath: MIR + "/tess/lang" }; return MIR + "/tess/tesseract.min.js"; };
+    var pick = function () {
+      var m = false; try { m = localStorage.getItem("wolfich_tess_mirror") === "1"; } catch (e) {}
+      if (m) return Promise.resolve(useMirror());
+      return tfetch(JS + "worker.min.js", { cache: "no-store" }, 10000).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(function (b) { if (b.byteLength < 30000) throw 0; return JS + "tesseract.min.js"; })
+        .catch(function () { try { localStorage.setItem("wolfich_tess_mirror", "1"); } catch (e) {} return useMirror(); });
+    };
+    tessP = pick().then(function (src) {
+      return new Promise(function (res, rej) {
+        var s = document.createElement("script"); s.src = src;
+        s.onload = function () { window.Tesseract ? res(window.Tesseract) : rej(new Error("Tesseract.js не найден")); };
+        s.onerror = function () { tessP = null; try { localStorage.removeItem("wolfich_tess_mirror"); } catch (e) {} rej(new Error("Не удалось загрузить распознавание текста — проверьте интернет")); };
+        document.head.appendChild(s);
+      });
+    });
+    return tessP;
+  }
+  /* ---------- ключи доступа WLF-…: проверка на сервере (Cloudflare Worker) ---------- */
+  var LIC_URL = "https://wolfich-license.wolfichplay.workers.dev/unlock";
+  try { LIC_URL = localStorage.getItem("wolfich_license_url") || LIC_URL; } catch (e) {}
+  function devId() {
+    var d = ""; try { d = localStorage.getItem("wolfich_dev_id") || ""; } catch (e) {}
+    if (!d) { var b = crypto.getRandomValues(new Uint8Array(12)); d = Array.from(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); try { localStorage.setItem("wolfich_dev_id", d); } catch (e) {} }
+    return d;
+  }
+  function unlock(lic) {   // сервер ключей (Cloudflare), при обрыве — через зеркало в Yandex Cloud
+    var body = JSON.stringify({ key: lic, device: devId() }), post = { method: "POST", headers: { "content-type": "application/json" }, body: body };
+    var viaMirror = function () { return tfetch(FN + "?p=unlock", post, 15000).then(function (r) { return r.json(); }); };
+    return tfetch(LIC_URL, post, 10000).then(function (r) { return r.json(); })
+      .catch(viaMirror)
+      .catch(function () { return { ok: false, net: true, err: "нет связи с сервером ключей — проверьте интернет" }; });
+  }
+  var license = null;
+  function ask(err) {
+    mount.innerHTML = '<div class="card"><h2 class="card-title">' + both("Ключ доступа", "Access key") + '</h2>' + (err ? '<p class="err">' + both(err) + '</p>' : '') +
+      '<div class="actions"><input type="password" id="k" placeholder="WLF-…" style="flex:1;min-width:0"><button class="btn small" id="go" type="button">' + both("Открыть", "Open") + '</button></div></div>';
+    var go = function () { var v = document.getElementById("k").value.trim(); if (!v) return; try { localStorage.setItem(KEY, v); } catch (e) {} open(); };
+    document.getElementById("go").onclick = go;
+    document.getElementById("k").onkeydown = function (e) { if (e.key === "Enter") go(); };
+  }
+  async function open() {
+    var key = ""; try { key = localStorage.getItem(KEY) || ""; } catch (e) {}
+    if (!key) return ask("");
+    mount.innerHTML = '<div class="card">' + both("Загружаю модуль…", "Loading the module…") + '</div>';
+    var pass = key;
+    if (/^WLF-/i.test(key)) {   // ключ доступа со сроком: пароль модуля выдаёт сервер
+      var u = await unlock(key);
+      if (!u || !u.ok) { if (!(u && u.net)) { try { localStorage.removeItem(KEY); } catch (e) {} } return ask((u && u.err) || "ключ не подошёл"); }
+      pass = u.pass;
+      license = { exp: u.exp, recheck: function () { return unlock(key); } };
+    }
+    try {
+      var m, code;
+      m = await window.wolfApp.getModule(); var buf = new Uint8Array(m.data);
+      var salt = buf.slice(4, 20), iv = buf.slice(20, 32), ct = buf.slice(32);
+      var km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+      var k = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: salt, iterations: 200000, hash: "SHA-256" }, km, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+      var gz = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, k, ct);
+      var code = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    } catch (e) {
+      try { localStorage.removeItem(KEY); } catch (e2) {}
+      return ask("Ключ не подошёл");
+    }
+    try {
+      mount.innerHTML = "";
+      var inst = INST;
+      if (inst) { document.title = "WOLFICH · " + inst; var bb = document.querySelector(".brand span"); if (bb) bb.textContent = "Бот для эмулятора " + inst; }
+      var topW = window; try { if (window.top && window.top.__wolfOpenTab) topW = window.top; } catch (e) {}
+      new Function("WOLF", code)({ mount: mount, loadTesseract: loadTesseract, tessOpts: function () { return tessOpts; }, mirror: { fn: FN, bucket: MIR }, inst: inst, license: license,
+        openTab: topW.__wolfOpenTab || null,
+        state: function (on) { try { topW.__wolfTabState && topW.__wolfTabState(inst, on); } catch (e) {} } });
+      if (!EMBED) { var saved = []; try { saved = JSON.parse(localStorage.getItem(TK) || "[]") || []; } catch (e) {} saved.forEach(openTab); if (saved.length) activate(""); }
+      var v = await window.wolfApp.version();
+      foot.textContent = (license ? "Ключ действует до " + new Date(license.exp).toLocaleString("ru-RU") + " · " : "") + "Программа " + v + " · модуль " + (m.from === "site" ? "свежий с сайта" : m.from === "mirror" ? "свежий с зеркала" : "встроенный (нет связи с сайтом)");
+    } catch (e) {
+      mount.innerHTML = '<div class="card"><p class="err">Ошибка модуля: ' + String(e && e.message || e).replace(/</g, "&lt;") + '</p></div>';
+    }
+  }
+  open();
+})();
+</script>
+</body>
+</html>
