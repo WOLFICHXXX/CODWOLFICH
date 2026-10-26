@@ -2941,7 +2941,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 .al-mh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .al-mn{font-size:1.15rem;font-weight:700;color:var(--gold-light)}
 .al-upd{color:var(--muted);font-size:.75rem;margin-top:2px}
-.al-st{display:flex;gap:14px;text-align:right}
+.al-st{display:flex;gap:14px;text-align:right}.al-st span{white-space:nowrap}
 .al-st span{display:flex;flex-direction:column;font-weight:700;font-size:1rem}
 .al-st small{color:var(--muted);font-weight:400;font-size:.72rem}
 .al-heroes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -16150,11 +16150,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 ('<div class="al-rts' + (boss ? "" : " al-ro") + '" title="' + esc(boss ? L("Команда RoW участника — по ней планер предлагает марши", "Member's RoW team — the planner offers marches by it") : L("Команда RoW — назначают офицеры и создатель", "RoW team — set by officers and the creator")) + '"><span>RoW</span>' + [0, 1, 2, 3].map((t) => '<button type="button"' + (boss ? "" : " disabled") + ' class="' + ((m.rt || 0) === t ? "on" : "") + '" data-rt="' + m.mid + ":" + t + '">' + (t || "—") + "</button>").join("") + "</div>") +
                 ('<div class="al-rts al-rks' + (boss ? "" : " al-ro") + '" title="' + esc(boss ? L("Ранг в альянсе — поставить или снять вручную", "Alliance rank — set or remove manually") : L("Ранг — ставят офицеры и создатель", "Rank — set by officers and the creator")) + '"><span>' + L("Ранг", "Rank") + "</span>" + [0, 4, 5].map((r) => '<button type="button"' + (boss ? "" : " disabled") + ' class="' + ((+m.rank || 0) === r || (r === 0 && ![4, 5].includes(+m.rank)) ? "on" : "") + '" data-rk="' + m.mid + ":" + r + '">' + (r ? "R" + r : "—") + "</button>").join("") + "</div>") + "</div>" +
 
-            (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => (TGM && i === 1 ? '<button type="button" class="al-mmore" data-mmore="1">+' + (marchesOf(m).length - 1) + ' ▾</button><div class="al-mrest" hidden>' : "") + '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">' + (TGM ? L("М", "M") : L("Марш ", "March ")) + (i + 1) + "</span>" +
+            (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => (i === 1 ? '<button type="button" class="al-mmore" data-mmore="1">+' + (marchesOf(m).length - 1) + ' ▾</button><div class="al-mrest" hidden>' : "") + '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">' + (TGM ? L("М", "M") : L("Марш ", "March ")) + (i + 1) + "</span>" +
                 (x.heroes || []).map(h => { const H = HERO(h.name); return H && H.i ? '<img alt="" title="' + esc(h.name) + '" src="' + H.i + '">' : '<span class="al-mq">?</span>'; }).join("") +
                 (x.troops || []).slice(0, 3).map(t => TGM ? '<i class="al-mti" style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "T" + t.tier : "") + (TN[t.type] ? '<img alt="" title="' + esc(T(TN[t.type])) + '" src="img/tr-' + t.type + '.png">' : "") + (t.fly ? '<img alt="" title="' + esc(L("Летающие", "Flying")) + '" src="img/tr-fly.png">' : "") + "</i>"
                     : '<i style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "Т" + t.tier : "") + " " + esc(TN[t.type] || "") + (t.fly ? " ✈" : "") + "</i>").join("") +
-                '<span class="al-mar">▾</span></button>' + (TGM && i > 0 && i === marchesOf(m).length - 1 ? "</div>" : "")).join("") + '</div><div class="al-md"></div>' : '<div class="al-note">' + L("Марши не загружены", "Marches not loaded") + "</div>") +
+                '<span class="al-mar">▾</span></button>' + (i > 0 && i === marchesOf(m).length - 1 ? "</div>" : "")).join("") + '</div><div class="al-md"></div>' : '<div class="al-note">' + L("Марши не загружены", "Marches not loaded") + "</div>") +
             (m.note ? '<div class="al-note-m"><span class="al-nic">✎</span><div><div class="al-nh">' + (m.mid === j.me ? "Просьба офицеров поправить" : "Пометка офицеров") + (m.nts ? " · " + ago(m.nts) : "") + '</div><div class="al-nt">' + esc(m.note) + "</div>" +
                 (m.mid === j.me && !boss ? '<div class="al-nf">Исправьте данные и нажмите «Сохранить» — офицер снимет пометку.</div>' : "") + "</div></div>" : "") +
             '<div class="al-nedit"></div>' +
