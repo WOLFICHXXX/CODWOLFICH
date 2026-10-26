@@ -9,3 +9,5 @@
   Access-Control-Allow-Origin: *
 /get/*
   Cache-Control: no-cache
+/guide/*
+  Cache-Control: no-cache

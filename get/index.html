@@ -80,7 +80,7 @@ html[data-lang="ru"] .en,html[data-lang="en"] .ru{display:none!important}
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="brand"><b>WOLFICH</b> · <span class="ru">Автопоход</span><span class="en">Auto-March</span></div>
+    <div class="brand"><b>WOLFICH</b> · <span class="ru">Автопоход</span><span class="en">Auto-Gather</span></div>
     <div class="lang" role="group" aria-label="Language"><button type="button" data-l="ru" aria-pressed="true">RU</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
   </div>
 
@@ -88,7 +88,7 @@ html[data-lang="ru"] .en,html[data-lang="en"] .ru{display:none!important}
     <img class="ban ru" alt="Спасибо за приобретение" width="1400" height="695" decoding="async" fetchpriority="high" src="thanks-ru.webp" srcset="thanks-ru-760.webp 760w, thanks-ru.webp 1400w" sizes="(max-width:1060px) 100vw, 1060px">
     <img class="ban en" alt="Thank you for your purchase" width="1400" height="695" decoding="async" src="thanks-en.webp" srcset="thanks-en-760.webp 760w, thanks-en.webp 1400w" sizes="(max-width:1060px) 100vw, 1060px">
     <h1 class="title">WOLFICH</h1>
-    <div class="subtitle"><span class="ru">Автопоход · программа для Windows</span><span class="en">Auto-March · Windows app</span></div>
+    <div class="subtitle"><span class="ru">Автопоход · программа для Windows</span><span class="en">Auto-Gather · Windows app</span></div>
   </div>
 
   <section class="dl" aria-label="Download">
@@ -122,6 +122,7 @@ html[data-lang="ru"] .en,html[data-lang="en"] .ru{display:none!important}
       <p class="ru">По «Руководству: LDPlayer» внизу окна программы, затем нажмите «Старт».</p>
       <p class="en">Follow “Guide: LDPlayer” at the bottom of the app window, then press “Start”.</p></div>
   </div>
+  <div style="text-align:center;margin-top:22px"><a class="cp" href="../guide/" style="display:inline-flex;gap:8px;align-items:center;padding:11px 18px;font-size:.95rem">📖 <span class="ru">Полное руководство: LDPlayer, настройки, пульт</span><span class="en">Full guide: LDPlayer, settings, remote</span></a></div>
   <div class="req">
     <span class="chip">Windows 10 / 11 · x64</span>
     <span class="chip">LDPlayer 9</span>
@@ -146,7 +147,7 @@ html[data-lang="ru"] .en,html[data-lang="en"] .ru{display:none!important}
   function setLang(l) {
     L = l === "en" ? "en" : "ru"; document.documentElement.dataset.lang = L; document.documentElement.lang = L;
     document.querySelectorAll(".lang button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.l === L)); });
-    document.title = L === "en" ? "WOLFICH · Auto-March — download" : "WOLFICH · Автопоход — скачать";
+    document.title = L === "en" ? "WOLFICH · Auto-Gather — download" : "WOLFICH · Автопоход — скачать";
     try { localStorage.setItem("wolfLang", L); } catch (e) {}
     alt();
   }
