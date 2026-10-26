@@ -3066,6 +3066,12 @@ html.tgapp[data-tgtab="ntf"] #tgaNtf{display:block}
 html.tgapp #alRole,html.tgapp #alBack,html.tgapp #tgaLinks .al-url,html.tgapp #tgaLinks [data-relink]{display:none!important}
 .tga-rank{display:none}html.tgapp .tga-rank{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:999px;background:rgba(217,164,65,.18);border:1px solid rgba(217,164,65,.45);color:#ffe7a8;font-size:.82rem;font-weight:700}
 html.tgapp #alView>.card:first-child{padding:8px 14px;margin-bottom:8px}html.tgapp #alView>.card:first-child .al-top{justify-content:center;align-items:center}html.tgapp #alView>.card:first-child .al-top>div{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}html.tgapp #alName{margin:0;font-size:1.15rem}html.tgapp .tga-rank{margin-top:0}
+html.tgapp .al-st span{font-size:.82rem;white-space:nowrap;line-height:1.15}html.tgapp .al-st small{font-size:.66rem}html.tgapp .al-st{gap:10px;flex:none}
+html.tgapp .al-mh{gap:8px}html.tgapp .al-mn{font-size:1.05rem}
+.al-pt1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem}.al-pt1 small{opacity:.8}
+.al-mti{display:inline-flex!important;align-items:center;gap:2px}.al-mti img{width:18px!important;height:18px!important;border-radius:50%!important;border:0!important;margin:0!important}
+.al-mmore{border:1px solid rgba(217,164,65,.5);background:rgba(255,255,255,.04);color:#ffe7a8;border-radius:10px;padding:4px 10px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;align-self:center}
+.al-mrest{display:contents}.al-mrest[hidden]{display:none}
 .tga-hint{display:none}html.tgapp .tga-hint{display:block;margin-top:10px}
 .al-tri{width:26px;height:26px;vertical-align:middle;margin:-4px 0;display:inline-block}.al-trf{border-radius:50%;background:radial-gradient(#3a6fb0,#1d3460);border:2px solid #8fb6e8;color:#fff;font-size:13px;line-height:22px;text-align:center;box-sizing:border-box}.al-fc:has(.al-tri){padding-left:4px}
 .al-pterr{color:#ff6b6b;font-size:.8rem;margin-top:6px}.al-in.al-bad{border-color:#ff5050!important;box-shadow:0 0 0 2px rgba(255,80,80,.25)}.al-ptf label{min-width:0}.al-ptf input[type=time]{min-width:0;width:100%;max-width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none}
@@ -15832,6 +15838,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     if (!$("page-ally")) return;
     const TYPES = [["inf", "Пехота"], ["mag", "Маги"], ["mrk", "Стрелки"], ["cav", "Кавалерия"]];
     const TN = Object.fromEntries(TYPES);
+    const TGM = /[?&]tgapp=1/.test(location.search);   // мини-приложение Telegram: карточки компактнее
     const TIERC = ["#6b6f7a", "#9aa0a6", "#4caf50", "#3d8bfd", "#9b59d0", "#e6b34f"];
     const HERO = (n) => (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).find(h => h.n === n) || null;
     const heroIn = (n) => (n && EN() && HERO(n) ? T(n) : n || "");   // имя героя в поле формы — на языке страницы
@@ -16112,6 +16119,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const ptTxt = (m) => {
         if (!ptOk(m.pt) && !m.hrs) return "";
         const loc = ptOk(m.pt) ? hm(mod(m.pt.a - TZO())) + "–" + hm(mod(m.pt.b - TZO())) : "";
+        if (TGM) return '<div class="al-pt al-pt1">🕒 ' + (ptOk(m.pt) ? "<b>" + hm(m.pt.a) + "–" + hm(m.pt.b) + " UTC</b><small> · " + L("у вас ", "yours ") + loc + "</small>" : "") + (m.hrs ? '<small> · ' + m.hrs + L(" ч/д", " h/d") + "</small>" : "") + "</div>";
         return '<div class="al-pt" title="' + esc(L("Прайм-тайм (основное время в игре) и сколько часов в день играет", "Prime time and hours played per day")) + '">🕒 ' +
             (ptOk(m.pt) ? "<b>" + hm(m.pt.a) + "–" + hm(m.pt.b) + " UTC</b> <small>(" + L("у вас ", "yours ") + loc + ")</small>" : "") +
             (m.hrs ? '<span class="al-hrs">' + m.hrs + L(" ч/день", " h/day") + "</span>" : "") + "</div>";
@@ -16142,10 +16150,11 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 ('<div class="al-rts' + (boss ? "" : " al-ro") + '" title="' + esc(boss ? L("Команда RoW участника — по ней планер предлагает марши", "Member's RoW team — the planner offers marches by it") : L("Команда RoW — назначают офицеры и создатель", "RoW team — set by officers and the creator")) + '"><span>RoW</span>' + [0, 1, 2, 3].map((t) => '<button type="button"' + (boss ? "" : " disabled") + ' class="' + ((m.rt || 0) === t ? "on" : "") + '" data-rt="' + m.mid + ":" + t + '">' + (t || "—") + "</button>").join("") + "</div>") +
                 ('<div class="al-rts al-rks' + (boss ? "" : " al-ro") + '" title="' + esc(boss ? L("Ранг в альянсе — поставить или снять вручную", "Alliance rank — set or remove manually") : L("Ранг — ставят офицеры и создатель", "Rank — set by officers and the creator")) + '"><span>' + L("Ранг", "Rank") + "</span>" + [0, 4, 5].map((r) => '<button type="button"' + (boss ? "" : " disabled") + ' class="' + ((+m.rank || 0) === r || (r === 0 && ![4, 5].includes(+m.rank)) ? "on" : "") + '" data-rk="' + m.mid + ":" + r + '">' + (r ? "R" + r : "—") + "</button>").join("") + "</div>") + "</div>" +
 
-            (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">Марш ' + (i + 1) + "</span>" +
+            (marchesOf(m).length ? '<div class="al-ms">' + marchesOf(m).map((x, i) => (TGM && i === 1 ? '<button type="button" class="al-mmore" data-mmore="1">+' + (marchesOf(m).length - 1) + ' ▾</button><div class="al-mrest" hidden>' : "") + '<button type="button" class="al-mini" data-mx="' + m.mid + ":" + i + '"><span class="al-mnum">' + (TGM ? L("М", "M") : L("Марш ", "March ")) + (i + 1) + "</span>" +
                 (x.heroes || []).map(h => { const H = HERO(h.name); return H && H.i ? '<img alt="" title="' + esc(h.name) + '" src="' + H.i + '">' : '<span class="al-mq">?</span>'; }).join("") +
-                (x.troops || []).slice(0, 3).map(t => '<i style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "Т" + t.tier : "") + " " + esc(TN[t.type] || "") + (t.fly ? " ✈" : "") + "</i>").join("") +
-                '<span class="al-mar">▾</span></button>').join("") + '</div><div class="al-md"></div>' : '<div class="al-note">Марши не загружены</div>') +
+                (x.troops || []).slice(0, 3).map(t => TGM ? '<i class="al-mti" style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "T" + t.tier : "") + (TN[t.type] ? '<img alt="" title="' + esc(T(TN[t.type])) + '" src="img/tr-' + t.type + '.png">' : "") + (t.fly ? '<img alt="" title="' + esc(L("Летающие", "Flying")) + '" src="img/tr-fly.png">' : "") + "</i>"
+                    : '<i style="--tc:' + TIERC[+t.tier || 0] + '">' + (t.tier ? "Т" + t.tier : "") + " " + esc(TN[t.type] || "") + (t.fly ? " ✈" : "") + "</i>").join("") +
+                '<span class="al-mar">▾</span></button>' + (TGM && i > 0 && i === marchesOf(m).length - 1 ? "</div>" : "")).join("") + '</div><div class="al-md"></div>' : '<div class="al-note">' + L("Марши не загружены", "Marches not loaded") + "</div>") +
             (m.note ? '<div class="al-note-m"><span class="al-nic">✎</span><div><div class="al-nh">' + (m.mid === j.me ? "Просьба офицеров поправить" : "Пометка офицеров") + (m.nts ? " · " + ago(m.nts) : "") + '</div><div class="al-nt">' + esc(m.note) + "</div>" +
                 (m.mid === j.me && !boss ? '<div class="al-nf">Исправьте данные и нажмите «Сохранить» — офицер снимет пометку.</div>' : "") + "</div></div>" : "") +
             '<div class="al-nedit"></div>' +
@@ -16169,6 +16178,9 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const rk = {}; rk[mid] = +r; const e = load()[j.id] || {};
             const res = await call({ op: "ranks", id: j.id, tok: e.tok, ranks: rk });
             if (res.ok) render(res); else { b.parentNode.querySelectorAll("button").forEach((x) => { x.disabled = false; }); alert(T(res.err || "Ошибка")); }
+        }));
+        $("alTbl").querySelectorAll("[data-mmore]").forEach((b) => b.addEventListener("click", () => {   // приложение: остальные марши свёрнуты
+            const r = b.nextElementSibling; if (!r) return; r.hidden = !r.hidden; b.textContent = (r.hidden ? "+" + r.querySelectorAll(".al-mini").length + " ▾" : "▴");
         }));
         $("alTbl").querySelectorAll("[data-mx]").forEach(b => b.addEventListener("click", () => {   // миниатюра марша → подробности под ней
             const [mid, i] = b.dataset.mx.split(":"), card = b.closest(".al-mc"), box = card.querySelector(".al-md"), on = b.classList.contains("on");
