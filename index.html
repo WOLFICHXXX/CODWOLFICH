@@ -3024,7 +3024,7 @@ html[data-lang="en"] #page-row .row-logo img.ln-en{display:block}
 @media (min-width:900px){.al-hes{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:12px}.al-he.dep{margin-left:0;margin-top:16px}}
 .al-ptf{grid-template-columns:1fr 1fr 1.3fr}
 @media (max-width:720px){.al-ptf{grid-template-columns:1fr 1fr}.al-ptf label:last-child{grid-column:1/-1}}
-.al-ptf label{min-width:0}.al-ptf input[type=time]{min-width:0;width:100%;max-width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none}
+.al-pterr{color:#ff6b6b;font-size:.8rem;margin-top:6px}.al-in.al-bad{border-color:#ff5050!important;box-shadow:0 0 0 2px rgba(255,80,80,.25)}.al-ptf label{min-width:0}.al-ptf input[type=time]{min-width:0;width:100%;max-width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none}
 .al-ptn{margin:-2px 0 8px}
 .al-pt{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:6px 0 2px;font-size:.84rem;color:var(--text)}
 .al-pt b{color:var(--gold-light)}
@@ -15964,12 +15964,13 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             '<div class="al-f al-ptf"><label><span id="alPtL"></span><input class="al-in" type="time" data-p="a" value="' + (ptOk(m.pt) ? hm(m.pt.a) : "") + '"></label>' +
             '<label>до<input class="al-in" type="time" data-p="b" value="' + (ptOk(m.pt) ? hm(m.pt.b) : "") + '"></label>' +
             '<label>В игре, часов в день<input class="al-in" data-p="hrs" inputmode="decimal" placeholder="' + L("напр. 4", "e.g. 4") + '" value="' + esc(m.hrs || "") + '"></label></div>' +
-            '<div class="al-note al-ptn" id="alPtN"></div>' + rankRow(m.rank) +
+            '<div class="al-pterr" id="alPtErr" style="display:none"></div><div class="al-note al-ptn" id="alPtN"></div>' + rankRow(m.rank) +
             '<div class="al-mtabs" id="alMTabs"></div><div id="alMarch"></div>';
         drawMarch();
         const ptn = () => { $("alPtL").textContent = L("Прайм-тайм (UTC) с", "Prime time (UTC) from"); const a = toMin($("alForm").querySelector('[data-p="a"]').value), b = toMin($("alForm").querySelector('[data-p="b"]').value);
             $("alPtN").textContent = a != null && b != null && a !== b ? L("Время в UTC (как у ивентов). По вашему времени: ", "Time in UTC (like events). Your local time: ") + hm(mod(a - TZO())) + "–" + hm(mod(b - TZO())) : L("Укажите время в UTC — как у ивентов в игре.", "Enter the time in UTC — like in-game events."); };
-        $("alForm").querySelectorAll("[data-p]").forEach((el) => el.addEventListener("input", ptn)); ptn(); st.ptn = ptn;   // смена RU/EN — пересчитать подсказку
+        $("alForm").querySelectorAll("[data-p]").forEach((el) => el.addEventListener("input", ptn)); ptn(); st.ptn = ptn;
+        $("alForm").querySelectorAll('[data-p="a"],[data-p="b"]').forEach((el) => el.addEventListener("input", () => { if ($("alPtErr").style.display !== "none") ptCheck(readFormLite()); }));   // исправили — сообщение уходит   // смена RU/EN — пересчитать подсказку
     }
     function drawMarch() {
         const fm = st.fm, x = fm.marches[fm.mi] || {}, tr = (x.troops || []).concat([{}, {}, {}, {}]).slice(0, 4), hr = (x.heroes || []).concat([{}, {}]).slice(0, 2);
@@ -16015,6 +16016,17 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             heroes: [...f.querySelectorAll("[data-hr]")].map((r) => ({ name: heroOut(r.querySelector('[data-h="name"]').value), lvl: numv(r.querySelector('[data-h="lvl"]').value),
                 skills: [...r.querySelectorAll("[data-s]")].map(x => String(Math.min(5, numv(x.value)))).join("/") })).filter((h) => h.name || /[1-5]/.test(h.skills))
         };
+    }
+    /* часы в игре указаны (или начато время), а прайм-тайм не заполнен — показываем на поле и не сохраняем */
+    function readFormLite() { const f = $("alForm"), pa = toMin(f.querySelector('[data-p="a"]').value), pb = toMin(f.querySelector('[data-p="b"]').value); return { pt: pa != null && pb != null && pa !== pb ? { a: pa, b: pb } : null, hrs: +String(f.querySelector('[data-p="hrs"]').value || "").replace(",", ".") || 0 }; }
+    function ptCheck(d) {
+        const f = $("alForm"), ia = f.querySelector('[data-p="a"]'), ib = f.querySelector('[data-p="b"]'), er = $("alPtErr");
+        const need = d.hrs > 0 || !!ia.value || !!ib.value;
+        const bad = need && !d.pt;
+        [ia, ib].forEach((x) => x.classList.toggle("al-bad", bad && (!x.value || ia.value === ib.value)));
+        if (er) { er.textContent = bad ? (ia.value && ia.value === ib.value ? L("Начало и конец прайм-тайма совпадают — укажите разное время", "Prime time start and end are the same — set different times") : L("Заполните прайм-тайм: с какого и до какого времени (UTC) вы в игре", "Fill in prime time: from and to (UTC) when you are in the game")) : ""; er.style.display = bad ? "" : "none"; }
+        if (bad) { const t = !ia.value ? ia : ib; t.scrollIntoView({ block: "center", behavior: "smooth" }); setTimeout(() => { try { t.focus({ preventScroll: true }); } catch (e) {} }, 350); }
+        return !bad;
     }
     function readForm() {
         const f = $("alForm"), d = {};
@@ -16210,6 +16222,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     $("alSave").addEventListener("click", async () => {
         const j = st.data, e = load()[j.id]; if (!st.edit) return;
         const d = readForm(); if (!d.nick) return say("alSaveMsg", "Ник не может быть пустым", true);
+        if (!ptCheck(d)) return;
         $("alSave").disabled = true;
         try {
             const r = await call({ op: "save", id: j.id, tok: e.tok, mid: st.edit, k: e.k, data: d });
@@ -16318,7 +16331,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
 
     window.addEventListener("wi18n", () => {   // смена RU/EN: перерисовать поля героев и карточки (имена, «ур./lv.»)
         if (!$("page-ally") || $("alView").style.display === "none") return;
-        if (st.fm && st.ptn && $("alPtN")) { try { st.ptn(); const h = $("alForm").querySelector('[data-p="hrs"]'); if (h) h.placeholder = L("напр. 4", "e.g. 4"); } catch (e) {} }
+        if (st.fm && st.ptn && $("alPtN")) { try { st.ptn(); if ($("alPtErr") && $("alPtErr").style.display !== "none") ptCheck(readFormLite()); const h = $("alForm").querySelector('[data-p="hrs"]'); if (h) h.placeholder = L("напр. 4", "e.g. 4"); } catch (e) {} }
         if (st.fm && $("alMarch")) { saveMarch(); const names = (typeof COD_HEROES !== "undefined" ? COD_HEROES : []).map(h => heroIn(h.n)).sort((a, b) => a.localeCompare(b, EN() ? "en" : "ru")); const dl = $("alHeroList"); if (dl) dl.innerHTML = names.map(n => '<option value="' + esc(n) + '">').join(""); drawMarch(); }
         if (st.data) { table(); const e = load()[st.data.id]; if (e) rowTeams(st.data, e, isBoss()); }
     });
