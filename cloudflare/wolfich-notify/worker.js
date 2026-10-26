@@ -24,7 +24,7 @@ async function tg(env, method, body) {
 }
 const send = (env, chat, text) => tg(env, "sendMessage", { chat_id: Number(chat), text: text, disable_web_page_preview: true });
 // мини-приложение «Альянс» (сайт в режиме Telegram): кнопка меню чата и кнопка под сообщением
-const allyUrl = (env) => env.ALLY_URL || "https://wolfichxxx.github.io/CODWOLFICH/?tgapp=1#ally";
+const allyUrl = (env) => env.ALLY_URL || "https://wolfichxxx.github.io/CODWOLFICH/?tgapp=1&v=2#ally";
 const allyKb = (env, lang) => ({ inline_keyboard: [[{ text: lang === "en" ? "🛡 Open Alliance" : "🛡 Открыть альянс", web_app: { url: allyUrl(env) } }]] });
 const allyMenu = (env, chat, lang) => tg(env, "setChatMenuButton", { chat_id: Number(chat), menu_button: { type: "web_app", text: lang === "en" ? "Alliance" : "Альянс", web_app: { url: allyUrl(env) } } });
 const sendAlly = (env, chat, text, lang) => tg(env, "sendMessage", { chat_id: Number(chat), text: text, disable_web_page_preview: true, reply_markup: allyKb(env, lang) });
@@ -288,11 +288,11 @@ async function onUpdate(env, u) {
 async function allyDefaults(env) {   // один раз: кнопка «Альянс» в меню всех чатов бота и команда /ally в списке
   try {
     await ensureSchema(env);
-    if (await env.DB.prepare("SELECT 1 AS x FROM profiles WHERE uid = ?").bind("!allymenu1").first()) return;
+    if (await env.DB.prepare("SELECT 1 AS x FROM profiles WHERE uid = ?").bind("!allymenu2").first()) return;
     const a = await tg(env, "setChatMenuButton", { menu_button: { type: "web_app", text: "Альянс", web_app: { url: allyUrl(env) } } });
     const c = await tg(env, "setMyCommands", { commands: [{ command: "ally", description: "альянс: участники, карточка, план RoW" }, { command: "list", description: "ближайшие напоминания" }, { command: "help", description: "как подключить" }, { command: "stop", description: "удалить мои данные" }] });
     const e = await tg(env, "setMyCommands", { language_code: "en", commands: [{ command: "ally", description: "alliance: members, your card, RoW plan" }, { command: "list", description: "upcoming reminders" }, { command: "help", description: "how to connect" }, { command: "stop", description: "delete my data" }] });
-    if (a.ok && c.ok) await db.putProfile(env, "!allymenu1", JSON.stringify({ a: a.ok, c: c.ok, e: e.ok }), 1, nowOf(env));
+    if (a.ok && c.ok) await db.putProfile(env, "!allymenu2", JSON.stringify({ a: a.ok, c: c.ok, e: e.ok }), 1, nowOf(env));
   } catch (e) { /* попробуем при следующем запуске */ }
 }
 async function tick(env) {
