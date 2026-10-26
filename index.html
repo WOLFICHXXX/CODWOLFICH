@@ -3034,7 +3034,7 @@ html.tgapp #alHome .al-grid2>div:first-child{display:none}
 .tga-tabs{display:none}
 html.tgapp .tga-tabs{display:flex;gap:2px;position:sticky;top:0;z-index:30;margin:0 0 10px;padding:4px;border-radius:14px;background:rgba(15,12,29,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
 .tga-tabs button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:0;border-radius:10px;background:transparent;color:var(--muted,#b9a9d6);font:inherit;font-size:.62rem;line-height:1.15;text-align:center;cursor:pointer}
-.tga-tabs button i{font-style:normal;font-size:1.1rem}
+.tga-tabs button img{width:42px!important;height:42px!important;max-width:42px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));transition:transform .15s}.tga-tabs button.on img{transform:scale(1.12)}.tga-tabs button:not(.on) img{opacity:.8}
 .tga-tabs button.on{background:rgba(217,164,65,.22);color:#ffe7a8}
 #tgaNtf,#tgaRowMsg,#tgaNoCard,#tgaLinks{display:none}
 html.tgapp[data-tgtab="list"] #tgaLinks:has(#alLinks:not([style*="none"])){display:block}
@@ -16113,7 +16113,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         const j = st.data, box = $("alFlt"); if (!box || !j) return;
         const chip = (k, v, txt, n) => '<button type="button" class="al-fc' + (st[k] === v ? " on" : "") + '" data-fk="' + k + '" data-fv="' + v + '">' + txt + (n != null ? " <small>" + n + "</small>" : "") + "</button>";
         const cntT = (t) => j.members.filter((m) => hasType(m, t)).length, cntR = (r) => j.members.filter((m) => (r === "0" ? !m.rt : String(m.rt || "") === r)).length;
-        box.innerHTML = '<div class="al-fg"><span class="al-fl">' + L("Войска:", "Troops:") + "</span>" + chip("ft", "", L("Все", "All")) + TYPES.map(([k, n]) => chip("ft", k, '<img class="al-tri" src="img/tr-' + k + '.png" alt="' + esc(T(n)) + '" title="' + esc(T(n)) + '">', cntT(k))).join("") + chip("ft", "fly", '<span class="al-tri al-trf" title="' + esc(L("Летающие", "Flying")) + '">✈</span>', cntT("fly")) + "</div>" +
+        box.innerHTML = '<div class="al-fg"><span class="al-fl">' + L("Войска:", "Troops:") + "</span>" + chip("ft", "", L("Все", "All")) + TYPES.map(([k, n]) => chip("ft", k, '<img class="al-tri" src="img/tr-' + k + '.png" alt="' + esc(T(n)) + '" title="' + esc(T(n)) + '">', cntT(k))).join("") + chip("ft", "fly", '<img class="al-tri" src="img/tr-fly.png" alt="' + esc(L("Летающие", "Flying")) + '" title="' + esc(L("Летающие", "Flying")) + '">', cntT("fly")) + "</div>" +
             '<div class="al-fg"><span class="al-fl">' + L("Команда RoW:", "RoW team:") + "</span>" + chip("fr", "", L("Все", "All")) + ["1", "2", "3"].map((r) => chip("fr", r, r, cntR(r))).join("") + chip("fr", "0", L("Без команды", "No team"), cntR("0")) + "</div>" +
             '<div class="al-fg"><span class="al-fl">' + L("Прайм (UTC):", "Prime (UTC):") + "</span>" + chip("fp", "", L("Все", "All")) + PTS.map(([a, b], i) => chip("fp", String(i), hm(a) + "–" + hm(b % 1440 || 1440).replace("24:00", "24:00"), j.members.filter((m) => ptHas(m.pt, a, b)).length)).join("") + chip("fp", "x", L("Не указан", "Not set"), j.members.filter((m) => !ptOk(m.pt)).length) + "</div>";
         box.querySelectorAll("[data-fk]").forEach((b) => b.addEventListener("click", () => { st[b.dataset.fk] = b.dataset.fv; table(); }));
@@ -16397,7 +16397,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         const rowMsg = document.createElement("div"); rowMsg.className = "card al-card al-note"; rowMsg.id = "tgaRowMsg"; $("alView").insertBefore(rowMsg, $("alRowT"));
         const hint = document.createElement("div"); hint.className = "al-note tga-hint"; $("alHome").appendChild(hint);
         function drawBar() {
-            bar.innerHTML = TABS.map((t) => '<button type="button" data-tga="' + t[0] + '" class="' + (t[0] === tab ? "on" : "") + '"><i>' + t[1] + "</i><span>" + esc(L(t[2], t[3])) + "</span></button>").join("");
+            bar.innerHTML = TABS.map((t) => '<button type="button" data-tga="' + t[0] + '" class="' + (t[0] === tab ? "on" : "") + '"><img alt="" src="img/tga-' + t[0] + '.webp"><span>' + esc(L(t[2], t[3])) + "</span></button>").join("");
             bar.querySelectorAll("[data-tga]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tga)));
             hint.textContent = L("Здесь те же альянсы, что на сайте. Если на сайт вы входили через Google — привяжите Telegram в профиле сайта, и альянсы появятся здесь.", "These are the same alliances as on the site. If you signed in to the site with Google — link Telegram in the site profile and your alliances will appear here.");
         }
