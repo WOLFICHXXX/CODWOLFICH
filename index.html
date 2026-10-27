@@ -2,7 +2,25 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<script>window.WOLFICH_TGV="202610271254";if(/[?&]tgapp=1/.test(location.search)){document.documentElement.className+=" tgapp";try{fetch("tgver.txt?"+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){t=(t||"").trim();if(!t||t===window.WOLFICH_TGV)return;var q=new URLSearchParams(location.search);if(q.get("v")===t)return;q.set("v",t);location.replace(location.pathname+"?"+q.toString()+location.hash)}).catch(function(){})}catch(e){}document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');}</script>
+<script>window.WOLFICH_TGV="202610271431";(function(){var D=document.documentElement,Q=location.search,DC=/\.discordsays\.com$/.test(location.hostname)||/[?&]dcapp=1/.test(Q),TG=/[?&]tgapp=1/.test(Q);
+if(!TG&&!DC)return;D.className+=" tgapp"+(DC?" dcapp":"");window.WOLFICH_DC=DC;
+if(DC){/* Discord: страница в iframe на *.discordsays.com — внешние адреса только через прокси Discord (URL Mappings в Developer Portal) */
+var O=location.origin,M={"wolfich-license.wolfichplay.workers.dev":"/lic","wolfich-notify.wolfichplay.workers.dev":"/ntf","functions.yandexcloud.net":"/yfn","storage.yandexcloud.net":"/ys","cdn.jsdelivr.net":"/jsd","fonts.googleapis.com":"/gfont","fonts.gstatic.com":"/gstat"};
+var TS={"cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js":"/ys/wolfich-mirror/tess/tesseract.min.js"};
+var px=function(u){try{if(typeof u!=="string"&&!(u instanceof URL))return u;var x=new URL(String(u),location.href);if(x.origin===O)return u;var k=x.host+x.pathname;if(TS[k])return O+"/.proxy"+TS[k];var m=M[x.host];return m?O+"/.proxy"+m+x.pathname+x.search:u;}catch(e){return u}};
+window.WOLFICH_PX=px;var f0=window.fetch;window.fetch=function(a,b){if(a&&typeof a==="object"&&!(a instanceof URL)&&a.url){var nu=px(a.url);if(nu!==a.url)a=new Request(nu,a);}else a=px(a);return f0.call(this,a,b)};
+var xo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){arguments[1]=px(u);return xo.apply(this,arguments)};
+var sd=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,"src");if(sd&&sd.set)Object.defineProperty(HTMLScriptElement.prototype,"src",{configurable:true,enumerable:sd.enumerable,get:sd.get,set:function(v){sd.set.call(this,px(v))}});
+/* распознавание: воркер, ядро и языки — с зеркала через прокси */
+var TB=O+"/.proxy/ys/wolfich-mirror/tess/",tv;Object.defineProperty(window,"Tesseract",{configurable:true,get:function(){return tv},set:function(T){if(T&&T.createWorker&&!T.__dc){var cw=T.createWorker;T.createWorker=function(l,o,op){return cw.call(T,l,o,Object.assign({workerPath:TB+"worker.min.js",corePath:TB+"core",langPath:TB+"lang"},op||{}))};T.__dc=1}tv=T}});
+/* шрифты Google: CSS берём через прокси и переписываем адреса файлов */
+document.addEventListener("DOMContentLoaded",function(){var l=document.querySelector('link[href*="fonts.googleapis.com/css2"]');if(!l)return;fetch(l.href).then(function(r){return r.ok?r.text():""}).then(function(c){if(!c)return;var st=document.createElement("style");st.textContent=c.split("https://fonts.gstatic.com").join(O+"/.proxy/gstat");document.head.appendChild(st)}).catch(function(){})});
+/* внешние ссылки — через Discord (обычные переходы в iframe заблокированы) */
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a)return;var h=a.getAttribute("href")||"";if(!/^https?:/i.test(h)||h.indexOf(O)===0)return;e.preventDefault();var g=window.WOLFICH_DCOPEN;if(g)g(h)},true);
+window.open=function(u){var g=window.WOLFICH_DCOPEN;if(g&&u)g(String(u));return null};
+document.write('<script src="dsdk.js"><\/script>');}
+try{fetch("tgver.txt?"+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).then(function(t){t=(t||"").trim();if(!t||t===window.WOLFICH_TGV)return;var q=new URLSearchParams(location.search);if(q.get("v")===t)return;q.set("v",t);location.replace(location.pathname+"?"+q.toString()+location.hash)}).catch(function(){})}catch(e){}
+if(TG)document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#070a16">
 <title>Call of Dragons — WOLFICH СМП Калькулятор</title>
@@ -3063,7 +3081,14 @@ html.tgapp[data-tgtab="form"] #alMineH .al-fhint,html.tgapp[data-tgtab="form"] #
 html.tgapp[data-tgtab="row"] #alRowT{display:block!important}
 html.tgapp[data-tgtab="row"] #alRowT[style*="none"]{display:none!important}
 html.tgapp[data-tgtab="row"] #tgaRowMsg:not(:empty){display:block}
-html.tgapp[data-tgtab="ntf"] #tgaNtf{display:block}
+html.tgapp[data-tgtab="ntf"] #tgaNtf,html.tgapp[data-tgtab="link"] #tgaNtf{display:block}
+.dc-back{display:none}html.dcapp .dc-back{position:fixed;left:12px;bottom:14px;z-index:60;padding:10px 16px;border-radius:999px;border:1px solid rgba(217,164,65,.6);background:linear-gradient(180deg,#3a2c58,#1d1530);color:#ffe7a8;font:700 .9rem Inter,system-ui,sans-serif;box-shadow:0 8px 20px rgba(0,0,0,.5);cursor:pointer}
+html.tgapp.dcapp #alBack{display:inline-flex!important}
+#dcLink{display:none}html.dcapp[data-tgtab="link"] #dcLink{display:block}html.dcapp[data-tgtab="link"] #alHome,html.dcapp[data-tgtab="link"] #alView,html.dcapp[data-tgtab="link"] #alShow,html.dcapp[data-tgtab="link"] #alJoin{display:none!important}
+html.dcapp #page-ally>.tga-tabs{margin-top:4px}
+.tga-steps{margin:10px 0 6px;padding-left:22px;font-size:.9rem;line-height:1.5}.tga-steps li{margin:4px 0}.tga-steps a{color:#ffe09a}
+.tga-code{display:flex;gap:8px;align-items:center;margin:8px 0 10px}.tga-code .al-in{max-width:170px;text-transform:uppercase;letter-spacing:.25em;font-weight:800;font-size:1.15rem;text-align:center}
+.pf-acc-dc{margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:rgba(88,101,242,.12);border:1px solid rgba(88,101,242,.5);font-size:.9rem;line-height:1.5}.pf-acc-dc b.code{display:inline-block;margin:0 4px;padding:2px 10px;border-radius:8px;background:#1d1838;border:1px solid rgba(255,255,255,.2);color:#fff;letter-spacing:.25em;font-size:1.1rem}
 .tga-sw{display:flex;align-items:center;gap:10px;margin:10px 0;cursor:pointer;font-size:.9rem}
 .tga-sw input{position:absolute;opacity:0;width:1px;height:1px}
 .tga-k{flex:none;width:42px;height:24px;border-radius:12px;background:#3a3550;position:relative;transition:background .2s;border:1px solid rgba(255,255,255,.15)}
@@ -13974,7 +13999,8 @@ pfSyncSoon(true);
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="tg">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
             '<span class="pf-acc-m' + (I.google ? " on" : "") + '">Google ' + (I.google ? "✓" : "") + "</span>" + (idents && !I.google ? '<span class="pf-acc-g"></span>' : "") +
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="google">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
-            "</div>" + (tlConf ? '<div class="pf-acc-cf"><div>' + esc(L("Этот Telegram уже зарегистрирован на сайте отдельным аккаунтом" + (tlConf.name ? " «" + tlConf.name + "»" : "") + ". Перенести его в этот аккаунт? Дальше вход через Telegram будет открывать этот аккаунт. Напоминания перейдут сюда, профиль — если здесь он пуст. Альянсы и планеры того аккаунта останутся за ним.",
+            '<span class="pf-acc-m' + (I.discord ? " on" : "") + '">Discord ' + (I.discord ? "✓" : "") + "</span>" + (idents && !I.discord ? '<button type="button" class="btn secondary small" data-link="dc">' + esc(L("Привязать Discord", "Link Discord")) + "</button>" : "") +
+            "</div>" + (dcLink && !I.discord ? '<div class="pf-acc-dc">' + esc(L("Код для Discord:", "Code for Discord:")) + '<b class="code">' + esc(dcLink.code) + "</b><br>" + esc(L("Откройте в Discord приложение «WOLFICH Альянс» (значок «Активности» в канале) → вкладка «Связь с сайтом» → введите код. Код действует 15 минут.", "In Discord open the “WOLFICH Альянс” app (the Activities icon in a channel) → the “Site link” tab → enter the code. The code is valid for 15 minutes.")) + "</div>" : "") + (tlConf ? '<div class="pf-acc-cf"><div>' + esc(L("Этот Telegram уже зарегистрирован на сайте отдельным аккаунтом" + (tlConf.name ? " «" + tlConf.name + "»" : "") + ". Перенести его в этот аккаунт? Дальше вход через Telegram будет открывать этот аккаунт. Напоминания перейдут сюда, профиль — если здесь он пуст. Альянсы и планеры того аккаунта останутся за ним.",
                 "This Telegram is already registered on the site as a separate account" + (tlConf.name ? " “" + tlConf.name + "”" : "") + ". Move it into this account? Signing in with Telegram will then open this account. Reminders move here, the profile too if this one is empty. Alliances and planners of that account stay with it.")) +
                 '</div><div class="pf-acc-cfb"><button type="button" class="btn small" data-tlmove="1">' + esc(L("Перенести", "Move")) + '</button><button type="button" class="btn secondary small" data-tlno="1">' + esc(L("Отмена", "Cancel")) + "</button></div></div>" : "") +
             '<div class="pf-acc-msg"></div><div class="pf-acc-n">' + esc(L("Привязанным способом можно входить в этот же аккаунт с любого устройства.", "You can sign in to this same account with any linked method on any device.")) + "</div>";
@@ -13994,6 +14020,7 @@ pfSyncSoon(true);
     /* привязка Telegram: код ждёт «Старт» у бота; проверка — раз в 2 с и сразу при возврате на вкладку; код помнится 30 мин (переживает перезагрузку) */
     const TLK = "wolfich_tlink";
     let tlTimer = 0, tlBusy = false, tlConf = null;
+    let dcLink = null, dcTimer = 0;   // привязка Discord (код)
     const tlGet = () => { try { const o = JSON.parse(sessionStorage.getItem(TLK) || "null"); return o && o.code && Date.now() - o.at < 1800000 ? o : null; } catch (e) { return null; } };
     const tlSet = (o) => { try { if (o) sessionStorage.setItem(TLK, JSON.stringify(o)); else sessionStorage.removeItem(TLK); } catch (e) {} };
     async function tlCheck() {
@@ -14030,9 +14057,23 @@ pfSyncSoon(true);
     document.addEventListener("visibilitychange", () => { if (!document.hidden && tlGet() && !tlConf) { tlCheck(); if (!tlTimer) tlWatch(); } });
     window.addEventListener("focus", () => { if (tlGet() && !tlConf) tlCheck(); });
     window.wolfichLinkTelegram = linkTelegram;
+    /* привязка Discord: код показываем здесь, вводят его в приложении в Discord; ждём привязку (раз в 3 с, 15 мин) */
+    async function linkDiscord() {
+        amsg(L("Получаю код…", "Getting a code…"));
+        try {
+            const r = await pfTgFetch("dlreq"); if (!(r.j && r.j.ok && r.j.code)) return amsg((r.j && r.j.error) || L("Не получилось", "Failed"), true);
+            dcLink = { code: r.j.code, until: Date.now() + 900000 }; accDraw(); amsg("");
+            clearInterval(dcTimer);
+            dcTimer = setInterval(async () => {
+                if (!dcLink || Date.now() > dcLink.until) { clearInterval(dcTimer); dcLink = null; accDraw(); return; }
+                try { const a = await pfTgFetch("acct"); if (a.ok && a.j.idents && a.j.idents.discord) { clearInterval(dcTimer); dcLink = null; idents = a.j.idents; accDraw(); amsg(L("Discord привязан.", "Discord linked.")); window.dispatchEvent(new Event("wolfich-acct")); } } catch (e) {}
+            }, 3000);
+        } catch (e) { amsg(L("Нет связи с сервером", "No connection to the server"), true); }
+    }
 
     acc.addEventListener("click", async (e) => {
         const b = e.target.closest("[data-link]"); if (b && b.dataset.link === "tg") return linkTelegram();
+        if (b && b.dataset.link === "dc") return linkDiscord();
         if (e.target.closest("[data-tlmove]")) return tlMove();
         if (e.target.closest("[data-tlno]")) { tlStop(); accDraw(); return amsg(L("Telegram не привязан.", "Telegram not linked.")); }
         const u = e.target.closest("[data-unl]"); if (!u) return;
@@ -15848,7 +15889,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     if (!$("page-ally")) return;
     const TYPES = [["inf", "Пехота"], ["mag", "Маги"], ["mrk", "Стрелки"], ["cav", "Кавалерия"]];
     const TN = Object.fromEntries(TYPES);
-    const TGM = /[?&]tgapp=1/.test(location.search);   // мини-приложение Telegram: карточки компактнее
+    const TGM = /[?&]tgapp=1/.test(location.search) || !!window.WOLFICH_DC;   // мини-приложение Telegram: карточки компактнее
     const TIERC = ["#6b6f7a", "#9aa0a6", "#4caf50", "#3d8bfd", "#9b59d0", "#e6b34f"];
     const HERO = (n) => (typeof COD_ALLH !== "undefined" ? COD_ALLH : []).find(h => h.n === n) || null;
     const heroIn = (n) => (n && EN() && HERO(n) ? T(n) : n || "");   // имя героя в поле формы — на языке страницы
@@ -16411,26 +16452,31 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     if (!fromHash()) home();
     /* ---------- мини-приложение Telegram (бот напоминаний → кнопка «Альянс»): сайт с параметром ?tgapp=1 ----------
        Вход — по подписи Telegram (тот же аккаунт, что на сайте), данные — те же, что на сайте. Каждая функция — своя вкладка. */
-    if (/[?&]tgapp=1/.test(location.search)) (function tgApp() {
+    if (/[?&]tgapp=1/.test(location.search) || window.WOLFICH_DC) (function tgApp() {
+        const DC = !!window.WOLFICH_DC, DCID = "1564595594385952818";   // Discord: «Активность» приложения WOLFICH Альянс (Application ID)
         const W = window.Telegram && window.Telegram.WebApp, NT = "https://wolfich-notify.wolfichplay.workers.dev";
         const KEY = "wolfich_tg_v1", root = document.documentElement;
         root.classList.add("tgapp");
         try { W.ready(); W.expand(); if (W.setHeaderColor) W.setHeaderColor("#0f0c1d"); if (W.setBackgroundColor) W.setBackgroundColor("#0f0c1d"); } catch (e) { /* не в Telegram */ }
-        const TABS = [["list", "👥", "Участники", "Members"], ["card", "🪪", "Моя карточка", "My card"], ["form", "✏️", "Заполнить", "Fill in"], ["row", "🗺", "План RoW", "RoW plan"], ["ntf", "🔔", "Уведомления", "Notifications"]];
+        const TABS = [["list", "👥", "Участники", "Members"], ["card", "🪪", "Моя карточка", "My card"], ["form", "✏️", "Заполнить", "Fill in"], ["row", "🗺", "План RoW", "RoW plan"], DC ? ["link", "🔗", "Связь с сайтом", "Site link"] : ["ntf", "🔔", "Уведомления", "Notifications"]];
         let tab = "list";
         try { tab = sessionStorage.getItem("tga_tab") || "list"; } catch (e) {}
+        if (!TABS.some((t) => t[0] === tab)) tab = "list";
         const bar = document.createElement("div"); bar.className = "tga-tabs"; bar.id = "tgaTabs";
         const mem = $("alTbl").closest(".card"); if (mem) mem.id = "alMembers";
         const ntf = document.createElement("div"); ntf.className = "card al-card"; ntf.id = "tgaNtf";
         const cardMsg = document.createElement("div"); cardMsg.className = "al-note"; cardMsg.id = "tgaNoCard";
         $("alView").insertBefore(bar, $("alView").children[1] || null); $("alView").appendChild(ntf); if (mem) mem.insertBefore(cardMsg, $("alTbl"));
+        const dcl = document.createElement("div"); dcl.className = "card al-card"; dcl.id = "dcLink";
+        if (DC) { $("alHome").before(bar); $("alHome").before(dcl); }   // Discord: вкладки и «Связь с сайтом» видны и без открытого альянса
         const lk = document.createElement("div"); lk.className = "card al-card"; lk.id = "tgaLinks"; lk.appendChild($("alLinks")); $("alView").appendChild(lk);   // ссылки-приглашения — внизу вкладки «Участники»
         const rowMsg = document.createElement("div"); rowMsg.className = "card al-card al-note"; rowMsg.id = "tgaRowMsg"; $("alView").insertBefore(rowMsg, $("alRowT"));
         const hint = document.createElement("div"); hint.className = "al-note tga-hint"; $("alHome").appendChild(hint);
         function drawBar() {
             bar.innerHTML = TABS.map((t) => '<button type="button" data-tga="' + t[0] + '" class="' + (t[0] === tab ? "on" : "") + '"><img alt="" src="img/tga-' + t[0] + '.webp"><span>' + esc(L(t[2], t[3])) + "</span></button>").join("");
             bar.querySelectorAll("[data-tga]").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tga)));
-            hint.textContent = L("Здесь те же альянсы, что на сайте. Если на сайт вы входили через Google — привяжите Telegram в профиле сайта, и альянсы появятся здесь.", "These are the same alliances as on the site. If you signed in to the site with Google — link Telegram in the site profile and your alliances will appear here.");
+            hint.textContent = DC ? L("Здесь те же альянсы, что на сайте. Уже есть карточка на сайте? Привяжите Discord во вкладке «Связь с сайтом» — альянсы появятся здесь. Новый участник — вставьте ссылку-приглашение от офицера.", "These are the same alliances as on the site. Already have a card on the site? Link Discord on the “Site link” tab and your alliances will appear here. New member — paste the invite link from an officer.")
+                : L("Здесь те же альянсы, что на сайте. Если на сайт вы входили через Google — привяжите Telegram в профиле сайта, и альянсы появятся здесь.", "These are the same alliances as on the site. If you signed in to the site with Google — link Telegram in the site profile and your alliances will appear here.");
         }
         function setTab(k) {
             tab = k; root.dataset.tgtab = k; try { sessionStorage.setItem("tga_tab", k); } catch (e) {}
@@ -16440,6 +16486,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             cardSync();
             if (k === "row") rowMsg.textContent = $("alRowT").style.display === "none" ? L("Планов RoW пока нет — их создают офицеры в планере.", "No RoW plans yet — officers create them in the planner.") : "";
             if (k === "ntf") ntfLoad();
+            if (k === "link") linkDraw();
             window.scrollTo(0, 0);
         }
         /* уведомления в Telegram: что присылать (настройка общая для всех альянсов аккаунта) */
@@ -16456,9 +16503,42 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             }));
         }
         async function ntfLoad() { ntfDraw(); try { const j = await call({ op: "ntfget" }); if (j.ok) { nState = j.ntf; ntfDraw(); } } catch (e) { ntfDraw({ t: L("Нет связи с сервером", "No connection to the server"), bad: true }); } }
+        /* Discord: связь с аккаунтом сайта — код из профиля сайта (6 символов, 15 мин) */
+        let dcLinked = null, linkMsg = null;
+        function linkDraw() {
+            if (!DC) return;
+            const t = (() => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } })();
+            const head = '<h2 class="al-h">' + esc(L("Связь с сайтом", "Site link")) + "</h2>";
+            const msg = linkMsg ? '<div class="tk-msg ' + (linkMsg.bad ? "err" : "ok") + '" style="display:block">' + esc(linkMsg.t) + "</div>" : "";
+            if (dcLinked) { dcl.innerHTML = head + '<div class="al-note">' + esc(L("✅ Discord привязан к аккаунту сайта", "✅ Discord is linked to the site account") + (t && t.name ? " «" + t.name + "»" : "") + ". " + L("Здесь те же альянсы и карточки, что на сайте.", "The same alliances and cards as on the site.")) + "</div>" + msg; return; }
+            dcl.innerHTML = head + '<div class="al-note">' + esc(L("Уже заполняли карточку на сайте? Свяжите Discord с аккаунтом сайта — тогда здесь будут ваши альянсы и карточка.", "Already filled in a card on the site? Link Discord to your site account — your alliances and card will appear here.")) + "</div>" +
+                '<ol class="tga-steps"><li>' + esc(L("Откройте сайт в браузере и войдите: ", "Open the site in a browser and sign in: ")) + '<a href="https://wolfichxxx.github.io/CODWOLFICH/#profile">wolfichxxx.github.io/CODWOLFICH</a></li><li>' +
+                esc(L("Профиль → «Привязать Discord» — появится код из 6 символов.", "Profile → “Link Discord” — a 6-character code appears.")) + "</li><li>" + esc(L("Введите код здесь:", "Enter the code here:")) + "</li></ol>" +
+                '<div class="tga-code"><input class="al-in" id="dcCode" maxlength="7" autocomplete="off" spellcheck="false" placeholder="ABC123"><button class="btn" type="button" id="dcGo">' + esc(L("Связать", "Link")) + "</button></div>" + msg +
+                '<div class="al-note">' + esc(L("Нет карточки на сайте — ничего делать не нужно: вступите в альянс по ссылке-приглашению и заполните карточку здесь.", "No card on the site — nothing to do: join the alliance with an invite link and fill in your card here.")) + "</div>";
+            const go = async () => {
+                const c = String($("dcCode").value || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); if (c.length !== 6) { linkMsg = { t: L("Код — 6 символов", "The code has 6 characters"), bad: true }; return linkDraw(); }
+                $("dcGo").disabled = true;
+                try {
+                    const r = await pfTgFetch("dlink", { code: c });
+                    if (r.j && r.j.ok && r.j.token) {
+                        localStorage.setItem(KEY, JSON.stringify({ token: r.j.token, uid: r.j.uid, name: r.j.name })); dcLinked = true;
+                        linkMsg = { t: L("Готово! Альянсы с сайта загружаются…", "Done! Loading your alliances from the site…") }; window.dispatchEvent(new Event("wolfich-tg")); linkDraw();
+                        autoOpened = false; await home(); for (let i = 0; i < 20 && !autoOpened; i++) { autoOpen(); if (!autoOpened) await new Promise((rs) => setTimeout(rs, 250)); }
+                        return;
+                    }
+                    linkMsg = { t: (r.j && r.j.error) || L("Не получилось", "Failed"), bad: true };
+                } catch (e) { linkMsg = { t: L("Нет связи с сервером", "No connection to the server"), bad: true }; }
+                linkDraw();
+            };
+            $("dcGo").addEventListener("click", go); $("dcCode").addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+        }
         /* «назад» Telegram: из планера — в альянс, из альянса — к списку альянсов */
         const goAlly = () => { const b = document.querySelector('.nav-item[data-page="ally"]'); if (b) b.click(); };
+        const dcBack = document.createElement("button"); dcBack.type = "button"; dcBack.className = "dc-back"; dcBack.addEventListener("click", () => goAlly());
+        if (DC) document.body.appendChild(dcBack);
         function backSync() {
+            if (DC) { const act = document.querySelector(".page.active"); dcBack.textContent = "← " + L("Альянс", "Alliance"); dcBack.style.display = act && act.id !== "page-ally" ? "" : "none"; return; }
             if (!W || !W.BackButton) return;
             const act = document.querySelector(".page.active"), onAlly = act && act.id === "page-ally", inView = $("alView").style.display !== "none";
             const many = Object.keys(load()).length > 1;
@@ -16487,7 +16567,30 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             const ids = Object.keys(load()); if (ids.length !== 1) return;
             autoOpened = true; const it = $("alList").querySelector(".al-item"); if (it) it.click();
         }
+        async function dcAuth() {   // Discord: SDK → authorize (код) → сервер меняет код на пользователя Discord → сессия сайта
+            hint.textContent = L("Вход через Discord…", "Signing in with Discord…");
+            try {
+                if (!window.WolfDiscordSDK) throw new Error("SDK");
+                const S = new window.WolfDiscordSDK(DCID);
+                await Promise.race([S.ready(), new Promise((_, rj) => setTimeout(() => rj(new Error("timeout")), 15000))]);
+                window.WOLFICH_DCOPEN = (u) => { try { S.commands.openExternalLink({ url: u }); } catch (e) {} };
+                const a = await S.commands.authorize({ client_id: DCID, response_type: "code", state: "", prompt: "none", scope: ["identify"] });
+                const r = await fetch(NT + "?r=dcwa", { method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ code: a && a.code, lang: EN() ? "en" : "ru" }) });
+                const j = await r.json(); if (!j.token) throw new Error(j.error || "auth");
+                dcLinked = !!j.linked;
+                let cur = {}; try { cur = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) {}
+                if (cur.uid !== j.uid || cur.token !== j.token) { localStorage.setItem(KEY, JSON.stringify({ token: j.token, uid: j.uid, name: j.name })); window.dispatchEvent(new Event("wolfich-tg")); }
+                drawBar(); return true;
+            } catch (e) { hint.textContent = L("Не получилось войти через Discord — закройте и откройте приложение ещё раз.", "Could not sign in with Discord — close and reopen the app.") + " (" + String(e && e.message || e).slice(0, 80) + ")"; return false; }
+        }
         async function auth() {
+            if (DC) {
+                if (!(await dcAuth())) return;
+                goAlly(); await home();
+                for (let i = 0; i < 20 && !autoOpened; i++) { autoOpen(); if (!autoOpened) await new Promise((r) => setTimeout(r, 250)); }
+                if (!dcLinked && !Object.keys(load()).length) setTab("link");   // новый вход из Discord и альянсов нет — сразу подсказка про связь с сайтом
+                return;
+            }
             const init = W && W.initData; if (!init) { hint.textContent = L("Откройте эту страницу из Telegram (бот WOLFICH → «Альянс»).", "Open this page from Telegram (WOLFICH bot → “Alliance”)."); return; }
             try {
                 const r = await fetch(NT + "?r=tgwa", { method: "POST", headers: { "content-type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ initData: init }) });
@@ -16499,7 +16602,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
             for (let i = 0; i < 20 && !autoOpened; i++) { autoOpen(); if (!autoOpened) await new Promise((r) => setTimeout(r, 250)); }
         }
         try { const tl = W && W.initDataUnsafe && W.initDataUnsafe.user && W.initDataUnsafe.user.language_code; if (tl && !localStorage.getItem("wolfich_lang") && window.WI18N && window.WI18N.setLang) window.WI18N.setLang(/^(ru|uk|be|kk)/.test(tl) ? "ru" : "en"); } catch (e) {}
-        window.addEventListener("wi18n", () => { drawBar(); if (tab === "ntf") ntfDraw(); if (tab === "card") setTab("card"); });
+        window.addEventListener("wi18n", () => { drawBar(); if (tab === "ntf") ntfDraw(); if (tab === "link") linkDraw(); if (tab === "card") setTab("card"); });
         setTab(tab); auth();
     })();
     window.WALLY = { heroCard, troopChip };   // для планера RoW: миниатюры марша как в карточке участника
