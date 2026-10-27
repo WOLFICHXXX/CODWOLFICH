@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<script>window.WOLFICH_TGV="202610271431";(function(){var D=document.documentElement,Q=location.search,DC=/\.discordsays\.com$/.test(location.hostname)||/[?&]dcapp=1/.test(Q),TG=/[?&]tgapp=1/.test(Q);
+<script>window.WOLFICH_TGV="202610271444";(function(){var D=document.documentElement,Q=location.search,DC=/\.discordsays\.com$/.test(location.hostname)||/[?&]dcapp=1/.test(Q),TG=/[?&]tgapp=1/.test(Q);
 if(!TG&&!DC)return;D.className+=" tgapp"+(DC?" dcapp":"");window.WOLFICH_DC=DC;
 if(DC){/* Discord: страница в iframe на *.discordsays.com — внешние адреса только через прокси Discord (URL Mappings в Developer Portal) */
 var O=location.origin,M={"wolfich-license.wolfichplay.workers.dev":"/lic","wolfich-notify.wolfichplay.workers.dev":"/ntf","functions.yandexcloud.net":"/yfn","storage.yandexcloud.net":"/ys","cdn.jsdelivr.net":"/jsd","fonts.googleapis.com":"/gfont","fonts.gstatic.com":"/gstat"};
@@ -13999,7 +13999,7 @@ pfSyncSoon(true);
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="tg">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
             '<span class="pf-acc-m' + (I.google ? " on" : "") + '">Google ' + (I.google ? "✓" : "") + "</span>" + (idents && !I.google ? '<span class="pf-acc-g"></span>' : "") +
             (I.tg && I.google ? '<button type="button" class="pf-acc-u" data-unl="google">' + esc(L("Отвязать", "Unlink")) + "</button>" : "") +
-            '<span class="pf-acc-m' + (I.discord ? " on" : "") + '">Discord ' + (I.discord ? "✓" : "") + "</span>" + (idents && !I.discord ? '<button type="button" class="btn secondary small" data-link="dc">' + esc(L("Привязать Discord", "Link Discord")) + "</button>" : "") +
+            (DC_LINK_ON || I.discord ? '<span class="pf-acc-m' + (I.discord ? " on" : "") + '">Discord ' + (I.discord ? "✓" : "") + "</span>" + (DC_LINK_ON && idents && !I.discord ? '<button type="button" class="btn secondary small" data-link="dc">' + esc(L("Привязать Discord", "Link Discord")) + "</button>" : "") : "") +
             "</div>" + (dcLink && !I.discord ? '<div class="pf-acc-dc">' + esc(L("Код для Discord:", "Code for Discord:")) + '<b class="code">' + esc(dcLink.code) + "</b><br>" + esc(L("Откройте в Discord приложение «WOLFICH Альянс» (значок «Активности» в канале) → вкладка «Связь с сайтом» → введите код. Код действует 15 минут.", "In Discord open the “WOLFICH Альянс” app (the Activities icon in a channel) → the “Site link” tab → enter the code. The code is valid for 15 minutes.")) + "</div>" : "") + (tlConf ? '<div class="pf-acc-cf"><div>' + esc(L("Этот Telegram уже зарегистрирован на сайте отдельным аккаунтом" + (tlConf.name ? " «" + tlConf.name + "»" : "") + ". Перенести его в этот аккаунт? Дальше вход через Telegram будет открывать этот аккаунт. Напоминания перейдут сюда, профиль — если здесь он пуст. Альянсы и планеры того аккаунта останутся за ним.",
                 "This Telegram is already registered on the site as a separate account" + (tlConf.name ? " “" + tlConf.name + "”" : "") + ". Move it into this account? Signing in with Telegram will then open this account. Reminders move here, the profile too if this one is empty. Alliances and planners of that account stay with it.")) +
                 '</div><div class="pf-acc-cfb"><button type="button" class="btn small" data-tlmove="1">' + esc(L("Перенести", "Move")) + '</button><button type="button" class="btn secondary small" data-tlno="1">' + esc(L("Отмена", "Cancel")) + "</button></div></div>" : "") +
@@ -14021,6 +14021,7 @@ pfSyncSoon(true);
     const TLK = "wolfich_tlink";
     let tlTimer = 0, tlBusy = false, tlConf = null;
     let dcLink = null, dcTimer = 0;   // привязка Discord (код)
+    const DC_LINK_ON = false;   // «Привязать Discord» скрыта, пока приложение не прошло проверку Discord (сервер и вход из Discord уже готовы)
     const tlGet = () => { try { const o = JSON.parse(sessionStorage.getItem(TLK) || "null"); return o && o.code && Date.now() - o.at < 1800000 ? o : null; } catch (e) { return null; } };
     const tlSet = (o) => { try { if (o) sessionStorage.setItem(TLK, JSON.stringify(o)); else sessionStorage.removeItem(TLK); } catch (e) {} };
     async function tlCheck() {
