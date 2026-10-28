@@ -170,6 +170,29 @@
   <div class="note" style="margin:2px 0 10px" data-t="Тир узнаётся по цвету значка: серый Т1, зелёный Т2, синий Т3, фиолетовый Т4, золотой Т5. «Как в боте» — взять тир из настроек программы (⚙ Настройки → Обучение войск). Количество — сколько предлагает игра, «Мгновенно» за самоцветы бот не нажимает.|Tier is recognised by the badge colour: grey T1, green T2, blue T3, purple T4, gold T5. «As in the bot» uses the tier from the program settings (⚙ Settings → Troop training). Amount is what the game offers; the bot never taps «Instant»."></div>
   <button class="main" id="trainBtn" type="button"><span data-t="🪖 Обучить войска|🪖 Train troops"></span></button>
   <div class="note" style="margin-top:8px" data-t="Бот заберёт готовые войска и поставит обучение во все свободные очереди по выбранным тирам, пришлёт отчёт и поставит напоминание об окончании. Нет свободных казарм и готовых войск — пропустит этот шаг, пришлёт отчёт и напоминания по текущей очереди. Если бот уже работает (автопоход или марши с пульта) — обучит при ближайшем ожидании маршей и продолжит по своему графику; иначе после обучения выключится.|The bot collects ready troops, trains in every free queue with the chosen tiers, reports and sets a reminder for the end. No free barracks and no ready troops — it skips this step, reports and sets reminders for the current queue. If the bot is already working (auto run or remote marches) it trains at the next march wait and keeps its schedule; otherwise it stops after training."></div>
+
+<div class="card">
+  <h2 data-t="Авто-строительство|Auto-build"></h2>
+  <label class="atr"><input type="checkbox" id="abChk"><span class="atr-k"></span><span class="atr-t"><b data-t="Авто-строительство|Auto-build"></b><small id="abSt"></small></span></label>
+  <label class="ttl atm"><span data-t="Проверять строителей каждые|Check builders every"></span>
+    <select id="abmSel">
+      <option value="15" data-t="15 мин|15 min"></option>
+      <option value="30" data-t="30 мин|30 min"></option>
+      <option value="45" data-t="45 мин|45 min"></option>
+      <option value="60" data-t="1 ч|1 h"></option>
+      <option value="90" data-t="1 ч 30 мин|1 h 30 min"></option>
+      <option value="120" data-t="2 ч|2 h"></option>
+      <option value="180" data-t="3 ч|3 h"></option>
+      <option value="240" data-t="4 ч|4 h"></option>
+      <option value="360" data-t="6 ч|6 h"></option>
+      <option value="480" data-t="8 ч|8 h"></option>
+      <option value="720" data-t="12 ч|12 h"></option>
+    </select><small id="abmSt"></small></label>
+  <label class="ttl atm"><span data-t="Строителей|Builders"></span>
+    <select id="abnSel"><option value="1">1</option><option value="2">2</option></select></label>
+  <label class="atr"><input type="checkbox" id="abtChk"><span class="atr-k"></span><span class="atr-t"><b data-t="Титул перед строительством|Title before building"></b><small data-t="«Архимаг» (+10% к скорости постройки), затем стройка|«Archmage» (+10% build speed), then building"></small></span></label>
+  <div class="note" style="margin-top:8px" data-t="Бот смотрит строителей в панели очередей. Свободный строитель — строит то, что предлагает игра: новое здание или улучшение, и просит помощь альянса. Не хватает ресурсов — пропускает. Самоцветы не тратит. Строит, когда все марши отправлены.|The bot checks builders in the queue panel. A free builder builds what the game suggests — a new building or an upgrade — and asks the alliance for help. Not enough resources — skips. Never spends gems. Builds when all marches are out."></div>
+</div>
 </div>
 
 <div class="card">
@@ -326,8 +349,31 @@
         .catch(function (e) { $("atrChk").checked = !on; $("atrChk").disabled = false; $("atrSt").textContent = T("Не отправлено: |Not sent: ") + (e && e.message || e); });
     });
   }
+  var abBound = false;
+  function abSend() {   // v429: авто-строительство — шлём все настройки разом
+    if (!cur) return;
+    ["abChk", "abmSel", "abnSel", "abtChk"].forEach(function (id) { $(id).disabled = true; });
+    api("abuild", { rid: cur.rid, inst: cur.inst, on: $("abChk").checked ? 1 : 0, min: +$("abmSel").value, n: +$("abnSel").value, tt: $("abtChk").checked ? 1 : 0 })
+      .then(function (j) { if (!j || !j.ok) throw new Error(j && j.err || "?"); load(true); })
+      .catch(function (e) { ["abChk", "abmSel", "abnSel", "abtChk"].forEach(function (id) { $(id).disabled = false; }); $("abSt").textContent = T("Не отправлено: |Not sent: ") + (e && e.message || e); });
+  }
+  function abBind() {
+    if (abBound) return; abBound = true;
+    ["abChk", "abmSel", "abnSel", "abtChk"].forEach(function (id) { $(id).addEventListener("change", abSend); });
+  }
+  function abDraw(b, sv) {   // состояние: пока команда не взята — выбранное («ждёт программу»), иначе — что сообщил бот
+    var w = b.abuildWait && b.abuildWait[cur.inst], known = !!w || !!(sv && sv.ab != null);
+    var on = w ? !!w.on : !!(sv && sv.ab), mn = (w && w.min) || (sv && sv.bm) || 60, n = (w && w.n) || (sv && sv.bn) || 2, tt = w ? !!w.tt : !!(sv && sv.bt);
+    if (!$("abmSel").querySelector('option[value="' + mn + '"]')) { var op = document.createElement("option"); op.value = mn; op.textContent = mn >= 60 ? Math.floor(mn / 60) + T(" ч| h") + (mn % 60 ? " " + mn % 60 + T(" мин| min") : "") : mn + T(" мин| min"); $("abmSel").appendChild(op); }
+    var act = document.activeElement;
+    $("abChk").checked = on; if (act !== $("abmSel")) $("abmSel").value = String(mn); if (act !== $("abnSel")) $("abnSel").value = String(n === 1 ? 1 : 2); $("abtChk").checked = tt;
+    ["abChk", "abmSel", "abnSel", "abtChk"].forEach(function (id) { $(id).disabled = !!w; });
+    $("abmSt").textContent = "";
+    $("abSt").textContent = w ? T("⏳ ждёт программу…|⏳ waiting for the program…") : !known ? T("состояние неизвестно — бот обновлённой версии сообщит его сам|state unknown — an updated bot will report it")
+      : on ? T("бот занимает свободных строителей, когда марши отправлены|the bot keeps free builders busy once marches are out") : T("выключено|off");
+  }
   function drawState() {
-    atrBind();
+    atrBind(); abBind();
     var b = cur && bots.filter(function (x) { return x.rid === cur.rid; })[0];
     if (!b) { $("st").textContent = "—"; return; }
     var last = (b.lastTab || {})[cur.inst] || (b.last && (b.last.inst || "") === cur.inst ? b.last : null);
@@ -356,6 +402,7 @@
     $("atmSt").textContent = amw ? T("⏳ ждёт программу…|⏳ waiting for the program…") : tm ? "" : T("бот обновлённой версии сообщит свой интервал|an updated bot will report its interval");
     $("atrSt").textContent = atw ? T("⏳ ждёт программу…|⏳ waiting for the program…") : !atKnown ? T("состояние неизвестно — бот обновлённой версии сообщит его сам|state unknown — an updated bot will report it")
       : atOn ? T("бот сам забирает готовые и ставит новые войска по тирам из своих настроек|the bot collects ready troops and queues new ones by its own tiers") : T("выключено — только по кнопке ниже|off — only by the button below");
+    abDraw(b, sv);
     $("ttlBtn").disabled = tlw; lbl("ttlBtn", tlw ? T("⏳ Заявка ждёт программу…|⏳ Waiting for the program…") : T("👑 Встать в очередь на титул|👑 Queue for the title"));
     var me = emus().filter(function (x) { return x.rid === cur.rid && x.inst === cur.inst; })[0], closed = !!(me && me.known && !me.on);
     if (stw && closed && !stopDrop[cur.rid + "|" + cur.inst]) {   // окно закрыто — бот команду не возьмёт: снимаем её сами
