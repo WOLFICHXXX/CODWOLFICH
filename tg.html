@@ -219,6 +219,12 @@
 </div>
 
 <div class="card">
+  <h2 data-t="Бот|Bot"></h2>
+  <button class="main" id="updBtn" type="button"><span data-t="⟳ Обновить бота|⟳ Update the bot"></span></button>
+  <div class="note" style="margin-top:8px" data-t="Программа проверит, есть ли новая версия бота. Есть — обновится, работающие боты остановятся на несколько секунд и продолжат сами; в этот чат придёт сообщение с новой версией. Нет — напишет, что версия последняя.|The program checks for a new bot version. If there is one, it updates: running bots pause for a few seconds and continue on their own; you will get a message with the new version here. If not, it reports that the version is the latest."></div>
+</div>
+
+<div class="card">
   <h2 data-t="Окна LDPlayer|LDPlayer windows"></h2>
   <button class="main ic ldb" id="multiBtn" type="button"><img src="data:image/webp;base64,UklGRjAFAABXRUJQVlA4WAoAAAAQAAAALwAALwAAQUxQSGkBAAABgF3bdtpIGXc0zMyFME8zjG0wzz9TGQyS3h2Q9a5UQUQwcNs2jl032RU4u99gjCmM6V68fBYRSIQomQgrvVyv9Af1AtXtCAAhGHGOfx40myLQyDfEeUmkdx5+2hT/gli1F5LW439UW+ckE52TRlPZh42fofJKzovFWdEpXjLSY3AZVj1fKelf2L4GPYGcHl8oP4iQaPCTyhTq3XJZUsIoYYAJYKmaywDQG5ACJO+kupZUUU6YjWrbUJAWSy4UM3qEbqlkIClwUSQXwhK5ELWQCbEOsy5EVkU7LB9NntFSZG8UBmEnmkCuiljXYiYiGdAyWuAL8TEDJBUpAgla4Cd+K49cIkG4e4EgApGYCeI6B64+b+CjjjJ8p55WoHw1oXShw2K7C7m/g1WHsPlgcVGYWueypd5KsynMOHym1HrMBz8WEw7e+vQ9PGSh9OPSfAAARMWoiX8et0d+jMzA+t172pX/eNgcDuoZAFZQOCCgAwAAsBQAnQEqMAAwAD49HoxEoiGhEcSAIAPEtgBWHKC/APwA5jKM/S/xr9iKl/yz8AZO/z2TgPFG6dPmA/V3qAegB+unWAegB+qvpq+xX+2H7i+43/cf/TSZfyAygP3fJdsiG/JnmA0gWNXztf77y0fUHsE/yP+of6r1ZvYB6M37HJnMQi4QTUl4vepG2JazbetTndsrY6Xp0K3JiDB/3Utn2x/yKItv2AGJc6tJEjygAP7/hacB2yUNmdVedqWirzcP7yFms0aqKF+0/zcmUroy0lvc/tS8s10RG5jrFX9oiHpRxjl+E2MUYeVeLX2M8QpsrNBS4H/f6D/cnPrJxTqLGvxT8qSinv0yg90td5cor1MHxXX+CrGArJA+NwIKRQ7YFbZlfnis98rt95DhE87QqnrYm9VN2WR13Mj6TIve0rXgwbXyVe1gdtkcZ/eP1yZkZMLdjd93b/RVL9ug+w6s0dz+o0Y1e7gCsfMuP4sZKjiBVPVnXkvFAafhEJPtiL2rnVFYY9WzM88nh05qDP/fp3pVJF7nPnzERyQ12bfYf0BfT/+RjJ/BBH0oDA33+zV7kbawVKdS0nfj8gyCd0QYfTFECv/SSPdFRIn3mRpIFle5p5gK53jAl9oVIFLTo92j/wC/ooAVBDMqb366U1BMFkcjbTL6n+EpHvDfojNsf/eZTm7JpvGn8HWzkDd/0jWvJfzwo4e2vW9NWn+h5/6gP77yI1DRm63uJDC8ZGPiziVYvJvdSGYwsiunKdKygtkrwLbUywA7J5xPTeZ8h8yQvRgjZ9nOjn/Xe4d3BELucTh/k7lZ3HVTipnRRodDXxTXCGZEflzmCgAhhgFGRuKuaMlhBZtvtU/LqWIACMD2z+FqLLVp3MDeisDmGvFfxSE+RDBWoQaJngdFLt9DGL1SjjI79we/kr8W+JDPF663eXgcXGD5apIo55855iq0QVRUCPys39/R4X/JtxyfxLM0VeOPjPFm/xVWMKxO3cgIxnF7GMpmBG39LnP0W0XLuLxG4r28iNxbh+/wqI+qwSpuTxDv7e0x2NJB1wAyMaKVJ8VRf1geYpWiFzJz96FmEwX//Hh/3O9ScyLYsJlY/b/W/NL0oWu2Tb4Mc1zVKfdcxzyi4D+3OgAFi30W3QE8jSBiX73aru4hkjNnikaaTRWzByO4Y5dP5HH6l2Pw2p9U+HNnkkgp5wsA87g/wRwX4g8u7L7ewnfOGFTsYj6IyAAAAA==" alt="" style="width:30px;height:30px;border-radius:7px"><span data-t="Открыть LDMultiPlayer|Open LDMultiPlayer"></span></button>
   <div id="ldList" style="margin-top:10px"></div>
@@ -383,6 +389,8 @@
     $("st").appendChild(document.createTextNode(s));
     var sm = document.createElement("small");
     var aw = !!(b.allyWait && b.allyWait[cur.inst]), rw = !!(b.restartWait && b.restartWait[cur.inst]), pend = !!(b.pending && b.pending[cur.inst]) || aw || rw;
+    var uw = !!(b.updWait && b.updWait[cur.inst]); pend = pend || uw;
+    $("updBtn").disabled = uw; lbl("updBtn", uw ? T("⏳ Ждёт программу…|⏳ Waiting…") : T("⟳ Обновить бота|⟳ Update the bot"));
     $("rstBtn").disabled = rw;
     lbl("rstBtn", rw ? T("⏳ Ждёт программу…|⏳ Waiting…") : T("Перезапустить игру|Restart the game"));
     var xw = !!(b.closeWait && b.closeWait[cur.inst]); pend = pend || xw || !!(b.ldWait && b.ldWait[cur.inst]);
@@ -540,6 +548,15 @@
       msg(T("⏹ Команда отправлена. Программа возьмёт её в течение 30 секунд и напишет в этот чат.|⏹ Command sent. The program will pick it up within 30 seconds and write to this chat."), true);
       load(true);
     }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("clsBtn").disabled = false; });
+  });
+  $("updBtn").addEventListener("click", function () {   // v430: обновить бота удалённо
+    if (!cur) return;
+    $("updBtn").disabled = true; haptic("medium");
+    api("upd", { rid: cur.rid, inst: cur.inst }).then(function (j) {
+      if (!j || !j.ok) { msg(j && j.err || T("Не отправлено|Not sent")); $("updBtn").disabled = false; return; }
+      msg(T("⟳ Команда отправлена. Программа возьмёт её в течение 30 секунд и напишет в этот чат.|⟳ Command sent. The program will pick it up within 30 seconds and write to this chat."));
+      load(true);
+    }).catch(function () { msg(T("Нет связи с сервером|No connection to the server")); $("updBtn").disabled = false; });
   });
   $("rstBtn").addEventListener("click", function () {
     if (!cur) return;
