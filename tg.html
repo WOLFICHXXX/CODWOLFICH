@@ -220,6 +220,7 @@
 
 <div class="card">
   <h2 data-t="Бот|Bot"></h2>
+  <div class="note" id="botVer" style="margin:-2px 0 8px"></div>
   <button class="main" id="updBtn" type="button"><span data-t="⟳ Обновить бота|⟳ Update the bot"></span></button>
   <div class="note" style="margin-top:8px" data-t="Программа проверит, есть ли новая версия бота. Есть — обновится, работающие боты остановятся на несколько секунд и продолжат сами; в этот чат придёт сообщение с новой версией. Нет — напишет, что версия последняя.|The program checks for a new bot version. If there is one, it updates: running bots pause for a few seconds and continue on their own; you will get a message with the new version here. If not, it reports that the version is the latest."></div>
 </div>
@@ -410,6 +411,7 @@
     $("atmSt").textContent = amw ? T("⏳ ждёт программу…|⏳ waiting for the program…") : tm ? "" : T("бот обновлённой версии сообщит свой интервал|an updated bot will report its interval");
     $("atrSt").textContent = atw ? T("⏳ ждёт программу…|⏳ waiting for the program…") : !atKnown ? T("состояние неизвестно — бот обновлённой версии сообщит его сам|state unknown — an updated bot will report it")
       : atOn ? T("бот сам забирает готовые и ставит новые войска по тирам из своих настроек|the bot collects ready troops and queues new ones by its own tiers") : T("выключено — только по кнопке ниже|off — only by the button below");
+    $("botVer").textContent = sv && sv.v ? T("Версия бота: |Bot version: ") + sv.v : T("Версия бота: старше v430 (не сообщает) — обновите в программе кнопкой «⟳ Обновить бота»|Bot version: older than v430 (not reported) — update it in the program with «⟳ Update the bot»");
     abDraw(b, sv);
     $("ttlBtn").disabled = tlw; lbl("ttlBtn", tlw ? T("⏳ Заявка ждёт программу…|⏳ Waiting for the program…") : T("👑 Встать в очередь на титул|👑 Queue for the title"));
     var me = emus().filter(function (x) { return x.rid === cur.rid && x.inst === cur.inst; })[0], closed = !!(me && me.known && !me.on);
