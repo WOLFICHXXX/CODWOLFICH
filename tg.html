@@ -193,6 +193,28 @@
   <label class="atr"><input type="checkbox" id="abtChk"><span class="atr-k"></span><span class="atr-t"><b data-t="Титул перед строительством|Title before building"></b><small data-t="«Архимаг» (+10% к скорости постройки), затем стройка|«Archmage» (+10% build speed), then building"></small></span></label>
   <div class="note" style="margin-top:8px" data-t="Бот смотрит строителей в панели очередей. Свободный строитель — строит то, что предлагает игра: новое здание или улучшение, и просит помощь альянса. Не хватает ресурсов — пропускает. Самоцветы не тратит. Строит, когда все марши отправлены.|The bot checks builders in the queue panel. A free builder builds what the game suggests — a new building or an upgrade — and asks the alliance for help. Not enough resources — skips. Never spends gems. Builds when all marches are out."></div>
 </div>
+<div class="card">
+  <h2 data-t="Авто-исследования|Auto-research"></h2>
+  <label class="atr"><input type="checkbox" id="arChk"><span class="atr-k"></span><span class="atr-t"><b data-t="Авто-исследования|Auto-research"></b><small id="arSt"></small></span></label>
+  <label class="ttl atm"><span data-t="Проверять исследования каждые|Check research every"></span>
+    <select id="armSel">
+      <option value="15" data-t="15 мин|15 min"></option>
+      <option value="30" data-t="30 мин|30 min"></option>
+      <option value="45" data-t="45 мин|45 min"></option>
+      <option value="60" data-t="1 ч|1 h"></option>
+      <option value="90" data-t="1 ч 30 мин|1 h 30 min"></option>
+      <option value="120" data-t="2 ч|2 h"></option>
+      <option value="180" data-t="3 ч|3 h"></option>
+      <option value="240" data-t="4 ч|4 h"></option>
+      <option value="360" data-t="6 ч|6 h"></option>
+      <option value="480" data-t="8 ч|8 h"></option>
+      <option value="720" data-t="12 ч|12 h"></option>
+    </select><small id="armSt"></small></label>
+  <label class="ttl atm"><span data-t="Исследований|Research queues"></span>
+    <select id="arnSel"><option value="1">1</option><option value="2">2</option></select></label>
+  <label class="atr"><input type="checkbox" id="artChk"><span class="atr-k"></span><span class="atr-t"><b data-t="Титул перед исследованиями|Title before research"></b><small data-t="«Верховный учёный» (+5% к скорости исследований), затем исследования|«High Scholar» (+5% research speed), then research"></small></span></label>
+  <div class="note" style="margin-top:8px" data-t="Бот смотрит очереди исследований в панели очередей (под строительством). Завершённые — забирает, в свободную ставит то, что предлагает игра, и просит помощь альянса. Не хватает ресурсов — пропускает. Самоцветы не тратит. Изучает, когда все марши отправлены.|The bot checks the research queues in the queue panel (below construction). Collects finished ones, starts what the game suggests in a free queue and asks the alliance for help. Not enough resources — skips. Never spends gems. Researches once all marches are out."></div>
+</div>
 </div>
 
 <div class="card">
@@ -379,8 +401,31 @@
     $("abSt").textContent = w ? T("⏳ ждёт программу…|⏳ waiting for the program…") : !known ? T("состояние неизвестно — бот обновлённой версии сообщит его сам|state unknown — an updated bot will report it")
       : on ? T("бот занимает свободных строителей, когда марши отправлены|the bot keeps free builders busy once marches are out") : T("выключено|off");
   }
+  var arBound = false;
+  function arSend() {   // v433: авто-исследования — все настройки разом
+    if (!cur) return;
+    ["arChk", "armSel", "arnSel", "artChk"].forEach(function (id) { $(id).disabled = true; });
+    api("ares", { rid: cur.rid, inst: cur.inst, on: $("arChk").checked ? 1 : 0, min: +$("armSel").value, n: +$("arnSel").value, tt: $("artChk").checked ? 1 : 0 })
+      .then(function (j) { if (!j || !j.ok) throw new Error(j && j.err || "?"); load(true); })
+      .catch(function (e) { ["arChk", "armSel", "arnSel", "artChk"].forEach(function (id) { $(id).disabled = false; }); $("arSt").textContent = T("Не отправлено: |Not sent: ") + (e && e.message || e); });
+  }
+  function arBind() {
+    if (arBound) return; arBound = true;
+    ["arChk", "armSel", "arnSel", "artChk"].forEach(function (id) { $(id).addEventListener("change", arSend); });
+  }
+  function arDraw(b, sv) {
+    var w = b.aresWait && b.aresWait[cur.inst], known = !!w || !!(sv && sv.ar != null);
+    var on = w ? !!w.on : !!(sv && sv.ar), mn = (w && w.min) || (sv && sv.rm) || 60, n = (w && w.n) || (sv && sv.rn) || 2, tt = w ? !!w.tt : !!(sv && sv.rt);
+    if (!$("armSel").querySelector('option[value="' + mn + '"]')) { var op = document.createElement("option"); op.value = mn; op.textContent = mn >= 60 ? Math.floor(mn / 60) + T(" ч| h") + (mn % 60 ? " " + mn % 60 + T(" мин| min") : "") : mn + T(" мин| min"); $("armSel").appendChild(op); }
+    var act = document.activeElement;
+    $("arChk").checked = on; if (act !== $("armSel")) $("armSel").value = String(mn); if (act !== $("arnSel")) $("arnSel").value = String(n === 1 ? 1 : 2); $("artChk").checked = tt;
+    ["arChk", "armSel", "arnSel", "artChk"].forEach(function (id) { $(id).disabled = !!w; });
+    $("armSt").textContent = "";
+    $("arSt").textContent = w ? T("⏳ ждёт программу…|⏳ waiting for the program…") : !known ? T("состояние неизвестно — бот обновлённой версии сообщит его сам|state unknown — an updated bot will report it")
+      : on ? T("бот занимает свободные очереди исследований, когда марши отправлены|the bot keeps research queues busy once marches are out") : T("выключено|off");
+  }
   function drawState() {
-    atrBind(); abBind();
+    atrBind(); abBind(); arBind();
     var b = cur && bots.filter(function (x) { return x.rid === cur.rid; })[0];
     if (!b) { $("st").textContent = "—"; return; }
     var last = (b.lastTab || {})[cur.inst] || (b.last && (b.last.inst || "") === cur.inst ? b.last : null);
@@ -413,6 +458,7 @@
       : atOn ? T("бот сам забирает готовые и ставит новые войска по тирам из своих настроек|the bot collects ready troops and queues new ones by its own tiers") : T("выключено — только по кнопке ниже|off — only by the button below");
     $("botVer").textContent = sv && sv.v ? T("Версия бота: |Bot version: ") + sv.v : T("Версия бота: старше v430 (не сообщает) — обновите в программе кнопкой «⟳ Обновить бота»|Bot version: older than v430 (not reported) — update it in the program with «⟳ Update the bot»");
     abDraw(b, sv);
+    arDraw(b, sv);
     $("ttlBtn").disabled = tlw; lbl("ttlBtn", tlw ? T("⏳ Заявка ждёт программу…|⏳ Waiting for the program…") : T("👑 Встать в очередь на титул|👑 Queue for the title"));
     var me = emus().filter(function (x) { return x.rid === cur.rid && x.inst === cur.inst; })[0], closed = !!(me && me.known && !me.on);
     if (stw && closed && !stopDrop[cur.rid + "|" + cur.inst]) {   // окно закрыто — бот команду не возьмёт: снимаем её сами
