@@ -188,8 +188,8 @@ details.q>div{padding:0 14px 12px;color:#e3ddd0}
     <figure data-shot="key"><figcaption><span class="ru">Окно первого запуска — ввод ключа</span><span class="en">First launch — enter the key</span></figcaption></figure>
     <figure data-shot="head"><figcaption><span class="ru">Шапка: сколько ещё действует ключ и переключатель языка RU / EN</span><span class="en">Header: time left on the key and the RU / EN switch</span></figcaption></figure>
   </div>
-  <div class="tip ru">Ключ привязывается к первому компьютеру, на котором его ввели. Для переноса на другой компьютер напишите в поддержку. Сменить ключ — кнопка <span class="btnlike">Сменить ключ</span> под кнопками бота.</div>
-  <div class="tip en">The key is bound to the first computer it was entered on. To move it to another computer, contact support. To change the key, use <span class="btnlike">Change key</span> under the bot buttons.</div>
+  <div class="tip ru">Ключ привязывается к первому компьютеру, на котором его ввели. Для переноса на другой компьютер напишите в поддержку. Сменить ключ — кнопка <span class="btnlike">Сменить ключ</span> на вкладке «Эмулятор» → «Программа».</div>
+  <div class="tip en">The key is bound to the first computer it was entered on. To move it to another computer, contact support. To change the key, use <span class="btnlike">Change key</span> on the “Emulator” tab → “Program”.</div>
   <p class="ru"><b>Обновление программы:</b> распакуйте новый архив поверх старой папки (с заменой файлов) и запустите SETUP.bat — скачивать Electron заново не придётся.</p>
   <p class="en"><b>Updating the app:</b> unzip the new archive over the old folder (replacing files) and run SETUP.bat — Electron is not downloaded again.</p>
 </section>
@@ -269,137 +269,313 @@ details.q>div{padding:0 14px 12px;color:#e3ddd0}
   <h2><span class="num">5</span><span class="ru">Подключение бота к эмулятору</span><span class="en">Connecting the bot to the emulator</span></h2>
   <ol class="steps ru">
     <li>Запустите LDPlayer и игру, откройте карту или город.</li>
-    <li>В блоке <b>«Эмулятор LDPlayer»</b> нажмите <span class="btnlike">Найти LDPlayer</span>. Если не нашёлся — впишите папку, куда установлен LDPlayer (в ней лежит <b>adb.exe</b>).</li>
+    <li>В программе откройте вкладку <b>«Эмулятор»</b> и нажмите <span class="btnlike">Найти LDPlayer</span>. Если не нашёлся — впишите папку, куда установлен LDPlayer (в ней лежит <b>adb.exe</b>).</li>
     <li>Нажмите <span class="btnlike">Подключить</span> — появится снимок экрана игры и список эмуляторов.</li>
-    <li>Проверьте управление тестами ниже — и можно запускать бота.</li>
+    <li>При желании проверьте управление в блоке <b>«Диагностика»</b> — и можно запускать бота.</li>
   </ol>
   <ol class="steps en">
     <li>Start LDPlayer and the game, open the map or the city.</li>
-    <li>In the <b>“LDPlayer emulator”</b> block press <span class="btnlike">Find LDPlayer</span>. If it isn't found, enter the folder where LDPlayer is installed (the one with <b>adb.exe</b>).</li>
+    <li>In the app open the <b>“Emulator”</b> tab and press <span class="btnlike">Find LDPlayer</span>. If it isn't found, enter the folder where LDPlayer is installed (the one with <b>adb.exe</b>).</li>
     <li>Press <span class="btnlike">Connect</span> — a screenshot of the game and the list of emulators appear.</li>
-    <li>Check the controls with the tests below — then you can start the bot.</li>
+    <li>Optionally check the controls in the <b>“Diagnostics”</b> block — then you can start the bot.</li>
   </ol>
   <figure data-shot="emu"></figure>
   <div class="kv ru">
+    <div class="k">Совместим только с LDPlayer · Скачать / Открыть</div><div class="v">ссылка на ldplayer.net; если LDPlayer уже установлен — открывает менеджер эмуляторов</div>
     <div class="k">Найти LDPlayer</div><div class="v">ищет папку LDPlayer и adb.exe на компьютере</div>
     <div class="k">Подключить</div><div class="v">подключается к эмулятору, показывает снимок игры и список копий LDPlayer</div>
-    <div class="k">Снимок</div><div class="v">новый снимок экрана игры. Клик по снимку — бот нажмёт в это место в эмуляторе</div>
-    <div class="k">Тест свайпа</div><div class="v">карта должна сдвинуться</div>
-    <div class="k">Тест отдаления</div><div class="v">карта отдалится и вернётся. Ошибка доступа к сенсору — включите Root</div>
-    <div class="k">Тест выхода на карту</div><div class="v">запускайте из города: бот выходит на карту ресурсов, показывает «до» и «после»</div>
-    <div class="k">Тест «Назад»</div><div class="v">нажимает системную кнопку «Назад» — «до» и «после»</div>
-    <div class="k">Сохранить снимок</div><div class="v">сохраняет текущий снимок в файл — пригодится для поддержки</div>
   </div>
   <div class="kv en">
+    <div class="k">LDPlayer only · Download / Open</div><div class="v">a link to ldplayer.net; if LDPlayer is installed — opens the emulator manager</div>
     <div class="k">Find LDPlayer</div><div class="v">looks for the LDPlayer folder and adb.exe on the computer</div>
     <div class="k">Connect</div><div class="v">connects to the emulator, shows a game screenshot and the list of LDPlayer copies</div>
-    <div class="k">Screenshot</div><div class="v">a fresh game screenshot. Click on it — the bot taps that spot in the emulator</div>
-    <div class="k">Swipe test</div><div class="v">the map should move</div>
-    <div class="k">Zoom-out test</div><div class="v">the map zooms out and back. Touch-sensor access error — turn on Root</div>
-    <div class="k">Map exit test</div><div class="v">run it from the city: the bot goes to the resource map and shows “before” and “after”</div>
-    <div class="k">“Back” test</div><div class="v">presses the system “Back” button — “before” and “after”</div>
-    <div class="k">Save screenshot</div><div class="v">saves the current screenshot to a file — useful for support</div>
   </div>
-</section>
-
-<!-- 6 -->
-<section class="sec" id="main" data-ico="⚔️" data-t="Главный экран|Main screen">
-  <h2><span class="num">6</span><span class="ru">Главный экран «Автопоход»</span><span class="en">The “Auto-Gather” main screen</span></h2>
+  <h3 id="s-diag"><span class="ru">Диагностика</span><span class="en">Diagnostics</span></h3>
   <div class="row rev">
-    <figure data-shot="main"></figure>
+    <figure class="n" data-shot="diag"></figure>
     <div>
-      <p class="ru">Здесь вы задаёте <b>план</b>: сколько маршей держать на каждом ресурсе. Бот сам отправляет легионы и, когда они возвращаются, отправляет снова.</p>
-      <p class="en">Here you set the <b>plan</b>: how many marches to keep on each resource. The bot sends legions itself and resends them when they come back.</p>
       <div class="kv ru">
-        <div class="k">Мана · Руда · Дерево · Золото · Самоцветы</div><div class="v">сколько легионов держать на каждом ресурсе</div>
-        <div class="k">Всего слотов</div><div class="v">сколько легионов у вас может быть на карте одновременно (обычно 5). Сумма по ресурсам не должна его превышать</div>
-        <div class="k">Шагов поиска</div><div class="v">сколько раз бот сдвигает карту в поисках ресурса, прежде чем отложить поиск. Больше — ищет дальше, но дольше</div>
-        <div class="k">Проверка маршей · каждые</div><div class="v">как часто бот проверяет марши, когда все слоты заняты или план выполнен (часы и минуты)</div>
-        <div class="k">Сейчас</div><div class="v">что бот делает в эту минуту</div>
-        <div class="k">Всего по плану</div><div class="v">сумма по ресурсам из числа слотов — подсказка, если план не заполнен</div>
+        <div class="k">Снимок</div><div class="v">новый снимок экрана игры. Клик по снимку — бот нажмёт в это место в эмуляторе</div>
+        <div class="k">Сохранить снимок</div><div class="v">сохраняет текущий снимок в файл — пригодится для поддержки</div>
+        <div class="k">Свайп · Отдаление</div><div class="v">карта должна сдвинуться / отдалиться и вернуться. Ошибка доступа к сенсору — включите Root</div>
+        <div class="k">Выход на карту</div><div class="v">запускайте из города: бот выходит на карту ресурсов, показывает «до» и «после»</div>
+        <div class="k">«Назад»</div><div class="v">нажимает системную кнопку «Назад» — «до» и «после»</div>
+        <div class="k">🐞 Баг репорт</div><div class="v">описание проблемы + снимок игры + журнал бота уходят разработчику</div>
+        <div class="k">📦 Образцы</div><div class="v">кадры, которые бот собрал для обучения распознаванию: просмотр, исправление пометок, выгрузка архивом</div>
       </div>
       <div class="kv en">
-        <div class="k">Mana · Ore · Wood · Gold · Gems</div><div class="v">how many legions to keep on each resource</div>
-        <div class="k">Total slots</div><div class="v">how many legions you can have on the map at once (usually 5). The sum of resources must not exceed it</div>
-        <div class="k">Search steps</div><div class="v">how many times the bot moves the map looking for a resource before postponing. More — searches farther, but longer</div>
-        <div class="k">March check · every</div><div class="v">how often the bot checks marches when all slots are busy or the plan is met (hours and minutes)</div>
-        <div class="k">Now</div><div class="v">what the bot is doing right now</div>
-        <div class="k">Plan total</div><div class="v">the sum of resources out of the slots — a hint if the plan is empty</div>
+        <div class="k">Screenshot</div><div class="v">a fresh game screenshot. Click on it — the bot taps that spot in the emulator</div>
+        <div class="k">Save screenshot</div><div class="v">saves the current screenshot to a file — useful for support</div>
+        <div class="k">Swipe · Zoom-out</div><div class="v">the map should move / zoom out and back. Touch-sensor access error — turn on Root</div>
+        <div class="k">Map exit</div><div class="v">run it from the city: the bot goes to the resource map and shows “before” and “after”</div>
+        <div class="k">“Back”</div><div class="v">presses the system “Back” button — “before” and “after”</div>
+        <div class="k">🐞 Bug report</div><div class="v">your description + a game screenshot + the bot log go to the developer</div>
+        <div class="k">📦 Samples</div><div class="v">frames the bot collected to improve recognition: view, fix labels, export as an archive</div>
+      </div>
+    </div>
+  </div>
+  <h3 id="s-prog"><span class="ru">Программа</span><span class="en">Program</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="prog"></figure>
+    <div>
+      <div class="kv ru">
+        <div class="k">Сменить ключ</div><div class="v">ввести другой ключ доступа</div>
+        <div class="k">⟳ Обновить бота</div><div class="v">проверить и поставить свежую версию модуля. Работающие боты остановятся на несколько секунд и продолжат сами — настройки и память маршей сохранятся. «!» на кнопке — вышло важное обновление</div>
+      </div>
+      <div class="kv en">
+        <div class="k">Change key</div><div class="v">enter another access key</div>
+        <div class="k">⟳ Update bot</div><div class="v">check and install the latest module. Running bots pause for a few seconds and continue — settings and march memory are kept. “!” on the button — an important update is out</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 7 -->
-<section class="sec" id="buttons" data-ico="🕹" data-t="Кнопки и журнал|Buttons and log">
-  <h2><span class="num">7</span><span class="ru">Кнопки управления и журнал</span><span class="en">Control buttons and the log</span></h2>
-  <figure data-shot="ctl"></figure>
+<!-- 6 -->
+<section class="sec" id="tabs" data-ico="🗂" data-t="Окно программы|App window">
+  <h2><span class="num">6</span><span class="ru">Окно программы: вкладки</span><span class="en">The app window: tabs</span></h2>
+  <figure data-shot="nav"></figure>
+  <p class="ru">Вверху — название, метка «ТЕСТ» у тестового бота и состояние: <b>Работает</b>, <b>Пауза</b> или <b>Остановлен</b>. Ниже — пять вкладок:</p>
+  <p class="en">At the top — the name, the “TEST” badge for the test bot and the state: <b>Running</b>, <b>Paused</b> or <b>Stopped</b>. Below — five tabs:</p>
   <div class="kv ru">
-    <div class="k">Старт</div><div class="v">запуск автопохода. Игра может быть открыта на карте или в городе</div>
-    <div class="k">Обучить войска</div><div class="v">обучить войска прямо сейчас по тирам из ⚙ Настроек. Если бот уже работает — обучит при ближайшем ожидании маршей</div>
-    <div class="k">Стоп</div><div class="v">полная остановка бота</div>
-    <div class="k">Сбросить память</div><div class="v">забыть занятые точки и историю отправок. Помогает, если бот отправил лишний марш или считает свободный легион занятым</div>
-    <div class="k">Сменить ключ</div><div class="v">ввести другой ключ доступа</div>
-    <div class="k">🐞 Баг репорт</div><div class="v">описание проблемы + снимок игры + журнал бота уходят разработчику</div>
-    <div class="k">📦 Образцы</div><div class="v">кадры, которые бот собрал для обучения распознаванию: просмотр, исправление пометок, выгрузка архивом</div>
-    <div class="k">⟳ Обновить бота</div><div class="v">проверить и поставить свежую версию модуля. Работающие боты остановятся на несколько секунд и продолжат сами — настройки и память маршей сохранятся. «!» на кнопке — вышло важное обновление</div>
+    <div class="k">Главная</div><div class="v">запуск и остановка, что бот делает сейчас, когда следующие проверки, журнал</div>
+    <div class="k">Задачи</div><div class="v">все блоки бота по приоритету и их настройки: график, перезапуск игры, капча, обход персонажей, обучение, марши, стройка, исследования, альянс</div>
+    <div class="k">Эмулятор</div><div class="v">подключение LDPlayer, диагностика, смена ключа и обновление бота</div>
+    <div class="k">Пульт</div><div class="v">подключение пульта WOLFICH REMOTE в Telegram</div>
+    <div class="k">Справка</div><div class="v">кратко о вкладках и кнопка «Открыть руководство» — эта страница</div>
   </div>
   <div class="kv en">
-    <div class="k">Start</div><div class="v">starts auto-gather. The game may be open on the map or in the city</div>
-    <div class="k">Train troops</div><div class="v">train troops right now with the tiers from ⚙ Settings. If the bot is already running, it trains at the next wait for marches</div>
-    <div class="k">Stop</div><div class="v">stops the bot completely</div>
-    <div class="k">Reset memory</div><div class="v">forget occupied spots and send history. Helps if the bot sent an extra march or thinks a free legion is busy</div>
-    <div class="k">Change key</div><div class="v">enter another access key</div>
-    <div class="k">🐞 Bug report</div><div class="v">your description + a game screenshot + the bot log go to the developer</div>
-    <div class="k">📦 Samples</div><div class="v">frames the bot collected to improve recognition: view, fix labels, export as an archive</div>
-    <div class="k">⟳ Update bot</div><div class="v">check and install the latest module. Running bots pause for a few seconds and continue — settings and march memory are kept. “!” on the button — an important update is out</div>
+    <div class="k">Home</div><div class="v">start and stop, what the bot is doing, when the next checks are, the log</div>
+    <div class="k">Tasks</div><div class="v">all bot blocks by priority and their settings: schedule, game restart, captcha, character rotation, training, marches, building, research, alliance</div>
+    <div class="k">Emulator</div><div class="v">LDPlayer connection, diagnostics, changing the key and updating the bot</div>
+    <div class="k">Remote</div><div class="v">connecting the WOLFICH REMOTE remote in Telegram</div>
+    <div class="k">Help</div><div class="v">a short note on the tabs and the “Open the guide” button — this page</div>
+  </div>
+  <div class="tip ru">Программа запоминает, какая вкладка была открыта, и какие карточки в «Задачах» раскрыты.</div>
+  <div class="tip en">The app remembers which tab was open and which cards in “Tasks” are expanded.</div>
+</section>
+
+<!-- 7 -->
+<section class="sec" id="main" data-ico="⚔️" data-t="Главная|Home">
+  <h2><span class="num">7</span><span class="ru">Главная</span><span class="en">Home</span></h2>
+  <div class="row rev">
+    <figure data-shot="main"></figure>
+    <div>
+      <div class="kv ru">
+        <div class="k">Сейчас</div><div class="v">что бот делает в эту минуту — со значком действия (марш, ожидание, обучение, стройка, исследования, обход персонажей, перезапуск)</div>
+        <div class="k">Старт</div><div class="v">запуск бота. Игра может быть открыта на карте или в городе</div>
+        <div class="k">Стоп</div><div class="v">полная остановка бота</div>
+        <div class="k">Сбросить память</div><div class="v">забыть занятые точки, историю отправок, свои марши и память персонажей. Помогает, если бот отправил лишний марш или считает свободный легион занятым</div>
+        <div class="k">Следующие проверки</div><div class="v">когда бот в следующий раз займётся каждым блоком: марши, обход персонажей, обучение, стройка, исследования, помощь альянсу, подарки/территория/технологии, перезапуск игры. Выключенные — серые</div>
+        <div class="k">Журнал</div><div class="v">что бот видел и делал, и время следующей проверки. При любой проблеме журнал — первое, что стоит прислать</div>
+      </div>
+      <div class="kv en">
+        <div class="k">Now</div><div class="v">what the bot is doing right now — with an action icon (march, waiting, training, building, research, character rotation, restart)</div>
+        <div class="k">Start</div><div class="v">starts the bot. The game may be open on the map or in the city</div>
+        <div class="k">Stop</div><div class="v">stops the bot completely</div>
+        <div class="k">Reset memory</div><div class="v">forget occupied spots, send history, your marches and character memory. Helps if the bot sent an extra march or thinks a free legion is busy</div>
+        <div class="k">Next checks</div><div class="v">when the bot will next handle each block: marches, character rotation, training, building, research, alliance help, gifts/territory/technology, game restart. Disabled ones are grey</div>
+        <div class="k">Log</div><div class="v">what the bot saw and did, and when the next check is. With any problem, the log is the first thing to send</div>
+      </div>
+    </div>
   </div>
   <div class="warn ru">Пока бот работает, <b>не трогайте игру в эмуляторе</b> — сначала нажмите «Стоп». Окно LDPlayer можно перекрывать другими окнами; если при свёрнутом окне бот перестаёт видеть игру — не сворачивайте его.</div>
   <div class="warn en">While the bot runs, <b>don't touch the game in the emulator</b> — press “Stop” first. The LDPlayer window may be covered by other windows; if the bot stops seeing the game when it's minimized, don't minimize it.</div>
-  <p class="ru"><b>Журнал</b> под кнопками показывает, что бот видел и делал, и время следующей проверки. При любой проблеме журнал — первое, что стоит прислать.</p>
-  <p class="en">The <b>log</b> under the buttons shows what the bot saw and did, and when the next check is. With any problem, the log is the first thing to send.</p>
 </section>
 
 <!-- 8 -->
-<section class="sec" id="settings" data-ico="⚙️" data-t="Настройки ⚙|Settings ⚙">
-  <h2><span class="num">8</span><span class="ru">Настройки ⚙</span><span class="en">Settings ⚙</span></h2>
-  <p class="lead ru">Кнопка <span class="btnlike">⚙ Настройки</span> в блоке «Автопоход» открывает панель справа. Всё здесь работает, пока марши заняты, — между их проверками.</p>
-  <p class="lead en">The <span class="btnlike">⚙ Settings</span> button in the “Auto-Gather” block opens a side panel. Everything here runs while marches are busy — between their checks.</p>
-
-  <h3 id="s-sched"><span class="ru">График работы и перерыв</span><span class="en">Schedule and breaks</span></h3>
+<section class="sec" id="settings" data-ico="⚙️" data-t="Задачи|Tasks">
+  <h2><span class="num">8</span><span class="ru">Задачи</span><span class="en">Tasks</span></h2>
   <div class="row rev">
-    <figure class="n" data-shot="set_sched"></figure>
+    <figure data-shot="tasks"></figure>
+    <div>
+      <p class="lead ru">Каждая задача бота — отдельная карточка. Они стоят <b>по приоритету</b>: номер слева — очередь, верхний блок выполняется первым. Экран игры один, поэтому бот делает дела по очереди: на каждом шаге берёт самый важный блок, которому пора.</p>
+      <p class="lead en">Each bot task is a separate card. They are ordered <b>by priority</b>: the number on the left is the order, the top block goes first. There is one game screen, so the bot does things one by one: at each step it takes the most important block that is due.</p>
+      <ul class="ru">
+        <li><b>Переключатель</b> в заголовке включает или выключает блок. Под названием — коротко, как он настроен.</li>
+        <li><b>Нажатие на карточку</b> раскрывает её настройки.</li>
+        <li>Сбой одного блока не ломает остальные: блок отдыхает (1 → 2 → 5 → 10 → 30 мин) и пробует снова; после 5 сбоев подряд выключается до перезапуска бота.</li>
+        <li>Карточки со знаком «·» — общие для всей работы: график и перезапуск игры.</li>
+      </ul>
+      <ul class="en">
+        <li>The <b>switch</b> in the header turns a block on or off. Under the name — a short summary of its settings.</li>
+        <li><b>Tapping a card</b> opens its settings.</li>
+        <li>A failure of one block doesn't break the others: the block rests (1 → 2 → 5 → 10 → 30 min) and tries again; after 5 failures in a row it turns off until the bot restarts.</li>
+        <li>Cards marked “·” apply to the whole work: the schedule and the game restart.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="s-prof"><span class="ru">Настройки для: Общие / Персонаж 1…5</span><span class="en">Settings for: Common / Character 1…5</span></h3>
+  <figure class="n" data-shot="prof"></figure>
+  <p class="ru">Когда включён <b>обход персонажей</b>, вверху «Главной» и «Задач» появляется список <b>«Настройки для»</b>. Выберите «Персонаж N» — всё ниже покажет и изменит настройки только этого персонажа: марши на ресурсах, слоты, шаги поиска и проверку маршей, обучение, стройку, исследования и альянс. Номер — порядок персонажа со звездой в игре.</p>
+  <p class="en">When <b>character rotation</b> is on, a <b>“Settings for”</b> list appears at the top of “Home” and “Tasks”. Pick “Character N” — everything below shows and changes the settings of that character only: marches on resources, slots, search steps and march check, training, building, research and alliance. The number is the order of the starred character in the game.</p>
+  <ul class="ru">
+    <li>Персонаж без своих настроек («· как общие») работает по общим. Первый выбор копирует общие — дальше меняйте только нужное.</li>
+    <li><span class="btnlike">Как в общих</span> — сбросить персонажа на общие настройки.</li>
+    <li>«· в игре» — этот персонаж сейчас в игре.</li>
+    <li>Общими для всех остаются график, перезапуск игры, капча и сам обход. Пульт в Telegram меняет настройки, выбранные в этом списке.</li>
+  </ul>
+  <ul class="en">
+    <li>A character without its own settings (“· as common”) uses the common ones. The first pick copies the common settings — then change only what you need.</li>
+    <li><span class="btnlike">Same as common</span> — reset the character to the common settings.</li>
+    <li>“· in game” — this character is in the game now.</li>
+    <li>The schedule, game restart, captcha and the rotation itself stay common. The Telegram remote changes the settings selected in this list.</li>
+  </ul>
+
+  <h3 id="s-sched"><span class="ru">· График работы и перерыв</span><span class="en">· Schedule and breaks</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_sched"></figure>
     <div>
       <ul class="ru">
-        <li><b>Работать по графику</b> — на каждый день недели задаются часы работы ползунком или временем «с … до …». Вне этих часов бот ничего не делает и ждёт начала.</li>
+        <li><b>Переключатель</b> — работать по графику: на каждый день недели задаются часы работы ползунком или временем «с … до …». Вне этих часов бот ничего не делает и ждёт начала.</li>
         <li><b>Как в понедельник — на все дни</b> — скопировать часы понедельника на всю неделю.</li>
         <li><b>Перерыв</b> — поработав заданное время («работать»), бот отдыхает («отдыхать»), затем продолжает. Похоже на живого игрока.</li>
       </ul>
       <ul class="en">
-        <li><b>Work on a schedule</b> — set working hours for each weekday with the slider or “from … to …”. Outside these hours the bot does nothing and waits.</li>
+        <li><b>The switch</b> — work on a schedule: set working hours for each weekday with the slider or “from … to …”. Outside these hours the bot does nothing and waits.</li>
         <li><b>Copy Monday to all days</b> — copies Monday's hours to the whole week.</li>
         <li><b>Break</b> — after working for the set time (“work”), the bot rests (“rest”) and then continues. Looks like a live player.</li>
       </ul>
     </div>
   </div>
 
-  <h3 id="s-captcha"><span class="ru">Капча</span><span class="en">Captcha</span></h3>
+  <h3 id="s-restart"><span class="ru">· Автоматический перезапуск игры</span><span class="en">· Automatic game restart</span></h3>
   <div class="row rev">
-    <figure class="n" data-shot="set_captcha"></figure>
+    <figure class="n" data-shot="card_rst"></figure>
     <div>
-      <p class="ru">Если в игре появится проверка (капча), бот <b>остановится</b>, покажет окно и пришлёт уведомление в Telegram. Пройдите проверку в игре и нажмите «Старт».</p>
-      <p class="en">If the game shows a check (captcha), the bot <b>stops</b>, shows a window and sends a Telegram notification. Pass the check in the game and press “Start”.</p>
+      <p class="ru">Через заданное время работы бот <b>прерывает любое дело</b>, полностью закрывает Call of Dragons, ждёт и запускает игру снова. Дожидается города, закрывает всплывающие окна и продолжает. Помогает от зависаний и утечек памяти игры. Это самый важный блок — он выше капчи.</p>
+      <p class="en">After the set working time the bot <b>interrupts anything</b>, fully closes Call of Dragons, waits and starts the game again. It waits for the city, closes popups and continues. Helps against game freezes and memory leaks. This is the most important block — above the captcha.</p>
+      <div class="kv ru">
+        <div class="k">закрыть через</div><div class="v">сколько работать до перезапуска (от 30 мин, по умолчанию 6 ч). Отсчёт — от запуска бота или прошлого перезапуска</div>
+        <div class="k">открыть через</div><div class="v">сколько игра стоит закрытой (от 1 мин, по умолчанию 5 мин)</div>
+      </div>
+      <div class="kv en">
+        <div class="k">close after</div><div class="v">how long to work before the restart (from 30 min, 6 h by default). Counted from the bot start or the previous restart</div>
+        <div class="k">open after</div><div class="v">how long the game stays closed (from 1 min, 5 min by default)</div>
+      </div>
+      <p class="ru">Память маршей и персонажей при перезапуске сохраняется. Если поставить бота на паузу, пока игра закрыта, после «Продолжить» он сразу её запустит.</p>
+      <p class="en">March and character memory is kept through the restart. If you pause the bot while the game is closed, it starts the game right after “Resume”.</p>
+    </div>
+  </div>
+
+  <h3 id="s-captcha"><span class="ru">1 · Капча</span><span class="en">1 · Captcha</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_cap"></figure>
+    <div>
+      <p class="ru">Если в игре появится проверка (капча), бот <b>остановится</b>, покажет окно и пришлёт уведомление в Telegram. Пройдите проверку в игре и нажмите «Старт». Блок включён всегда.</p>
+      <p class="en">If the game shows a check (captcha), the bot <b>stops</b>, shows a window and sends a Telegram notification. Pass the check in the game and press “Start”. The block is always on.</p>
       <ul class="ru"><li><b>Подключить Telegram</b> — откроет Telegram, нажмите там «Старт».</li><li><b>Тест уведомления</b> — проверить, что сообщения доходят.</li></ul>
       <ul class="en"><li><b>Connect Telegram</b> — opens Telegram, press “Start” there.</li><li><b>Test alert</b> — check that messages arrive.</li></ul>
     </div>
   </div>
 
-  <h3 id="s-ally"><span class="ru">Альянс</span><span class="en">Alliance</span></h3>
+  <h3 id="s-chars"><span class="ru">2 · Обход персонажей</span><span class="en">2 · Character rotation</span></h3>
   <div class="row rev">
-    <figure class="n" data-shot="set_ally"></figure>
+    <figure class="n" data-shot="card_chars"></figure>
     <div>
-      <p class="ru">Пока все марши заняты, бот заходит в альянс. У каждого пункта — свой интервал «каждые …».</p>
-      <p class="en">While all marches are busy, the bot visits the alliance. Each item has its own “every …” interval.</p>
+      <p class="ru">Бот по очереди заходит в персонажей, <b>отмеченных звездой</b> в игре, и в каждом делает всё по настройкам: обучение, марши, стройку, исследования, альянс.</p>
+      <p class="en">The bot logs into the characters <b>starred</b> in the game one by one and in each does everything per the settings: training, marches, building, research, alliance.</p>
+      <ol class="ru">
+        <li>Профиль (аватар слева вверху) → <b>Настройки</b> → <b>Управление персонажами</b>.</li>
+        <li>Нажимает следующего по порядку персонажа <b>со звездой справа</b> (по имени, не по звезде) → «Подтвердить».</li>
+        <li>Ждёт загрузку, экран загрузки не трогает, всплывающие окна закрывает.</li>
+        <li>В городе работает по настройкам этого персонажа, потом переходит к следующему.</li>
+      </ol>
+      <ol class="en">
+        <li>Profile (avatar top left) → <b>Settings</b> → <b>Character management</b>.</li>
+        <li>Taps the next character <b>with a star on the right</b> (by name, not by the star) → “Confirm”.</li>
+        <li>Waits for loading without touching the loading screen, closes popups.</li>
+        <li>In the city works per this character's settings, then moves to the next one.</li>
+      </ol>
+      <ul class="ru">
+        <li>Не больше <b>5</b> персонажей. 4-й и 5-й ниже в списке — бот листает сам.</li>
+        <li>Переходит, когда у текущего всё сделано: марши отправлены, обучению/стройке/исследованиям/альянсу не пора, титулов не ждёт. Если что-то не получается дольше 30 мин (час, если ждёт титул) — всё равно дальше.</li>
+        <li>Персонажа, которому ещё рано, пропускает. Если пора только текущему — остаётся.</li>
+        <li>У каждого персонажа своя память: марши, точки, сроки обучения, стройки, исследований и альянса. Персонажей бот узнаёт по аватару и имени — если переставить звёзды, память не перепутается.</li>
+        <li>Свои настройки для каждого — список «Настройки для» (см. выше).</li>
+      </ul>
+      <ul class="en">
+        <li>No more than <b>5</b> characters. The 4th and 5th are lower in the list — the bot scrolls by itself.</li>
+        <li>Switches when the current one is done: marches sent, nothing due for training/building/research/alliance, no title awaited. If something fails for over 30 min (an hour when a title is awaited) — moves on anyway.</li>
+        <li>Skips a character that is not due yet. If only the current one is due — stays.</li>
+        <li>Each character has its own memory: marches, spots, training/building/research/alliance times. Characters are recognized by avatar and name — moving the stars won't mix up the memory.</li>
+        <li>Own settings for each — the “Settings for” list (see above).</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="s-train"><span class="ru">3 · Обучение войск</span><span class="en">3 · Troop training</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_train"></figure>
+    <div>
+      <p class="ru">Бот открывает панель очередей: <b>забирает готовые войска</b> и <b>ставит обучение</b> в свободные здания.</p>
+      <p class="en">The bot opens the queue panel: <b>collects ready troops</b> and <b>starts training</b> in free buildings.</p>
+      <ul class="ru">
+        <li><b>Проверять каждые</b> — интервал.</li>
+        <li><b>Пехота, Маги, Стрелки, Кавалерия, Летающие</b> — кнопки <b>Нет · Т1…Т5</b> в цветах игры: серый Т1, зелёный Т2, синий Т3, фиолетовый Т4, золотой Т5. У кавалерии Т1 — сборщики.</li>
+        <li>Количество — сколько предлагает игра. «Мгновенно» за самоцветы бот не нажимает. Готовыми считаются войска с красной точкой и полной полосой без таймера.</li>
+        <li><b>Титул «Старший надзиратель» перед обучением</b> (+10% к скорости) — бот встаёт в очередь на титул и обучает после его получения; если титул уже у вас (значок в строке статуса) — сразу. Нужна Общая метка <b>Дракон / Dragon</b> на флаге короля.</li>
+      </ul>
+      <ul class="en">
+        <li><b>Check every</b> — the interval.</li>
+        <li><b>Infantry, Magic, Marksmen, Cavalry, Flying</b> — <b>None · T1…T5</b> buttons in game colours: grey T1, green T2, blue T3, purple T4, gold T5. Cavalry T1 are gatherers.</li>
+        <li>Amount — what the game suggests. The bot never presses “Instant” for gems. Troops count as ready with a red dot and a full bar without a timer.</li>
+        <li><b>“Senior Overseer” title before training</b> (+10% speed) — the bot queues for the title and trains after getting it; if you already have it (status bar icon) — right away. Needs a Common mark <b>Dragon</b> on the King's flag.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="s-march"><span class="ru">4 · Марши</span><span class="en">4 · Marches</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_march"></figure>
+    <div>
+      <div class="kv ru">
+        <div class="k">Мана · Руда · Дерево · Золото · Самоцветы</div><div class="v">сколько легионов держать на каждом ресурсе (кнопки − / +)</div>
+        <div class="k">Всего слотов</div><div class="v">сколько легионов у вас может быть на карте одновременно (обычно 5). Сумма по ресурсам не должна его превышать</div>
+        <div class="k">Всего по плану</div><div class="v">сумма по ресурсам из числа слотов</div>
+        <div class="k">Шагов поиска</div><div class="v">сколько раз бот сдвигает карту в поисках ресурса, прежде чем отложить поиск. Больше — ищет дальше, но дольше</div>
+        <div class="k">Проверка маршей · каждые</div><div class="v">как часто бот проверяет марши, когда все слоты заняты или план выполнен</div>
+      </div>
+      <div class="kv en">
+        <div class="k">Mana · Ore · Wood · Gold · Gems</div><div class="v">how many legions to keep on each resource (− / + buttons)</div>
+        <div class="k">Total slots</div><div class="v">how many legions you can have on the map at once (usually 5). The sum of resources must not exceed it</div>
+        <div class="k">Plan total</div><div class="v">the sum of resources out of the slots</div>
+        <div class="k">Search steps</div><div class="v">how many times the bot moves the map looking for a resource before postponing. More — searches farther, but longer</div>
+        <div class="k">March check · every</div><div class="v">how often the bot checks marches when all slots are busy or the plan is met</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="s-build"><span class="ru">5 · Авто-строительство</span><span class="en">5 · Auto-build</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_build"></figure>
+    <div>
+      <p class="ru">Когда марши отправлены, бот раз в заданное время смотрит строителей в панели очередей. Свободный строитель строит то, что предлагает игра: новое здание или улучшение (по зелёной стрелке), и просит помощь альянса. Не хватает ресурсов — пропускает. Быстрые постройки ставит одну за другой. Самоцветы не тратит. Пора проверить марши — уступает им и продолжает потом.</p>
+      <p class="en">When marches are sent, the bot checks the builders in the queue panel at the set interval. A free builder builds what the game suggests: a new building or an upgrade (by the green arrow), and asks for alliance help. Not enough resources — skips. Quick builds are queued one after another. Gems are never spent. When marches are due, it yields to them and continues later.</p>
+      <ul class="ru"><li><b>Проверять каждые</b>, <b>Строителей</b> 1 или 2.</li><li><b>Титул «Архимаг»</b> (+10% к скорости постройки) перед стройкой.</li></ul>
+      <ul class="en"><li><b>Check every</b>, <b>Builders</b> 1 or 2.</li><li><b>“Archmage” title</b> (+10% build speed) before building.</li></ul>
+    </div>
+  </div>
+
+  <h3 id="s-res"><span class="ru">6 · Авто-исследования</span><span class="en">6 · Auto-research</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_res"></figure>
+    <div>
+      <p class="ru">Очереди исследований — в панели очередей сразу под строителями. Завершённые бот забирает, в свободную очередь ставит то, что предлагает игра (синяя кнопка в окне технологии), и жмёт зелёную <b>«Помощь альянса»</b> вверху — при двух очередях у каждой своя. Потом выходит «назад». Самоцветы не тратит.</p>
+      <p class="en">Research queues are in the queue panel right below the builders. The bot collects finished ones, puts what the game suggests into a free queue (the blue button in the technology window) and presses the green <b>“Alliance help”</b> at the top — with two queues each has its own. Then it goes “back”. Gems are never spent.</p>
+      <ul class="ru"><li><b>Проверять каждые</b>, <b>Исследований</b> 1 или 2.</li><li><b>Титул «Верховный учёный»</b> (+5% к скорости исследований) перед исследованиями.</li></ul>
+      <ul class="en"><li><b>Check every</b>, <b>Research</b> 1 or 2.</li><li><b>“Supreme Scholar” title</b> (+5% research speed) before research.</li></ul>
+      <div class="tip ru">Титул у советника один: если один блок ждёт или держит свой титул, другой работает без титула.</div>
+      <div class="tip en">There is one advisor title at a time: if one block awaits or holds its title, the other works without a title.</div>
+    </div>
+  </div>
+
+  <h3 id="s-ally"><span class="ru">7 · Альянс</span><span class="en">7 · Alliance</span></h3>
+  <div class="row rev">
+    <figure class="n" data-shot="card_ally"></figure>
+    <div>
+      <p class="ru">Пока все марши заняты, бот заходит в альянс. У каждого пункта — свой переключатель и интервал «каждые …».</p>
+      <p class="en">While all marches are busy, the bot visits the alliance. Each item has its own switch and “every …” interval.</p>
       <div class="kv ru">
         <div class="k">Помощь альянсу</div><div class="v">пока бот ждёт марши и при каждой их проверке</div>
         <div class="k">Подарки</div><div class="v">забрать все на вкладках с красной цифрой</div>
@@ -414,81 +590,49 @@ details.q>div{padding:0 14px 12px;color:#e3ddd0}
       </div>
     </div>
   </div>
-
-  <h3 id="s-train"><span class="ru">Обучение войск</span><span class="en">Troop training</span></h3>
-  <div class="row rev">
-    <figure class="n" data-shot="set_train"></figure>
-    <div>
-      <p class="ru">Пока марши заняты, бот открывает панель очередей: <b>забирает готовые войска</b> и <b>ставит обучение</b> в свободные здания.</p>
-      <p class="en">While marches are busy, the bot opens the queue panel: <b>collects ready troops</b> and <b>starts training</b> in free buildings.</p>
-      <ul class="ru">
-        <li><b>Обучать войска · каждые</b> — включить и задать интервал.</li>
-        <li><b>Пехота, Маги, Стрелки, Кавалерия, Летающие</b> — какой тир обучать или «не обучать». У кавалерии Т1 — сборщики.</li>
-        <li>Тир бот узнаёт по цвету значка: серый Т1, зелёный Т2, синий Т3, фиолетовый Т4, золотой Т5.</li>
-        <li>Количество — сколько предлагает игра. «Мгновенно» за самоцветы бот не нажимает.</li>
-        <li>Готовыми считаются войска с красной точкой и полной полосой без таймера.</li>
-      </ul>
-      <ul class="en">
-        <li><b>Train troops · every</b> — turn on and set the interval.</li>
-        <li><b>Infantry, Magic, Marksmen, Cavalry, Flying</b> — which tier to train, or “don't train”. Cavalry T1 are gatherers.</li>
-        <li>The bot tells the tier by the icon colour: grey T1, green T2, blue T3, purple T4, gold T5.</li>
-        <li>Amount — what the game suggests. The bot never presses “Instant” for gems.</li>
-        <li>Troops count as ready when they have a red dot and a full bar without a timer.</li>
-      </ul>
-    </div>
-  </div>
-
-  <h3 id="s-title"><span class="ru">Титул перед обучением</span><span class="en">Title before training</span></h3>
-  <div class="row rev">
-    <figure class="n" data-shot="set_title"></figure>
-    <div>
-      <p class="ru">Когда автообучение находит свободные очереди, бот сначала встаёт в очередь на титул <b>«Старший надзиратель»</b> (+10% к скорости обучения) и ставит обучение только после его получения — по времени из окна заявки. Если титул уже у вас (значок в строке статуса) — обучает сразу. Постоянно титул не держит.</p>
-      <p class="en">When auto-training finds free queues, the bot first queues for the <b>“Senior Overseer”</b> title (+10% training speed) and starts training only after getting it — at the time from the request window. If you already have the title (icon in the status bar), it trains right away. It doesn't keep the title permanently.</p>
-      <div class="warn ru">Нужна Общая метка <b>Дракон / Dragon</b> на флаге короля.</div>
-      <div class="warn en">You need a Common mark <b>Dragon</b> on the King's flag.</div>
-    </div>
-  </div>
 </section>
 
 <!-- 9 -->
 <section class="sec" id="how" data-ico="🐺" data-t="Как бот работает|How the bot works">
   <h2><span class="num">9</span><span class="ru">Как бот работает</span><span class="en">How the bot works</span></h2>
   <ol class="steps ru">
-    <li>Смотрит на столбец легионов справа и узнаёт их по портретам героев (L1, L2…).</li>
-    <li>Сравнивает с планом: какого ресурса не хватает.</li>
-    <li>Возвращается к своему городу, отдаляет карту и ищет нужный ресурс по спирали от города — сначала ближайшие точки.</li>
+    <li>На каждом шаге берёт самый важный блок, которому пора: перезапуск игры → капча → обход персонажей → обучение → марши → стройка → исследования → альянс.</li>
+    <li><b>Марши:</b> смотрит на столбец легионов справа, сравнивает с планом, возвращается к городу сразу в масштабе ресурсов и ищет нужный ресурс по спирали — сначала ближайшие точки.</li>
     <li>Пропускает точки, где уже кто-то собирает, и точки, куда уже ушли ваши марши.</li>
-    <li>Открывает точку → «Собрать» → выбирает свободный легион или создаёт новый → «Марш».</li>
+    <li>Открывает точку → «Собрать» → выбирает свободный легион или создаёт новый → «Марш» (проверяет, что марш ушёл).</li>
     <li>Запоминает, какой легион ушёл на какой ресурс. Когда легион вернулся — отправляет его снова.</li>
-    <li>Если все слоты заняты — помогает альянсу, обучает войска и ждёт следующую проверку маршей (время видно в журнале).</li>
+    <li>Когда все марши отправлены — обучение, стройка, исследования, альянс; потом ждёт следующую проверку (время видно на «Главной» и в журнале).</li>
+    <li><b>Всплывающие окна</b> (акции, реклама LDPlayer «Пополнение…») бот закрывает крестиком в правом верхнем углу, а если его нет — «назад».</li>
+    <li>Окна игры распознаёт <b>по картинкам и значкам</b>, а не по тексту — язык игры не важен.</li>
   </ol>
   <ol class="steps en">
-    <li>Looks at the legion column on the right and recognizes legions by hero portraits (L1, L2…).</li>
-    <li>Compares with the plan: which resource is missing.</li>
-    <li>Returns to your city, zooms the map out and searches for the resource in a spiral from the city — nearest spots first.</li>
+    <li>At each step it takes the most important block that is due: game restart → captcha → character rotation → training → marches → building → research → alliance.</li>
+    <li><b>Marches:</b> looks at the legion column on the right, compares with the plan, returns to the city straight at the resource zoom and searches for the resource in a spiral — nearest spots first.</li>
     <li>Skips spots someone is already gathering and spots your marches already went to.</li>
-    <li>Opens the spot → “Gather” → picks a free legion or creates a new one → “March”.</li>
+    <li>Opens the spot → “Gather” → picks a free legion or creates a new one → “March” (checks that the march left).</li>
     <li>Remembers which legion went to which resource. When a legion returns, sends it again.</li>
-    <li>If all slots are busy — helps the alliance, trains troops and waits for the next march check (the time is in the log).</li>
+    <li>When all marches are sent — training, building, research, alliance; then it waits for the next check (the time is on “Home” and in the log).</li>
+    <li><b>Popups</b> (offers, the LDPlayer “Top up…” ad) are closed with the cross in the top right corner, or with “back” if there is none.</li>
+    <li>Game windows are recognized <b>by pictures and icons</b>, not by text — the game language doesn't matter.</li>
   </ol>
 </section>
 
 <!-- 10 -->
-<section class="sec" id="multi" data-ico="🗂" data-t="Несколько эмуляторов|Several emulators">
+<section class="sec" id="multi" data-ico="🧩" data-t="Несколько эмуляторов|Several emulators">
   <h2><span class="num">10</span><span class="ru">Несколько эмуляторов</span><span class="en">Several emulators</span></h2>
   <ul class="ru">
     <li>Запустите нужные копии LDPlayer (LDMultiPlayer), в каждой — своя учётная запись игры и включённая отладка ADB.</li>
-    <li><span class="btnlike">Подключить</span> → в списке эмуляторов нажмите <b>«Открыть бота»</b> — появится вкладка с ботом для этого эмулятора.</li>
-    <li>У каждой вкладки свои настройки, память маршей и журнал. Зелёная точка на вкладке — бот работает.</li>
-    <li>Вкладку можно переименовать двойным щелчком по названию.</li>
+    <li>Вкладка «Эмулятор» → <span class="btnlike">Подключить</span> → в списке эмуляторов нажмите <b>«Открыть бота»</b> — вверху окна появится вкладка с ботом для этого эмулятора.</li>
+    <li>У каждой вкладки свои настройки, память маршей и журнал. Зелёная точка — бот работает; значок рядом — чем он занят сейчас (марш, ожидание, обучение, стройка, обход…).</li>
+    <li>Вкладку можно переименовать двойным щелчком по названию (переименуется и окно в LDMultiPlayer).</li>
     <li>Не меняйте, какой замок в какой копии LDPlayer, — иначе память маршей перепутается (тогда «Сбросить память» в этой вкладке).</li>
     <li>Каждый бот нагружает процессор: начните с 2–3 эмуляторов.</li>
   </ul>
   <ul class="en">
     <li>Start the LDPlayer copies you need (LDMultiPlayer), each with its own game account and ADB debugging on.</li>
-    <li><span class="btnlike">Connect</span> → in the emulator list press <b>“Open bot”</b> — a bot tab for that emulator appears.</li>
-    <li>Each tab has its own settings, march memory and log. A green dot on the tab — the bot is running.</li>
-    <li>Rename a tab by double-clicking its name.</li>
+    <li>The “Emulator” tab → <span class="btnlike">Connect</span> → in the emulator list press <b>“Open bot”</b> — a bot tab for that emulator appears at the top of the window.</li>
+    <li>Each tab has its own settings, march memory and log. A green dot — the bot is running; the icon next to it — what it is doing now (march, waiting, training, building, rotation…).</li>
+    <li>Rename a tab by double-clicking its name (the LDMultiPlayer window is renamed too).</li>
     <li>Don't swap which castle is in which LDPlayer copy — the march memory would get mixed up (then “Reset memory” in that tab).</li>
     <li>Each bot loads the CPU: start with 2–3 emulators.</li>
   </ul>
@@ -588,13 +732,13 @@ details.q>div{padding:0 14px 12px;color:#e3ddd0}
       <div>
         <ul class="ru">
           <li><b>Автоматическое обучение</b> — бот сам забирает готовые и ставит новые войска по тирам из своих настроек. <b>Повторять обучение каждые</b> — интервал.</li>
-          <li>Тир для каждого вида: <b>«как в боте»</b> — взять тир из настроек программы (⚙ Настройки → Обучение войск), либо выбрать другой.</li>
+          <li>Тир для каждого вида: <b>«как в боте»</b> — взять тир из настроек программы (вкладка «Задачи» → Обучение войск), либо выбрать другой.</li>
           <li><b>«Обучить войска»</b> — разово: заберёт готовые, поставит обучение во все свободные очереди, пришлёт отчёт и напоминание об окончании.</li>
           <li>Если бот уже работает — обучит при ближайшем ожидании маршей и продолжит по своему графику; иначе после обучения выключится.</li>
         </ul>
         <ul class="en">
           <li><b>Automatic training</b> — the bot collects ready troops and starts new ones by the tiers from its settings. <b>Repeat training every</b> — the interval.</li>
-          <li>Tier for each type: <b>“as in the bot”</b> — take it from the app settings (⚙ Settings → Troop training), or pick another.</li>
+          <li>Tier for each type: <b>“as in the bot”</b> — take it from the app settings (the “Tasks” tab → Troop training), or pick another.</li>
           <li><b>“Train troops”</b> — one-off: collects ready troops, fills all free queues, sends a report and a reminder when training ends.</li>
           <li>If the bot is already running, it trains at the next wait for marches and continues its schedule; otherwise it turns off after training.</li>
         </ul>
@@ -646,10 +790,13 @@ details.q>div{padding:0 14px 12px;color:#e3ddd0}
     <details class="q"><summary>«Окно ресурса не открылось»</summary><div>Бот кликнет ещё раз, затем пропустит точку. Если так постоянно — пришлите снимок («Сохранить снимок»).</div></details>
     <details class="q"><summary>Отправил лишний марш на ресурс</summary><div>Остановите бота, нажмите «Сбросить память» и запустите снова.</div></details>
     <details class="q"><summary>«Все слоты заняты», хотя легион свободен</summary><div>Подождите одну проверку (интервал «Проверка маршей»). Если повторяется — «Сбросить память».</div></details>
-    <details class="q"><summary>Капча — бот остановился</summary><div>Пройдите проверку в игре и нажмите «Старт». Чтобы узнавать о капче сразу — подключите Telegram в ⚙ Настройках.</div></details>
+    <details class="q"><summary>Капча — бот остановился</summary><div>Пройдите проверку в игре и нажмите «Старт». Чтобы узнавать о капче сразу — подключите Telegram в «Задачи» → Капча.</div></details>
     <details class="q"><summary>В аккаунт зашли с другого устройства</summary><div>Бот остановится. Когда аккаунт освободится — пульт → «🔄 Перезапустить игру».</div></details>
     <details class="q"><summary>«нет связи с сервером ключей»</summary><div>Проверьте интернет и перезапустите программу.</div></details>
     <details class="q"><summary>«ключ уже используется на другом компьютере»</summary><div>Ключ привязан к первому компьютеру. Для переноса напишите в поддержку.</div></details>
+    <details class="q"><summary>Висит окно акции или реклама LDPlayer</summary><div>Бот закрывает такие окна крестиком в правом верхнем углу. Если окно осталось — пришлите снимок всего окна эмулятора через «🐞 Баг репорт».</div></details>
+    <details class="q"><summary>Обход персонажей не переходит к следующему</summary><div>Проверьте, что у нужных персонажей в «Управление персонажами» стоит звезда справа (не больше 5). Бот переходит, когда у текущего всё сделано, или через 30 мин. Если окно не открылось — бот пришлёт снимок в Telegram.</div></details>
+    <details class="q"><summary>Игра закрылась сама</summary><div>Возможно, это автоматический перезапуск игры («Задачи» → «· Автоматический перезапуск игры»): бот закрывает игру и через заданное время открывает снова.</div></details>
     <details class="q"><summary>«Срок ключа истёк»</summary><div>Нужен новый ключ: «Сменить ключ» → введите новый ключ WLF-….</div></details>
   </div>
   <div class="en">
@@ -659,10 +806,13 @@ details.q>div{padding:0 14px 12px;color:#e3ddd0}
     <details class="q"><summary>“The resource window didn't open”</summary><div>The bot clicks again, then skips the spot. If it happens all the time, send a screenshot (“Save screenshot”).</div></details>
     <details class="q"><summary>Sent an extra march to a resource</summary><div>Stop the bot, press “Reset memory” and start again.</div></details>
     <details class="q"><summary>“All slots are busy” although a legion is free</summary><div>Wait for one check (the “March check” interval). If it repeats — “Reset memory”.</div></details>
-    <details class="q"><summary>Captcha — the bot stopped</summary><div>Pass the check in the game and press “Start”. To learn about captchas right away, connect Telegram in ⚙ Settings.</div></details>
+    <details class="q"><summary>Captcha — the bot stopped</summary><div>Pass the check in the game and press “Start”. To learn about captchas right away, connect Telegram in “Tasks” → Captcha.</div></details>
     <details class="q"><summary>Someone signed into the account from another device</summary><div>The bot stops. When the account is free — remote → “🔄 Restart game”.</div></details>
     <details class="q"><summary>“no connection to the key server”</summary><div>Check the internet and restart the app.</div></details>
     <details class="q"><summary>“key is already used on another computer”</summary><div>The key is bound to the first computer. To move it, contact support.</div></details>
+    <details class="q"><summary>An offer window or the LDPlayer ad stays open</summary><div>The bot closes such windows with the cross in the top right corner. If one stays, send a screenshot of the whole emulator window via “🐞 Bug report”.</div></details>
+    <details class="q"><summary>Character rotation doesn't move to the next one</summary><div>Make sure the characters have a star on the right in “Character management” (no more than 5). The bot moves on when the current one is done, or after 30 min. If a window didn't open, the bot sends a screenshot to Telegram.</div></details>
+    <details class="q"><summary>The game closed by itself</summary><div>It may be the automatic game restart (“Tasks” → “· Automatic game restart”): the bot closes the game and opens it again after the set time.</div></details>
     <details class="q"><summary>“Key expired”</summary><div>You need a new key: “Change key” → enter the new WLF-… key.</div></details>
   </div>
   <div class="tip ru">Журнал бота и «🐞 Баг репорт» — самый быстрый способ решить проблему: по ним видно, что бот видел и делал.</div>
