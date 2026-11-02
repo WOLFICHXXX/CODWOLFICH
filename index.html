@@ -16710,7 +16710,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
         if (!out.nick && !out.power && !out.merit) throw new Error("не похоже на окно профиля");
         return out;
     };
-    window.alOcrProfile = async (file) => { const img = await loadImg(file); return parseProfile(img, await words(img, { x0: 0, y0: 0, x1: Math.round(img.W * 0.55), y1: img.H })); };
+    window.alOcrProfile = async (file) => { const img = await loadImg(file); return parseProfile(img, await words(img, { x0: 0, y0: 0, x1: img.W > img.H * 1.3 ? Math.round(img.W * 0.55) : img.W, y1: img.H })); };
 
     /* ---------- марш ---------- */
     const HERO_TR = { "Пехота": "inf", "Магия": "mag", "Стрелок": "mrk", "Кавалерия": "cav", "Полководец": "lead" };
@@ -16743,7 +16743,7 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
                 // слева на той же строке — уровень (число), иначе это не подпись под портретом
                 const lvlW = ws.filter(x => /^\d{1,2}$/.test(x.t) && Math.abs(cy(x) - cy(lw)) < hh(lw) * 0.8 && x.x1 <= lw.x0 + 2 && lw.x0 - x.x1 < hh(lw) * 2.5).sort((a, b) => b.x1 - a.x1)[0];
                 if (!lvlW) return;
-                const uw = ws.filter(x => /ровен|level|^lv|^lvl/i.test(x.t) && Math.abs(cy(x) - cy(lw)) < hh(lw) * 1.2 && x.x1 <= lvlW.x0 + 2).sort((a, b) => b.x1 - a.x1)[0];
+                const uw = ws.filter(x => /ровен|level|^lv|^lvl/i.test(nz(x.t)) && Math.abs(cy(x) - cy(lvlW)) < hh(lw) * 0.7 && x.x1 <= lvlW.x0 + 2 && lvlW.x0 - x.x1 < hh(lw) * 2).sort((a, b) => b.x1 - a.x1)[0];
                 const lh = hh(lw);
                 found.push({ hero: best.i, d: best.d, lvl: +lvlW.t, lh, x0: uw ? uw.x0 : lvlW.x0 - lh * 4.9, x1: rw.x1, y1: Math.max(lw.y1, lvlW.y1) });
             });
@@ -16822,19 +16822,19 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     const captionAbove = async (img, fs) => {   // подпись «Уровень 60 Имя» прямо над рядом навыков: уровень и имя героя
         const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
         const ws = await words(img, { x0, y0: Math.max(0, Math.round(fs.y - fs.s * 1.3)), x1, y1: Math.round(fs.y - fs.s * 0.05) }, { prep: "white", sc: 3 });
-        const lvlM = /(?:ровен\S*|level|lvl?\.?)\s*(\d{1,2})\b/i.exec(ws.map(w => w.t).join(" ")) || /\b(\d{1,2})\b/.exec(ws.map(w => w.t).join(" "));
+        const lvlM = /(?:ров[её]н\S*|level|lvl?\.?)\s*(\d{1,2})\b/i.exec(ws.map(w => w.t).join(" ")) || /\b(\d{1,2})\b/.exec(ws.map(w => w.t).join(" "));
         let hero = -1, bd = 9; const HK = heroKeys();
         ws.forEach((w, i) => [nz(w.t), ws[i + 1] ? nz(w.t + ws[i + 1].t) : ""].forEach(t => {
             t = t.replace(/[^a-zа-я]/g, ""); if (t.length < 3 || /^(lv|lvl|level)/.test(t)) return;
             HK.forEach(({ i: hi, k }) => { const d = lev(t, k); if (d <= (k.length >= 6 ? 2 : 1) && d < bd) { bd = d; hero = hi; } });
         }));
-        const rawM = /(?:ровен\S*|level|lvl?\.?)\s*\d{1,2}\s+([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\- ]{2,20})/i.exec(ws.map(w => w.t).join(" "));
+        const rawM = /(?:ров[её]н\S*|level|lvl?\.?)\s*\d{1,2}\s+([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\- ]{2,20})/i.exec(ws.map(w => w.t).join(" "));
         return { lvl: lvlM ? Math.min(99, +lvlM[1]) : 0, hero, raw: rawM ? rawM[1].trim() : "" };
     };
     const levelAbove = async (img, fs) => {
         const x0 = Math.max(0, Math.round(fs.icons[0].x - fs.s)), x1 = Math.min(img.W, Math.round(fs.icons[fs.icons.length - 1].x + 2 * fs.s));
         const ws = await words(img, { x0, y0: Math.max(0, Math.round(fs.y - fs.s * 1.3)), x1, y1: Math.round(fs.y - fs.s * 0.05) }, { prep: "white", sc: 3 });
-        const t = ws.map(w => w.t).join(" "), m = /(?:ровен\S*|level|lvl?\.?)\s*(\d{1,2})\b/i.exec(t) || /\b(\d{1,2})\b/.exec(t);
+        const t = ws.map(w => w.t).join(" "), m = /(?:ров[её]н\S*|level|lvl?\.?)\s*(\d{1,2})\b/i.exec(t) || /\b(\d{1,2})\b/.exec(t);
         return m ? Math.min(99, +m[1]) : 0;
     };
     /* уровень навыка — белая цифра 1–5 в правом нижнем углу иконки. Распознаём сами: крупнейшее белое пятно,
@@ -17024,16 +17024,18 @@ window.addEventListener("wi18n",f);document.addEventListener("DOMContentLoaded",
     };
     window.alOcrMarch = async (file) => { const img = await loadImg(file); return parseMarch(img, await words(img, { x0: 0, y0: 0, x1: img.W, y1: img.H })); };
     // вставка из буфера: сами понимаем, что за окно (профиль — есть «Лорд»/«Заслуги»)
+    // экран целиком (альбомный): профиль — панель слева, справа город; вырезанное окно профиля (почти квадрат) — берём всё
+    const profWs = (img, all) => img.W > img.H * 1.3 ? all.filter(w => w.x1 < img.W * 0.6) : all;
     window.alOcrAuto = async (file) => {
         const img = await loadImg(file), all = await words(img, { x0: 0, y0: 0, x1: img.W, y1: img.H });
         const has = (re) => all.some(w => re.test(nz(w.t)));
         if (has(/(офицер|officer|^участники$|^members$)/) || (has(/^(глава|leader)$/) && has(/^(ранг|panr|paur|rank)$/))) return { kind: "rank", data: await window.alOcrRanks(file) };   // вкладка «Участники» альянса
-        const prof = has(/^(лорд|lord|заслуг|merit|фракци|faction|почест|honou?r)/), march = has(/(ровен|level|^lv\.?\d|^lvl|отряды|squads|troops|грузоподъ|дальност|load|range)/);
-        if (prof && !march) return { kind: "prof", data: await parseProfile(img, all.filter(w => w.x1 < img.W * 0.6)) };
+        const prof = has(/^(лорд|lord|заслуг|merit|фракци|faction|почест|honou?r)/), march = has(/(ров[её]н|level|^lv\.?\d|^lvl|отряды|squads|troops|грузоподъ|дальност|load|range)/);
+        if (prof && !march) return { kind: "prof", data: await parseProfile(img, profWs(img, all)) };
         if (march && !prof) return { kind: "march", data: await parseMarch(img, all) };
         if (prof && march) {   // оба признака: «Уровень N Имя» — точно марш, «Заслуги» + «Лорд» — точно профиль
             if (heroByWords(all).length) return { kind: "march", data: await parseMarch(img, all) };
-            if (has(/^(лорд|lord)/) && has(/^(заслуг|merit)/)) return { kind: "prof", data: await parseProfile(img, all.filter(w => w.x1 < img.W * 0.6)) };
+            if (has(/^(лорд|lord)/) && has(/^(заслуг|merit)/)) return { kind: "prof", data: await parseProfile(img, profWs(img, all)) };
         }
         try { const r = await window.alOcrRanks(file); if (r.some(e => e.rank === 4)) return { kind: "rank", data: r }; } catch (e) { /* не альянс */ }
         throw Object.assign(new Error("не понял, какое это окно"), { unknown: true });
